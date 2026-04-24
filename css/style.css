@@ -346,6 +346,39 @@ button { cursor: pointer; background: none; border: none; font: inherit; }
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   PAGE HERO (Unterseiten: Diagnostik, Training)
+   ═══════════════════════════════════════════════════════════════ */
+.section-page-hero {
+  background: var(--black);
+  padding: calc(var(--nav-h) + clamp(60px, 8vh, 100px)) var(--gutter) clamp(60px, 8vh, 100px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 50vh;
+}
+.page-hero-inner {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  width: 100%;
+}
+.page-hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(48px, 8vw, 100px);
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+  color: var(--white);
+  text-transform: uppercase;
+  margin: 12px 0 20px;
+}
+.page-hero-sub {
+  font-size: clamp(15px, 1.4vw, 18px);
+  font-weight: 300;
+  color: rgba(255,255,255,0.6);
+  max-width: 560px;
+  line-height: 1.7;
+}
+
+/* ═══════════════════════════════════════════════════════════════
    ABOUT ME
    ═══════════════════════════════════════════════════════════════ */
 .section-about {
@@ -690,7 +723,9 @@ button { cursor: pointer; background: none; border: none; font: inherit; }
    LEGAL PAGES (Impressum, Datenschutz)
    ═══════════════════════════════════════════════════════════════ */
 .section-legal {
+  background: var(--black);
   padding: clamp(120px, 16vh, 180px) var(--gutter) clamp(80px, 10vh, 120px);
+  min-height: 100vh;
 }
 .legal-inner {
   max-width: 720px;
