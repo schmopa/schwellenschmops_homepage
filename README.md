@@ -2,96 +2,89 @@
 
 Personal homepage for Paul / Schwellenschmops. Static HTML/CSS/JS, no build step.
 
+Live: [schwellenschmops.at](https://schwellenschmops.at)
+
 ---
 
-## Lokaler Start
+## Local development
 
 ```bash
 npx serve . -p 3456
 # → http://localhost:3456
 ```
 
-Oder direkt `index.html` im Browser öffnen (ohne Server fehlen evtl. Font-Requests bei CSP).
+Or open `index.html` directly in the browser (Google Fonts may not load without a server).
 
 ---
 
-## Dateien
+## File structure
 
 ```
 homepage_v2/
-├── index.html          Einzige HTML-Seite (alle Sektionen als Anker)
+├── index.html            Main page (all sections as anchors)
+├── impressum.html        Imprint (Austrian ECG)
+├── datenschutz.html      Privacy policy (GDPR)
 ├── css/
-│   └── style.css       Komplettes Styling (Variablen, Layout, Responsive)
+│   └── style.css         Complete styling (variables, layout, responsive)
 ├── js/
-│   └── main.js         Sticky Header, Mobile-Menü, Scroll-Reveal, Karussell, Blog-Akkordeon
-├── images/
-│   ├── hero.JPEG       Hero-Hintergrundbild (Gletscher)
-│   ├── me2.JPEG        Karussell Slide 1 (Portrait Bergen)
-│   ├── swim.JPEG       Karussell Slide 2 (Triathlon Schwimmen)
-│   ├── run.JPEG        Karussell Slide 3 (Laufen Rennen)
-│   ├── me.JPEG         Derzeit nicht im Einsatz
-│   └── run_hero.png    Derzeit nicht im Einsatz
-├── CONTENT.md          Inhaltsdatei — hier Texte/Links eintragen
-└── KONZEPT.md          Ursprüngliches Design-Konzept & Analyse
+│   └── main.js           Sticky header, mobile menu, scroll-reveal, carousel, blog accordion
+└── images/
+    ├── hero2.jpg         Hero background (Norway, Lovatnet)
+    ├── me2.JPEG          Carousel slide 1 (portrait Bergen)
+    ├── swim.JPEG         Carousel slide 2 (triathlon swimming)
+    └── run.JPEG          Carousel slide 3 (running race)
 ```
 
 ---
 
-## Design-System
+## Design system
 
-| Token | Wert |
+| Token | Value |
 |---|---|
 | `--black` | `#0a0a0a` |
 | `--white` | `#f5f4f0` |
-| `--accent` | `#ffe55c` (Neongelb) |
+| `--accent` | `#ffe55c` (neon yellow) |
 | `--gray` | `#888888` |
-| Display-Font | Bebas Neue |
-| Body-Font | Barlow / Barlow Condensed |
+| Display font | Bebas Neue |
+| Body font | Barlow / Barlow Condensed |
 
-Alle Farben und Abstände als CSS-Custom-Properties in `:root` — nur dort ändern.
+All colors and spacing as CSS custom properties in `:root` — only change there.
 
 ---
 
-## Inhalte pflegen
+## Content management
 
-### Neues Blog-Beitrag hinzufügen
+### Add a new blog post
 
-Einen `<article class="blog-card">` Block im Blog-Grid (`.blog-grid`) kopieren.  
-Für aufklappbaren Inhalt: `<button class="blog-toggle">` + `<div class="blog-card-body">` einbauen — das JS übernimmt den Rest automatisch.
+Copy an `<article class="blog-card">` block inside `.blog-grid`.  
+For expandable content: add `<button class="blog-toggle">` + `<div class="blog-card-body">` — JS handles the rest automatically.
 
-### Karussell-Bild tauschen
+### Swap carousel image
 
-Bild in `/images/` ablegen, dann im `about-carousel` Block den `src`-Pfad anpassen.  
-Neue Slides: `<div class="carousel-slide">` hinzufügen und einen weiteren `.dot`-Button eintragen.
+Place image in `/images/`, then update the `src` path in the `about-carousel` block.  
+New slides: add `<div class="carousel-slide">` and a matching `.dot` button.
 
-### Social-Links (Hero)
+### Social links (hero)
 
-Im `<div class="hero-social">` die auskommentierten Links eintragen.  
-SVG-Icons für Instagram/YouTube/etc. direkt als Inline-SVG einfügen.  
-CSS-Styles (`.hero-social a`) sind bereits vorhanden.
+Add links inside `<div class="hero-social">`.  
+Insert SVG icons for Instagram/YouTube/etc. as inline SVG.  
+CSS styles (`.hero-social a`) are already in place.
 
 ---
 
 ## Deployment
 
-Empfohlen: **Netlify Drop** (netlify.com/drop — Ordner reinziehen, fertig).
+Hosted on **GitHub Pages** — branch `main`, root folder.  
+Every `git push` to `main` triggers an automatic redeploy (usually within 1–2 minutes).
 
-### Kontaktformular aktivieren (Netlify Forms)
+### Contact form
 
-1. `<form ... name="contact" method="POST" action="#contact">` ersetzen durch:
-   ```html
-   <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
-     <input type="hidden" name="form-name" value="contact" />
-   ```
-2. Nach dem Deploy landen Nachrichten automatisch im Netlify-Dashboard.
+Powered by **Formspree** (`https://formspree.io/f/xyklogpy`).  
+Submissions are forwarded to `schmopa12@gmail.com`.
 
 ---
 
-## Offene Punkte
+## Open items
 
-- [ ] Social-Links (Instagram, YouTube, …) eintragen — Hero + Footer
-- [ ] Impressum-Seite bauen (`impressum.html`) und Link im Footer setzen
-- [ ] Datenschutz-Seite bauen (`datenschutz.html`) und Link im Footer setzen
-- [ ] Kontaktformular mit Netlify Forms verbinden (siehe oben)
-- [ ] Hero-Bild ersetzen, sobald ein besseres Foto vorhanden ist
-- [ ] Favicon einbinden (`<link rel="icon" href="images/favicon.ico">`)
+- [ ] Social links (Instagram, YouTube, …) — hero + footer
+- [ ] Favicon (`<link rel="icon" href="images/favicon.ico">`)
