@@ -21,16 +21,19 @@ Or open `index.html` directly in the browser (Google Fonts may not load without 
 
 ```
 homepage_v2/
-├── index.html            Main page (all sections as anchors)
+├── index.html            Main page (Hero, Leistungen, About, Blog, Kontakt)
+├── diagnostik.html       Subpage: Testprotokolle (Laktat, CP, Maximalkraft)
+├── training.html         Subpage: Trainingspläne (Ausdauer, Kraft, Kombination)
 ├── impressum.html        Imprint (Austrian ECG)
-├── datenschutz.html      Privacy policy (GDPR)
+├── datenschutz.html      Privacy policy (GDPR/DSGVO)
 ├── css/
 │   └── style.css         Complete styling (variables, layout, responsive)
 ├── js/
-│   └── main.js           Sticky header, mobile menu, scroll-reveal, carousel, blog accordion
+│   └── main.js           Sticky header, mobile menu, scroll-reveal, carousel,
+│                         blog accordion, contact form validation + honeypot
 └── images/
     ├── hero2.jpg         Hero background (Norway, Lovatnet)
-    ├── me2.JPEG          Carousel slide 1 (portrait Bergen)
+    ├── me2.JPEG          Carousel slide 1 (portrait)
     ├── swim.JPEG         Carousel slide 2 (triathlon swimming)
     └── run.JPEG          Carousel slide 3 (running race)
 ```
@@ -56,8 +59,13 @@ All colors and spacing as CSS custom properties in `:root` — only change there
 
 ### Add a new blog post
 
-Copy an `<article class="blog-card">` block inside `.blog-grid`.  
+Copy an `<article class="blog-card">` block inside `.blog-grid` in `index.html`.  
 For expandable content: add `<button class="blog-toggle">` + `<div class="blog-card-body">` — JS handles the rest automatically.
+
+### Add a new Diagnostik/Training card
+
+Copy an `<article class="service-card">` block inside `.services-grid` in `diagnostik.html` or `training.html`.  
+Use `.card-sub` for section labels (WAS IST ES? / WAS BEKOMMST DU? / FÜR WEN?) and `.card-desc` for text.
 
 ### Swap carousel image
 
