@@ -307,13 +307,15 @@
             </div>
             <div class="form-group">
               <label for="email">E-MAIL</label>
-              <input type="email" id="email" name="email" placeholder="deine@email.de" required />
+              <input type="email" id="email" name="email" placeholder="deine@email.de" required aria-describedby="email-error" />
+              <span id="email-error" class="field-error" role="alert"></span>
             </div>
           </div>
           <div class="form-group">
             <label for="message">NACHRICHT</label>
             <textarea id="message" name="message" rows="5" placeholder="Wer bist du, was sind deine Ziele?" required></textarea>
           </div>
+          <input type="text" name="_gotcha" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true" />
           <button type="submit" class="btn btn-accent">ABSCHICKEN →</button>
         </form>
       </div>

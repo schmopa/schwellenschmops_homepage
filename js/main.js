@@ -126,6 +126,37 @@
     startAuto();
   }
 
+  /* ── Contact form: E-Mail-Validierung & Honeypot ──────────── */
+  const contactForm = document.querySelector('.contact-form');
+  if (contactForm) {
+    const emailInput = document.getElementById('email');
+    const emailError = document.getElementById('email-error');
+    const emailRe    = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+    function validateEmail() {
+      const val = emailInput.value.trim();
+      if (val && !emailRe.test(val)) {
+        emailInput.classList.add('is-invalid');
+        emailError.textContent = 'Bitte eine gültige E-Mail-Adresse eingeben.';
+        return false;
+      }
+      emailInput.classList.remove('is-invalid');
+      emailError.textContent = '';
+      return true;
+    }
+
+    emailInput.addEventListener('blur', validateEmail);
+    emailInput.addEventListener('input', () => {
+      if (emailInput.classList.contains('is-invalid')) validateEmail();
+    });
+
+    contactForm.addEventListener('submit', (e) => {
+      const hp = contactForm.querySelector('.hp-field');
+      if (hp && hp.value) { e.preventDefault(); return; }
+      if (!validateEmail()) e.preventDefault();
+    });
+  }
+
   /* ── Smooth anchor scroll ────────────────────────────────── */
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
