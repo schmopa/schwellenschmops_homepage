@@ -969,6 +969,21 @@ button { cursor: pointer; background: none; border: none; font: inherit; }
 }
 .blog-card-cta:hover { gap: 14px; }
 
+/* ─── Disclaimer bar ────────────────────────────────────────── */
+.disclaimer-bar {
+  background: var(--dark);
+  padding: clamp(20px, 3vh, 32px) var(--gutter);
+  text-align: center;
+}
+.disclaimer-bar p {
+  max-width: 720px;
+  margin: 0 auto;
+  font-size: clamp(14px, 1.2vw, 16px);
+  font-weight: 300;
+  color: rgba(255,255,255,0.6);
+  line-height: 1.75;
+}
+
 /* ═══════════════════════════════════════════════════════════════
    RESPONSIVE
    ═══════════════════════════════════════════════════════════════ */
