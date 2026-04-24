@@ -275,7 +275,7 @@ button { cursor: pointer; background: none; border: none; font: inherit; }
   width: 100%;
   max-width: var(--max-w);
   margin: 0 auto;
-  padding: 0 var(--gutter) clamp(60px, 8vh, 100px) 0;
+  padding: 0 var(--gutter) clamp(110px, 14vh, 140px) 0;
   text-align: left;
 }
 
