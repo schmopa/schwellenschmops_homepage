@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SCHWELLENSCHMOPS — Enjoy the Sport. Trust the Plan.</title>
+  <meta name="description" content="Paul — Datenanalyst, Maschinenbauer und leidenschaftlicher Sportler. Leistungsdiagnostik, Trainingsplanung & Coaching." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════ HEADER ═══════════════════════════════ -->
+  <header id="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo" aria-label="SCHWELLENSCHMOPS — Startseite">
+        SCHWELLEN<span class="logo-accent">SCHMOPS</span>
+      </a>
+
+      <nav class="main-nav" id="main-nav" aria-label="Hauptnavigation">
+        <ul>
+          <li><a href="#services">DIAGNOSTIK</a></li>
+          <li><a href="#training">TRAINING</a></li>
+          <li><a href="#aboutme">ABOUT ME</a></li>
+          <li><a href="#blog">BLOG</a></li>
+          <li><a href="#contact">KONTAKT</a></li>
+        </ul>
+        <a class="nav-user-icon" href="https://trainingslab-schwellenschmops.vercel.app/login" target="_blank" rel="noopener" aria-label="TrainingsLab Login">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+          </svg>
+        </a>
+      </nav>
+
+      <button class="hamburger" id="hamburger" aria-label="Menü öffnen" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
+    <section id="hero" aria-label="Hero">
+      <div class="hero-bg">
+        <img src="images/hero.JPEG" alt="" class="hero-img" />
+      </div>
+      <div class="hero-overlay"></div>
+      <div class="hero-grain"></div>
+
+      <div class="hero-social">
+        <!-- Social-Links kommen sobald URLs feststehen -->
+      </div>
+
+      <div class="hero-content">
+        <h1 class="hero-headline">
+          <span class="line-1">ENJOY THE SPORT.</span>
+          <span class="line-2">TRUST THE PLAN.</span>
+        </h1>
+      </div>
+
+      <div class="hero-scroll" aria-hidden="true">
+        <span class="scroll-label">SCROLL</span>
+        <div class="scroll-line"></div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════ LEISTUNGEN ══════════════════════════ -->
+    <section id="services" class="section-services reveal-section">
+      <div class="services-header">
+        <span class="section-label light">WAS ICH ANBIETE</span>
+        <h2 class="services-title">MEINE LEISTUNGEN</h2>
+      </div>
+
+      <div class="services-grid">
+
+        <article class="service-card" data-index="01">
+          <div class="card-inner">
+            <span class="card-number">01</span>
+            <h3 class="card-title">KENNENLERN&shy;GESPRÄCH</h3>
+            <p class="card-sub">Kostenlos</p>
+            <p class="card-desc">
+              Kein Pitch, kein Verkaufsgespräch – einfach reden. Wir schauen gemeinsam
+              wo du stehst, was du willst und ob wir zusammenpassen. Kostenlos und unverbindlich.
+            </p>
+            <a href="#contact" class="card-cta">JETZT ANFRAGEN <span>→</span></a>
+          </div>
+        </article>
+
+        <article class="service-card" data-index="02">
+          <div class="card-inner">
+            <span class="card-number">02</span>
+            <h3 class="card-title">LEISTUNGS&shy;DIAGNOSTIK</h3>
+            <p class="card-desc">
+              Mit erprobten Testprotokollen – Laktat, Critical Power, Maximalkraft und mehr –
+              stellen wir fest, wo du wirklich stehst. Kein Raten, keine Annahmen –
+              nur Zahlen, die dir weiterhelfen.
+            </p>
+            <a href="#contact" class="card-cta">MEHR ERFAHREN <span>→</span></a>
+          </div>
+        </article>
+
+        <article class="service-card" data-index="03" id="training">
+          <div class="card-inner">
+            <span class="card-number">03</span>
+            <h3 class="card-title">TRAININGS&shy;PLANUNG</h3>
+            <p class="card-sub">inkl. TrainingsLab</p>
+            <p class="card-desc">
+              Mit TrainingsLab, meinem selbst entwickelten Tool, siehst du dein sportliches
+              Profil, deinen Plan – und vor allem warum du jede einzelne Einheit machst.
+              Kein blindes Abarbeiten, sondern Training mit Verständnis.
+            </p>
+            <a href="https://trainingslab-schwellenschmops.vercel.app/login" target="_blank" rel="noopener" class="card-cta">ZUM TRAININGSLAB <span>↗</span></a>
+          </div>
+        </article>
+
+        <article class="service-card" data-index="04">
+          <div class="card-inner">
+            <span class="card-number">04</span>
+            <h3 class="card-title">INDIVIDUELLES COACHING</h3>
+            <p class="card-desc">
+              Wiederkehrende Diagnostiken, aktive Trainingssteuerung und Ernährungsempfehlungen.
+              Noch am Anfang – aber mit vollem Einsatz dabei.
+            </p>
+            <a href="#contact" class="card-cta">KONTAKT AUFNEHMEN <span>→</span></a>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ════════════════════════════ ABOUT ME ════════════════════════════ -->
+    <section id="aboutme" class="section-about reveal-section">
+      <div class="about-inner">
+
+        <div class="about-carousel" id="about-carousel">
+          <div class="carousel-slide active">
+            <img src="images/me2.JPEG" alt="Paul — Schwellenschmops" loading="lazy" />
+          </div>
+          <div class="carousel-slide">
+            <img src="images/swim.JPEG" alt="Paul beim Schwimmen" loading="lazy" />
+          </div>
+          <div class="carousel-slide">
+            <img src="images/run.JPEG" alt="Paul beim Laufen" loading="lazy" />
+          </div>
+          <div class="carousel-dots">
+            <button class="dot active" data-index="0" aria-label="Bild 1"></button>
+            <button class="dot" data-index="1" aria-label="Bild 2"></button>
+            <button class="dot" data-index="2" aria-label="Bild 3"></button>
+          </div>
+        </div>
+
+        <div class="about-text">
+          <span class="section-label">WHO I AM</span>
+          <h2 class="about-title">SPORT IST MEINE LEIDENSCHAFT.<br>DATENANALYSE MEIN BERUF.</h2>
+          <p class="about-intro">
+            Ich bin Paul – Datenanalyst, studierter Maschinenbauer und leidenschaftlicher Sportler.
+            Jahrelang unterklassig Fußball gespielt, Krafttraining von Grund auf gelernt und aktuell
+            in der Ausbildung zum Strength &amp; Conditioning Coach. Schwellenschmops ist noch am Anfang –
+            und genau das macht es spannend. Ich freue mich auf echte Gespräche, neue Einblicke und
+            gemeinsam herauszufinden, was für dich funktioniert.
+          </p>
+
+          <div class="about-mission">
+            <h3 class="mission-title">LET'S TALK ABOUT SPORT</h3>
+            <p>
+              Ich rede gerne über Sport – egal woher du kommst und was dein Ziel ist.
+              Gemeinsam finden wir heraus, was wirklich zu dir passt. Manchmal reicht eine
+              Trainingsempfehlung, manchmal stellen wir den IST-Stand mit einer Diagnostik fest.
+              Hauptsache du hast Freude an der Sache – und deine Ziele erreichst du dabei ganz nebenbei.
+            </p>
+          </div>
+
+          <a href="#contact" class="btn btn-outline">GESPRÄCH STARTEN</a>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ CTA-BANNER ═══════════════════════════ -->
+    <section class="section-cta reveal-section">
+      <div class="cta-inner">
+        <div class="cta-text">
+          <h2 class="cta-title">BEREIT LOSZULEGEN?</h2>
+          <p>Starte mit einem kostenlosen Kennenlerngespräch. Kein Pitch, kein Druck — einfach reden.</p>
+        </div>
+        <a href="#contact" class="btn btn-dark">JETZT ANFRAGEN</a>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ BLOG ═══════════════════════════ -->
+    <section id="blog" class="section-blog reveal-section">
+      <div class="blog-inner">
+        <div class="blog-header">
+          <span class="section-label light">NEUIGKEITEN</span>
+          <h2 class="blog-title">BLOG</h2>
+        </div>
+
+        <div class="blog-grid">
+
+          <!-- Featured: TrainingsLab -->
+          <article class="blog-card blog-card--featured">
+            <div class="blog-card-tag">TOOL</div>
+            <span class="blog-date">April 2026</span>
+            <h3 class="blog-card-title">TrainingsLab — das Zonen-Chaos war nur der Anfang</h3>
+            <p class="blog-card-desc">
+              Der Auslöser war das Zonen-Chaos. Garmin-Herzfrequenzzonen, Watt-Zonen nach Coggan,
+              Laktat-Schwellen aus dem Test — drei Systeme, keine Verbindung. Irgendwie war ich
+              immer "irgendwo im Mittelfeld" unterwegs. Nicht wirklich locker, nicht wirklich hart.
+            </p>
+            <button class="blog-toggle" aria-expanded="false">
+              WEITERLESEN <span class="blog-toggle-icon">+</span>
+            </button>
+            <div class="blog-card-body">
+              <p class="blog-card-label">DIE EIGENTLICHE FRAGE</p>
+              <p class="blog-card-desc">Aber das eigentliche Problem lag noch tiefer: Selbst wenn ich die Zone kannte — wann soll ich was trainieren? Strukturiertes Training heißt nicht einfach mehr machen. Es heißt zur richtigen Zeit das Richtige tun. Du weißt wo du hin willst, und baust die Wochen davor so auf, dass du am Wettkampftag peakst — nicht drei Wochen davor.</p>
+
+              <p class="blog-card-label">WAS "FIT" FÜR MICH BEDEUTET</p>
+              <p class="blog-card-desc">Für mich gehören Ausdauer und Kraft zusammen — das ist meine Definition von fit. Nur Ausdauer hat Grenzen. Nur Kraft auch. Aber beide miteinander zu planen ist alles andere als einfach. Wann kommt das Krafttraining, wann die intensiven Ausdauerblöcke? Für diese Fragen gibt es keine pauschale Antwort — nur eine individuelle.</p>
+
+              <p class="blog-card-label">SYSTEMUNABHÄNGIG — DEIN PROFIL, DEIN GERÄT</p>
+              <p class="blog-card-desc">TrainingsLab ist keine App die nur mit Garmin funktioniert. Die Idee: eine Plattform die dein sportliches Profil zusammenführt — egal ob Garmin, Polar, Whoop oder was auch immer du nutzt. Du siehst wo du stehst, wo dein Verbesserungspotential liegt, und bekommst auf Basis davon eine Planung — in Ausdauer und Kraft, smart miteinander gekoppelt.</p>
+
+              <p class="blog-card-label">DER ECHTE UNTERSCHIED</p>
+              <p class="blog-card-desc">Viele Apps erstellen mit KI einen Trainingsplan. Der Unterschied: die meisten kennen dich nicht wirklich. Schwellenschmops — die KI im Hintergrund — kennt deine Leistungsgrenzen aus der Diagnostik und weiß aufgrund deiner Trainingshistorie wie erschöpft du gerade bist. Kombiniert mit meiner Philosophie wie Ausdauer und Kraft zusammen periodisiert werden, entsteht kein generischer Plan — <em>sondern deiner.</em></p>
+
+              <p class="blog-card-label">EIN EHRLICHER HINWEIS</p>
+              <p class="blog-card-desc">Ich arbeite selbst viel mit KI — auch dieser Beitrag ist KI-unterstützt entstanden. Mein Ziel dabei ist immer dasselbe: KI für das nutzen was enorm viel Zeit kostet, damit ich mich auf das konzentrieren kann was zählt — das Individuum verstehen und einen Plan erarbeiten der wirklich funktioniert.</p>
+
+              <a href="https://trainingslab-schwellenschmops.vercel.app/login" target="_blank" rel="noopener" class="blog-card-cta">
+                ZUM TRAININGSLAB <span>↗</span>
+              </a>
+            </div>
+          </article>
+
+          <!-- Podcast Empfehlungen -->
+          <article class="blog-card">
+            <div class="blog-card-tag">EMPFEHLUNG</div>
+            <span class="blog-date">April 2026</span>
+            <h3 class="blog-card-title">Meine Podcast-Empfehlungen für den Long Run</h3>
+            <p class="blog-card-desc">
+              Hier gehen die Geschmäcke auseinander — aber vielleicht ist auch was für dich dabei.
+            </p>
+            <button class="blog-toggle" aria-expanded="false">
+              WEITERLESEN <span class="blog-toggle-icon">+</span>
+            </button>
+            <div class="blog-card-body">
+              <p class="blog-card-label">SCYENCE</p>
+              <p class="blog-card-desc">Sportwissenschaft für Radfahrer und Triathleten. Wer wissen will warum Zone 2 wirklich funktioniert, ist hier richtig.</p>
+
+              <p class="blog-card-label">TRIMAG</p>
+              <p class="blog-card-desc">Das Triathlon Magazin als Podcast. Race-Berichte, Athleteninterviews, Equipment-Talk — gut für lange Einheiten.</p>
+
+              <p class="blog-card-label">KICKASS RADIO</p>
+              <p class="blog-card-desc">Laura Philipps Triathlon-Podcast. Tiefer Einblick in den Profi-Sport mit sympathischen Hosts, auf die ich viel halte — und man merkt das bei jedem Gespräch.</p>
+
+              <p class="blog-card-label">FINANZFLUSS</p>
+              <p class="blog-card-desc">ETFs, Altersvorsorge, passives Einkommen. Klingt nach Gegenteil von Sport — passt aber perfekt wenn man 90 Minuten die Beine dreht und nebenbei Kapital aufbaut.</p>
+
+              <p class="blog-card-label">PACE — AUSDAUERPODCAST</p>
+              <p class="blog-card-desc">Für Läufer und Triathleten die wissen wollen wie man weiter, schneller oder gesünder läuft. Praxisnah, gut verständlich.</p>
+
+              <p class="blog-card-label">ZEIT VERBRECHEN</p>
+              <p class="blog-card-desc">True Crime vom Zeit Magazin. Journalistisch, spannend, manchmal erschreckend real. Wenn der Long Run lang genug ist.</p>
+
+              <p class="blog-card-label">ERKLÄR MIR DIE WELT</p>
+              <p class="blog-card-desc">Weltpolitik, Wirtschaft, Gesellschaft — verständlich erklärt. Gut investierte Zeit auf dem Rad.</p>
+
+              <p class="blog-card-label">GEMISCHTES HACK</p>
+              <p class="blog-card-desc">Felix Lobrecht und Tommi Schmitt. Viel Quatsch, manchmal überraschend tief. Perfekt für die Regenerationseinheit.</p>
+            </div>
+          </article>
+
+          <!-- Placeholder -->
+          <article class="blog-card blog-card--placeholder">
+            <div class="blog-card-tag">BALD</div>
+            <span class="blog-date">Demnächst</span>
+            <h3 class="blog-card-title">Nächster Beitrag folgt</h3>
+            <p class="blog-card-desc">
+              Themen rund um Training, Diagnostik und Sport — coming soon.
+            </p>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ KONTAKT ═══════════════════════════ -->
+    <section id="contact" class="section-contact reveal-section">
+      <div class="contact-inner">
+        <span class="section-label light">GET IN TOUCH</span>
+        <h2 class="contact-title">LASS UNS REDEN</h2>
+        <p class="contact-sub">
+          Schreib mir kurz wer du bist und was du vorhast — ich melde mich.
+        </p>
+
+        <form class="contact-form" name="contact" method="POST" action="#contact">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">NAME</label>
+              <input type="text" id="name" name="name" placeholder="Dein Name" required />
+            </div>
+            <div class="form-group">
+              <label for="email">E-MAIL</label>
+              <input type="email" id="email" name="email" placeholder="deine@email.de" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="message">NACHRICHT</label>
+            <textarea id="message" name="message" rows="5" placeholder="Wer bist du, was sind deine Ziele?" required></textarea>
+          </div>
+          <button type="submit" class="btn btn-accent">ABSCHICKEN →</button>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════ FOOTER ═══════════════════════════════ -->
+  <footer id="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        SCHWELLEN<span class="logo-accent">SCHMOPS</span>
+      </div>
+
+      <nav class="footer-nav" aria-label="Footer Navigation">
+        <a href="#">Impressum</a>
+        <a href="#">Datenschutz</a>
+        <a href="#contact">Kontakt</a>
+        <a href="https://trainingslab-schwellenschmops.vercel.app/login" target="_blank" rel="noopener">Login</a>
+      </nav>
+
+      <p class="footer-copy">© 2026 Schwellenschmops · Paul</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

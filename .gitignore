@@ -1,0 +1,11 @@
+# Claude / Tools
+.claude/
+.playwright-mcp/
+
+# Referenz-Screenshots
+scyence_full.png
+scyence_hero.png
+
+# OS
+.DS_Store
+Thumbs.db
