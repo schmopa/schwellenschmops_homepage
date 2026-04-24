@@ -1012,11 +1012,16 @@ button { cursor: pointer; background: none; border: none; font: inherit; }
 }
 
 @media (max-width: 640px) {
+  :root { --nav-h: 60px; }
+
+  .logo { font-size: 28px; }
+
   .hamburger { display: flex; }
 
   .main-nav {
     position: fixed;
     inset: 0;
+    top: var(--nav-h);
     background: rgba(10,10,10,0.98);
     backdrop-filter: blur(16px);
     flex-direction: column;
