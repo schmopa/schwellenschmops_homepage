@@ -115,10 +115,12 @@
 - [ ] Logo, rechtliche Links, Socials
 
 ### Phase 9 — Polish & Animationen
-- [ ] Fade-in beim Scrollen
-- [ ] Hover-States
-- [ ] Mobile Responsiveness
-- [ ] Performance-Optimierung
+- [x] Fade-in beim Scrollen (mit Progressive-Enhancement-Fallback,
+      siehe §8, 2026-09-07)
+- [x] Hover-States (Service-Cards, Buttons, Nav-Links)
+- [x] Mobile Responsiveness (durchgetestet inkl. zweier Mobile-Bugfixes,
+      siehe §8, 2026-09-07)
+- [x] Performance-Optimierung (Bildkomprimierung, siehe §8, 2026-09-07)
 
 ---
 
@@ -259,3 +261,49 @@ Platzhalter-Werte statt Pauls Bike-Zahlen).
       Idee "automatisch abgeleitete Intervallformen". Lebt auf/verlinkt von
       `training.html` — zweiter bewusster Zugang neben der Diagnostik-Seite
       (Diagnostik = "wird erklärt", Training = "wird gebraucht").
+
+---
+
+## 8. Homepage-Optimierung & Bugfixes (2026-09-07)
+
+Nach dem CP-Rechner-Launch (§7) wurde die gesamte Seite technisch
+durchoptimiert und zwei Mobile-Bugs gefunden und behoben.
+
+### Performance
+- Aktiv genutzte Bilder auf WebP umgestellt und sinnvoll verkleinert:
+  ~4.9 MB → ~680 KB (−86 %) bei hero3/me2/run/swim. `width`/`height` an
+  allen `<img>` ergänzt gegen Layout-Shift (CLS).
+- Unreferenzierte alte Originaldateien entfernt (weiterhin ungenutzt im
+  Repo: `hero.JPEG`, `hero2.jpg`, `me.JPEG` — bewusst nicht angerührt,
+  falls für spätere Inhalte gebraucht).
+
+### SEO & Social
+- Favicon (S-Monogramm, schwarz/Akzentgelb) als `.ico` + PNG-Set +
+  Apple-Touch-Icon + `manifest.json` (inkl. `theme-color`).
+- Open-Graph-/Twitter-Card-Tags auf allen 4 Content-Seiten (vorher
+  komplett gefehlt → keine Vorschau beim Teilen). Eigenes
+  1200×630-Social-Preview-Bild (`images/og-image.jpg`).
+
+### Analytics
+- Cloudflare Web Analytics eingebunden (cookie-los, kein
+  Consent-Banner nötig) — Dashboard unter Cloudflare
+  "Analytics & Logs → Web Analytics" für `schwellenschmops.at`.
+
+### Bugfixes (von Paul auf iPhone Safari gemeldet)
+- **Weißer Rand am Seitenende beim Überscrollen** (iOS-Rubber-Band-
+  Bounce): `<html>` hatte keine eigene Hintergrundfarbe → Fix:
+  `html { background: var(--black); }`.
+- **`.reveal-section` blieb auf einem Gerät dauerhaft unsichtbar**
+  (Scroll-Einblend-Effekt hat nie ausgelöst, Sektion blieb bei
+  `opacity: 0` hängen — sah aus wie eine leere weiße Fläche direkt
+  unter dem Hero). Fix: Progressive Enhancement — Ausblenden nur noch
+  aktiv, wenn `html.js` gesetzt ist (Inline-Script ganz am Anfang von
+  `<head>`), zusätzlich 3-Sekunden-Timeout-Fallback in `main.js`, der
+  notfalls alles zwangsweise einblendet. Dadurch kann kein Inhalt mehr
+  dauerhaft unsichtbar bleiben, unabhängig von der genauen Ursache auf
+  dem jeweiligen Gerät.
+
+**Status:** Alles live auf `main` (Commits `87b6fb6`, `a0c4039`,
+`0ed4520`, `5e71669`). Offen bleiben weiterhin nur die in §7
+"Nächste Schritte" genannten Punkte (Blogpost, Intervallrechner) sowie
+Social Links (Instagram/YouTube) laut README.
