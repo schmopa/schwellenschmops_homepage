@@ -226,16 +226,36 @@ Alter/Geschlecht werden im Excel erfasst, aber in keiner Formel verwendet
   `diagnostik.html`, z.B. "JETZT BERECHNEN".
 - Nicht in der Hauptnavigation (bleibt schlank) — Zugang über die
   Diagnostik-Seite.
-- Sportart-Auswahl (Tabs: Bike / Row / Run) steuert Eingabeform und Modell.
+- Sportart-Auswahl (Tabs: Bike / Run / Row / Ski, in dieser Reihenfolge) steuert
+  Eingabeform und Modell. Row/Ski nutzen dasselbe Watt-Modell wie Bike.
 - Design konsistent zum Rest der Seite (Bebas Neue / Barlow, Schwarz/Weiß +
   Neongelb-Akzent `#f0ff00`).
 
 ### Bau-Phasen (Step by Step)
 
-- [ ] Eingabeformular pro Sportart (Zeit + Leistung/Distanz, Gewicht)
-- [ ] JS-Rechenkern (Regression identisch zu Excel-Formeln, gegen Pauls
+- [x] Eingabeformular pro Sportart (Zeit + Leistung/Distanz, Gewicht)
+- [x] JS-Rechenkern (Regression identisch zu Excel-Formeln, gegen Pauls
       echte Bike-Daten validiert)
-- [ ] Ergebnis-Darstellung (Kennzahlen + Zonentabelle)
-- [ ] CTA zu Kontakt/Diagnostik-Angebot
-- [ ] Verlinkung von `diagnostik.html`
-- [ ] Responsive/Mobile-Test
+- [x] Ergebnis-Darstellung (Kennzahlen + Zonentabelle)
+- [x] CTA zu Kontakt/Diagnostik-Angebot
+- [x] Verlinkung von `diagnostik.html`
+- [x] Responsive/Mobile-Test
+
+**Status:** v1 gebaut & auf `main` deployed (2026-09-07), live unter
+`cp-rechner.html`. Nachträglich ergänzt: vierte Sportart **Ski**
+(Skiergometer, gleiches Watt-Modell wie Bike/Row, eigene plausible
+Platzhalter-Werte statt Pauls Bike-Zahlen).
+
+### Nächste Schritte (offen)
+
+- [ ] **Blogpost "DIY Diagnostik"** im `.blog-grid` auf `index.html`
+      verfassen und darin auf `cp-rechner.html` verlinken — positioniert
+      den Rechner als Selbstdiagnostik-Angebot (siehe README
+      "Content management → Add a new blog post").
+- [ ] **Intervallrechner für `training.html`**: eigenes Feature, das aus
+      den berechneten CP-/CS-Werten konkrete Trainingsintervalle ableitet
+      (z.B. Sweetspot-/VO2max-Sets mit Watt- bzw. Pace-Zielen je Zone) —
+      entspricht der oben unter "Umfang v1" als v2-Erweiterung vermerkten
+      Idee "automatisch abgeleitete Intervallformen". Lebt auf/verlinkt von
+      `training.html` — zweiter bewusster Zugang neben der Diagnostik-Seite
+      (Diagnostik = "wird erklärt", Training = "wird gebraucht").
