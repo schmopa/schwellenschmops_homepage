@@ -93,13 +93,18 @@ button { cursor: pointer; background: none; border: none; font: inherit; }
   border-color: color-mix(in srgb, var(--accent) 80%, black);
 }
 
-/* ── Reveal animation ──────────────────────────────────────── */
-.reveal-section {
+/* ── Reveal animation ─────────────────────────────────────────
+   Nur ausblenden, wenn JS bestaetigt laeuft (html.js, per Inline-
+   Script im <head> gesetzt) UND innerhalb von 3s auch tatsaechlich
+   wieder eingeblendet wird (main.js Timeout-Fallback). Verhindert,
+   dass Inhalte dauerhaft unsichtbar bleiben, falls der
+   IntersectionObserver aus irgendeinem Grund nie feuert. */
+html.js .reveal-section {
   opacity: 0;
   transform: translateY(40px);
   transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
 }
-.reveal-section.is-visible {
+html.js .reveal-section.is-visible {
   opacity: 1;
   transform: translateY(0);
 }

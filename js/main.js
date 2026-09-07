@@ -50,19 +50,31 @@
   /* ── Scroll reveal ───────────────────────────────────────── */
   const revealSections = document.querySelectorAll('.reveal-section');
 
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.1, rootMargin: '0px 0px -60px 0px' }
-  );
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -60px 0px' }
+    );
 
-  revealSections.forEach(section => observer.observe(section));
+    revealSections.forEach(section => observer.observe(section));
+  } else {
+    // Kein IntersectionObserver-Support: sofort sichtbar machen statt versteckt zu lassen.
+    revealSections.forEach(section => section.classList.add('is-visible'));
+  }
+
+  // Sicherheitsnetz: falls der Observer aus irgendeinem Grund nie feuert
+  // (z.B. Geraete-/Browser-Eigenheit), spaetestens nach 3s alles einblenden,
+  // statt Inhalte dauerhaft unsichtbar zu lassen.
+  setTimeout(() => {
+    revealSections.forEach(section => section.classList.add('is-visible'));
+  }, 3000);
 
   /* ── Active nav link on scroll ───────────────────────────── */
   const sections = document.querySelectorAll('section[id]');
