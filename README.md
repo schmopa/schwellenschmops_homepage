@@ -105,5 +105,5 @@ Submissions are forwarded to `schmopa12@gmail.com`.
 
 - [ ] Social links (Instagram, YouTube, …) — hero + footer
 - [x] Favicon (S-Monogramm, `favicon.ico` + `images/favicon-*.png`, erledigt 2026-09-07)
-- [ ] Analytics (privacy-freundlich, z.B. Cloudflare Web Analytics/GoatCounter) — noch kein Tracking eingebunden
+- [x] Analytics (Cloudflare Web Analytics, cookie-los, erledigt 2026-09-07)
 - [ ] Blogpost "DIY Diagnostik" + Link von `training.html` zum CP-Rechner (siehe KONZEPT.md "Nächste Schritte")
