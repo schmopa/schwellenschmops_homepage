@@ -67,6 +67,15 @@ For expandable content: add `<button class="blog-toggle">` + `<div class="blog-c
 Copy an `<article class="service-card">` block inside `.services-grid` in `diagnostik.html` or `training.html`.  
 Use `.card-sub` for section labels (WAS IST ES? / WAS BEKOMMST DU? / FÜR WEN?) and `.card-desc` for text.
 
+### Critical-Power-/Critical-Speed-Rechner anpassen
+
+`cp-rechner.html` + `js/cp-rechner.js` (nicht in der Hauptnav, verlinkt von
+der Critical-Power-Test-Karte auf `diagnostik.html`).
+Regressionsformeln (CP/W'/MAP/VO2max, Critical Speed) stehen als reine
+Funktionen oben in der Datei; die Zonen-%-Bänder liegen in der `ZONES`-
+Konstante — beides einfach direkt im Code anpassbar, falls Paul genauere
+Werte aus seiner Excel nachliefert.
+
 ### Swap carousel image
 
 Place image in `/images/`, then update the `src` path in the `about-carousel` block.  

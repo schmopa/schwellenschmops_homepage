@@ -170,3 +170,72 @@ Bilder lädst du direkt in den Ordner `/images` und sagst mir den Dateinamen.
 
 **Jetzt:** Lies die Fragen in `CONTENT.md` durch und fülle so viel aus wie möglich.
 Dann starten wir mit **Phase 1** (Fundament + Fonts) und bauen Schritt für Schritt zusammen.
+
+---
+
+## 7. Feature: Critical-Power-/Critical-Speed-Rechner
+
+*Konzept abgestimmt am 07.09.2026 — Beta, Umsetzung noch offen.*
+
+### Ziel & Zielgruppe
+
+Öffentliches Lead-Tool für Website-Besucher. Ergänzt die bestehende
+"Critical-Power-Test"-Karte auf `diagnostik.html`, die das Prinzip zwar schon
+erklärt, aber bisher kein echtes Tool dazu anbietet. **Beta-Version:** kein
+Name, keine E-Mail-Abfrage — Ergebnisse werden sofort angezeigt, der
+Lead-Funnel läuft nur über den CTA am Ende (Kontakt/Diagnostik-Angebot).
+
+### Rechenmodell — Basis: Pauls Excel `CriticalPower_Schmollmüller.xlsx`
+
+Aus der bestehenden Bike-Tabelle extrahiert:
+
+- Erhebung: 4 All-out-Efforts (10s / 2min / 5min / 12min) — aber nur
+  **2/5/12min** gehen in die Regression ein. Der 10s-Wert dient separat als
+  Sprint-/MPO-Kennzahl.
+- Lineare Regression Leistung (P) gegen 1/Zeit über die 3 Punkte:
+  - `W' = SLOPE(P-Werte, 1/t-Werte)` — in Joule (Monod/Scherrer-Modell)
+  - `CP = INTERCEPT(P-Werte, 1/t-Werte)` — in Watt
+- `MAP = CP + W'/300`
+- `VO2max = ((10.8 × MAP / Gewicht) + 7) × [0.96 … 1.04]` (Bandbreite)
+- Trainingszonen als %CP (Easy → LIT → Fatmax → Übergang → Sweetspot → CP →
+  VO2max kurz/mittel/lang) mit festen Multiplikatoren (0.4955 – 1.45)
+- Leistungs-Dauer-Tabelle: `P(t) = CP + W'/t` für beliebige Dauern
+
+### Sportartspezifische Anpassung
+
+| Sport | Eingaben | Modell |
+|---|---|---|
+| Bike | Gewicht, 10s/2min/5min/12min (Zeit + Watt) | 1:1 wie Excel |
+| Row  | Gewicht, 10s/2min/5min/12min (Zeit + Watt) | identisch zu Bike (Concept2 & Co. liefern Watt) |
+| Run  | Sprint optional, 1km, 3km (Zeit + Distanz) | **Critical Speed** statt Critical Power: `Distanz = CS·t + D'`, Regression von Speed gegen 1/t über 1km/3km → `D' = SLOPE(...)` (Meter), `CS = INTERCEPT(...)` (m/s). Sprint = separate Kennzahl, geht nicht in die Regression ein. Zonen als %CS, Ausgabe in Pace (min/km). MAP/VO2max entfällt für Run in v1 — mögliche v2-Erweiterung über Running-Economy-Schätzformel. |
+
+Alter/Geschlecht werden im Excel erfasst, aber in keiner Formel verwendet
+(nur Metadaten) — für v1 daher verzichtbar.
+
+### Umfang v1
+
+- Rechner + Zonentabelle. **Kein** Leistungs-Dauer-Chart, **keine**
+  automatisch abgeleiteten Intervallformen (beides mögliche v2-Erweiterungen).
+- Reine Client-Side-Berechnung (JS), kein Backend, keine Datenspeicherung —
+  passt zum bestehenden statischen HTML/CSS/JS-Stack.
+
+### Seitenstruktur
+
+- Neue eigenständige Unterseite, z.B. `cp-rechner.html`.
+- Verlinkung: CTA-Button auf der "Critical-Power-Test"-Karte in
+  `diagnostik.html`, z.B. "JETZT BERECHNEN".
+- Nicht in der Hauptnavigation (bleibt schlank) — Zugang über die
+  Diagnostik-Seite.
+- Sportart-Auswahl (Tabs: Bike / Row / Run) steuert Eingabeform und Modell.
+- Design konsistent zum Rest der Seite (Bebas Neue / Barlow, Schwarz/Weiß +
+  Neongelb-Akzent `#f0ff00`).
+
+### Bau-Phasen (Step by Step)
+
+- [ ] Eingabeformular pro Sportart (Zeit + Leistung/Distanz, Gewicht)
+- [ ] JS-Rechenkern (Regression identisch zu Excel-Formeln, gegen Pauls
+      echte Bike-Daten validiert)
+- [ ] Ergebnis-Darstellung (Kennzahlen + Zonentabelle)
+- [ ] CTA zu Kontakt/Diagnostik-Angebot
+- [ ] Verlinkung von `diagnostik.html`
+- [ ] Responsive/Mobile-Test

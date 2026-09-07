@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Critical-Power-Rechner — SCHWELLENSCHMOPS</title>
+  <meta name="description" content="Berechne deine Critical Power (Bike/Row) oder Critical Speed (Run) aus wenigen Zeitfahrten — inklusive deiner persönlichen Trainingszonen. Kostenlos, ohne Anmeldung." />
+  <link rel="canonical" href="https://schwellenschmops.at/cp-rechner.html" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@300;400;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@300;400;600&display=swap" /></noscript>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════ HEADER ═══════════════════════════════ -->
+  <header id="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo" aria-label="SCHWELLENSCHMOPS — Startseite">
+        SCHWELLEN<span class="logo-accent">SCHMOPS</span>
+      </a>
+
+      <nav class="main-nav" id="main-nav" aria-label="Hauptnavigation">
+        <ul>
+          <li><a href="diagnostik.html">DIAGNOSTIK</a></li>
+          <li><a href="training.html">TRAINING</a></li>
+          <li><a href="index.html#aboutme">ABOUT ME</a></li>
+          <li><a href="index.html#blog">BLOG</a></li>
+          <li><a href="index.html#contact">KONTAKT</a></li>
+        </ul>
+        <a class="nav-user-icon" href="https://trainingslab-schwellenschmops.vercel.app/login" target="_blank" rel="noopener" aria-label="TrainingsLab Login">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="22" height="22">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+          </svg>
+        </a>
+      </nav>
+
+      <button class="hamburger" id="hamburger" aria-label="Menü öffnen" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ═══════════════════════════ HERO ═══════════════════════════ -->
+    <section class="cp-hero">
+      <div class="cp-hero-inner">
+        <span class="section-label">CRITICAL POWER RECHNER · BETA</span>
+        <h1 class="cp-hero-title">WO STEHST DU WIRKLICH?</h1>
+        <p class="cp-hero-sub">Vier Zahlen von dir, ein klares Bild deiner Leistungsfähigkeit. Wähle deine Sportart, trag deine Bestzeiten ein — den Rest übernehmen wir.</p>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ RECHNER ═══════════════════════════ -->
+    <section class="cp-calc-section reveal-section">
+      <div class="cp-calc-inner">
+
+        <div class="cp-tabs" role="tablist" aria-label="Sportart wählen">
+          <button type="button" class="cp-tab is-active" data-sport="bike" role="tab" aria-selected="true">BIKE</button>
+          <button type="button" class="cp-tab" data-sport="run" role="tab" aria-selected="false">RUN</button>
+          <button type="button" class="cp-tab" data-sport="row" role="tab" aria-selected="false">ROW</button>
+          <button type="button" class="cp-tab" data-sport="ski" role="tab" aria-selected="false">SKI</button>
+        </div>
+
+        <p class="cp-sport-intro" id="cp-sport-intro">Vier All-Out-Efforts am Ergo-Bike — 10 Sekunden, 2, 5 und 12 Minuten.</p>
+
+        <form id="cp-form" novalidate>
+
+          <div class="cp-weight-field" id="cp-weight-field">
+            <label class="cp-weight-label" for="cp-weight">Körpergewicht</label>
+            <div class="cp-weight-row">
+              <input type="number" id="cp-weight" name="weight" placeholder="85" min="20" max="250" step="0.1" inputmode="decimal" />
+              <span class="cp-weight-unit">KG</span>
+            </div>
+            <p class="field-error" id="cp-weight-error"></p>
+          </div>
+
+          <div class="cp-rows" id="cp-rows"><!-- wird von cp-rechner.js befüllt --></div>
+
+          <button type="submit" class="cp-submit">JETZT BERECHNEN</button>
+          <p class="cp-submit-note">Keine Anmeldung nötig · Ergebnis sofort sichtbar</p>
+        </form>
+
+        <div class="cp-error-summary" id="cp-error-summary" role="alert" hidden></div>
+
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ ERGEBNIS ═══════════════════════════ -->
+    <section class="cp-results reveal-section" id="cp-results" hidden>
+      <div class="cp-results-inner">
+        <span class="section-label">DEIN ERGEBNIS</span>
+        <h2 class="cp-results-title">DEINE ZAHLEN.</h2>
+        <p class="cp-results-sub" id="cp-results-sub"></p>
+
+        <div class="result-tiles" id="cp-tiles"><!-- wird von cp-rechner.js befüllt --></div>
+      </div>
+
+      <div class="cp-zones-inner">
+        <span class="section-label">DEINE TRAININGSZONEN</span>
+        <h3 class="cp-zones-title">VON EASY BIS VO2MAX.</h3>
+
+        <div class="zone-spectrum" id="cp-zone-spectrum"></div>
+        <div class="zone-spectrum-end" id="cp-zone-spectrum-end"></div>
+
+        <div class="zone-legend" id="cp-zone-legend"></div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ HINWEIS ═══════════════════════════ -->
+    <div class="disclaimer-bar">
+      <p>Für aussagekräftige Werte führst du jeden Test gut ausgeruht und ohne Vorbelastung durch. Plane zwischen den einzelnen Zeitfahrten ausreichend Erholung ein — am besten über mehrere Tage verteilt, nicht alle direkt hintereinander an einem Tag. Der Rechner liefert Schätzformeln und ersetzt keine Labordiagnostik.</p>
+    </div>
+
+    <!-- ═══════════════════════════ CTA-BANNER ═══════════════════════════ -->
+    <section class="section-cta">
+      <div class="cta-inner">
+        <div class="cta-text">
+          <h2 class="cta-title">BEREIT FÜR DEINE VOLLSTÄNDIGE DIAGNOSTIK?</h2>
+          <p>Kein Raten, keine Annahmen — nur Zahlen, die dir wirklich weiterhelfen.</p>
+        </div>
+        <a href="index.html#contact" class="btn btn-dark">JETZT ANFRAGEN</a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ═══════════════════════════════ FOOTER ═══════════════════════════════ -->
+  <footer id="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        SCHWELLEN<span class="logo-accent">SCHMOPS</span>
+      </div>
+
+      <nav class="footer-nav" aria-label="Footer Navigation">
+        <a href="impressum.html">Impressum</a>
+        <a href="datenschutz.html">Datenschutz</a>
+        <a href="index.html#contact">Kontakt</a>
+        <a href="https://trainingslab-schwellenschmops.vercel.app/login" target="_blank" rel="noopener">Login</a>
+      </nav>
+
+      <p class="footer-copy">© 2026 Schwellenschmops · Paul</p>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+  <script src="js/cp-rechner.js"></script>
+</body>
+</html>
