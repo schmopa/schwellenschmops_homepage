@@ -26,6 +26,26 @@
   const spectrumEndEl    = document.getElementById('cp-zone-spectrum-end');
   const legendEl         = document.getElementById('cp-zone-legend');
 
+  // Auto-Maske fuer alle Zeit-Felder (per Delegation, ueberlebt also auch das
+  // Neu-Rendern der Zeilen beim Sportart-Wechsel): Ziffern -> "mm:ss".
+  rowsContainer.addEventListener('input', (e) => {
+    if (e.target.dataset.role !== 'time') return;
+    const formatted = formatTimeDigits(e.target.value);
+    e.target.value = formatted;
+    e.target.setSelectionRange(formatted.length, formatted.length);
+  });
+  // Verlaesst man ein Zeit-Feld mit nur 1-2 eingetippten Ziffern (noch kein
+  // Doppelpunkt gesetzt, z.B. Sprint-Feld "10" fuer 10 Sekunden), werden
+  // diese als Sekunden interpretiert -> "0:10". Ohne das bliebe ein kurzer
+  // Wert wie "10" ohne weitere Eingabe fuer immer ohne Doppelpunkt stehen.
+  rowsContainer.addEventListener('focusout', (e) => {
+    if (e.target.dataset.role !== 'time') return;
+    const digits = e.target.value.replace(/\D/g, '');
+    if (digits.length > 0 && digits.length <= 2) {
+      e.target.value = '0:' + digits.padStart(2, '0');
+    }
+  });
+
   let currentSport = 'bike';
 
   /* ── Sportart-Konfiguration ──────────────────────────────────── */
@@ -86,12 +106,23 @@
   /* ── Helfer ───────────────────────────────────────────────────── */
   function parseTime(str) {
     if (!str) return null;
-    // ":" ist der Normalfall, aber mobile Zifferntastaturen (inputmode="decimal")
-    // bieten oft keinen Doppelpunkt an — "." und "," werden daher ebenfalls akzeptiert.
+    // ":" ist der Normalfall; "." und "," werden zur Sicherheit ebenfalls
+    // akzeptiert (z.B. bei eingefügtem/eingetipptem Text ohne Auto-Maske).
     const m = String(str).trim().match(/^(\d{1,3})[:.,]([0-5]?\d)$/);
     if (!m) return null;
     const total = parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
     return total > 0 ? total : null;
+  }
+
+  // Formatiert Zeit-Eingaben automatisch als "mm:ss" beim Tippen. Wichtig auf
+  // Mobile: reine Ziffern-Tastaturen (inputmode="numeric") bieten auf vielen
+  // Geraeten gar keine Satzzeichen-Taste an, der Doppelpunkt laesst sich also
+  // nicht selbst eintippen. Nutzer:innen tippen daher einfach Ziffern
+  // (z.B. "530" fuer 5:30), der Doppelpunkt wird automatisch eingefuegt.
+  function formatTimeDigits(raw) {
+    const digits = String(raw).replace(/\D/g, '').slice(0, 5);
+    if (digits.length <= 2) return digits;
+    return digits.slice(0, -2) + ':' + digits.slice(-2);
   }
 
   function formatTime(totalSeconds) {
@@ -153,7 +184,7 @@
       timeField.className = 'cp-field';
       timeField.innerHTML =
         '<label for="cp-' + def.key + '-time">Zeit (mm:ss)</label>' +
-        '<input type="text" id="cp-' + def.key + '-time" inputmode="decimal" autocomplete="off" ' +
+        '<input type="text" id="cp-' + def.key + '-time" inputmode="numeric" autocomplete="off" ' +
         'placeholder="' + def.timePlaceholder + '" data-role="time" />';
 
       const valueField = document.createElement('div');
