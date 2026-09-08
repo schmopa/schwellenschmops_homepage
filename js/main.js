@@ -63,7 +63,18 @@
       { threshold: 0.1, rootMargin: '0px 0px -60px 0px' }
     );
 
-    revealSections.forEach(section => observer.observe(section));
+    revealSections.forEach(section => {
+      // Sections, die (z.B. wegen eines kurzen Hero) schon beim Laden im
+      // Viewport liegen, sofort synchron einblenden statt auf den ersten
+      // Observer-Callback zu warten — der feuert fuer bereits sichtbare
+      // Elemente nicht auf jedem Geraet zuverlaessig sofort und sorgte so
+      // fuer eine sichtbare weisse Flaeche bis zum 3s-Fallback.
+      if (section.getBoundingClientRect().top < window.innerHeight) {
+        section.classList.add('is-visible');
+      } else {
+        observer.observe(section);
+      }
+    });
   } else {
     // Kein IntersectionObserver-Support: sofort sichtbar machen statt versteckt zu lassen.
     revealSections.forEach(section => section.classList.add('is-visible'));
