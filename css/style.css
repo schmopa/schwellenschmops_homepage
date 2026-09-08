@@ -846,13 +846,15 @@ html.js .reveal-section.is-visible {
   line-height: 1;
 }
 
-/* Grid: featured groß links, rechte Spalte scrollt mit Inhalt */
+/* Grid: gleich hohe Karten pro Reihe (stretch), damit Reihen sauber
+   abschließen statt eine "Stufe" zu bilden, wenn eine Karte mehr Text
+   hat als ihr Nachbar. */
 .blog-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto;
   gap: 3px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .blog-card {
@@ -923,7 +925,7 @@ html.js .reveal-section.is-visible {
   transition: max-height 0.5s var(--ease-out);
 }
 .blog-card.is-open .blog-card-body {
-  max-height: 4200px;
+  max-height: 2000px;
 }
 
 .blog-toggle {
