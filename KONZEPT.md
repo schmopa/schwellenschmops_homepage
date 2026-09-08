@@ -245,15 +245,19 @@ Alter/Geschlecht werden im Excel erfasst, aber in keiner Formel verwendet
 
 **Status:** v1 gebaut & auf `main` deployed (2026-09-07), live unter
 `cp-rechner.html`. Nachträglich ergänzt: vierte Sportart **Ski**
-(Skiergometer, gleiches Watt-Modell wie Bike/Row, eigene plausible
-Platzhalter-Werte statt Pauls Bike-Zahlen).
+(Skiergometer, gleiches Watt-Modell wie Bike/Row). Am 2026-09-08 auf
+ein realistischeres 3-Punkte-Protokoll umgestellt: **30s/2min/5min**
+statt 10s/2min/5min/12min (12-Minuten-Tests sind am SkiErg unüblich).
+Der Rechenkern (`computeBikeRow` in `js/cp-rechner.js`) ist dafür
+generisch gemacht worden — nutzt die erste Zeile der jeweiligen
+Sportart-Konfiguration als Sprintwert und alle weiteren für die
+CP-Regression, unabhängig von Anzahl/Namen der Zeilen. Bike/Row bleiben
+unverändert bei 10s/2/5/12min.
 
 ### Nächste Schritte (offen)
 
-- [ ] **Blogpost "DIY Diagnostik"** im `.blog-grid` auf `index.html`
-      verfassen und darin auf `cp-rechner.html` verlinken — positioniert
-      den Rechner als Selbstdiagnostik-Angebot (siehe README
-      "Content management → Add a new blog post").
+- [x] **Blogpost** im `.blog-grid` auf `index.html` verfasst und auf
+      `cp-rechner.html` verlinkt — siehe §9.
 - [ ] **Intervallrechner für `training.html`**: eigenes Feature, das aus
       den berechneten CP-/CS-Werten konkrete Trainingsintervalle ableitet
       (z.B. Sweetspot-/VO2max-Sets mit Watt- bzw. Pace-Zielen je Zone) —
@@ -304,6 +308,107 @@ durchoptimiert und zwei Mobile-Bugs gefunden und behoben.
   dem jeweiligen Gerät.
 
 **Status:** Alles live auf `main` (Commits `87b6fb6`, `a0c4039`,
-`0ed4520`, `5e71669`). Offen bleiben weiterhin nur die in §7
-"Nächste Schritte" genannten Punkte (Blogpost, Intervallrechner) sowie
-Social Links (Instagram/YouTube) laut README.
+`0ed4520`, `5e71669`). Der `.reveal-section`-Fix war noch nicht die
+ganze Geschichte — siehe Follow-up in §9. Offen bleiben weiterhin der
+Intervallrechner (§7) sowie Social Links (Instagram/YouTube) laut
+README.
+
+---
+
+## 9. CP-Rechner-Feinschliff, reveal-section-Nachbesserung & Blogpost (2026-09-08)
+
+### CP-Rechner: zwei gemeldete Bugs behoben
+
+- **Doppelpunkt bei der Zeiteingabe auf Mobile nicht eingebbar:** Die
+  Zeitfelder (`Zeit (mm:ss)`) hatten `inputmode="numeric"`, das ruft auf
+  iOS/Android eine reine Ziffern-Tastatur ohne `:` auf. Fix: auf
+  `inputmode="decimal"` umgestellt (zeigt eine Zifferntastatur mit
+  Punkt-Taste) und `parseTime()` in `js/cp-rechner.js` akzeptiert jetzt
+  zusätzlich `.` und `,` als Trenner neben `:`.
+- **Lauf-Texte sachlich falsch:** "Drei Zeitfahrten" zählte den
+  optionalen Sprint mit (tatsächlich zwei Pflicht-Läufe: 1 km/3 km) und
+  nannte sie "Zeitfahrten" statt "Läufe". Beide Texte korrigiert
+  (`SPORT_INTRO.run` und der Ergebnis-Untertitel für Run). Die generische
+  Hinweiszeile in `cp-rechner.html` ("Erholung zwischen den Testungen")
+  wurde von "Zeitfahrten" auf "Testungen" vereinheitlicht, da sie
+  sportartübergreifend gilt.
+
+Dabei auch die Ski-Erg-Intervalle auf 30s/2/5min umgestellt, siehe §7.
+
+### reveal-section: Root-Cause-Nachbesserung
+
+Der 3-Sekunden-Fallback aus §8 hat verhindert, dass Inhalte dauerhaft
+unsichtbar bleiben — aber auf `diagnostik.html`/`training.html` sitzt
+die erste `.reveal-section` (wegen kurzem Hero) schon beim Laden im
+Viewport, nicht erst beim Scrollen. Der IntersectionObserver feuert für
+bereits sichtbare Elemente nicht auf jedem Gerät zuverlässig sofort,
+wodurch der 3s-Timeout als sichtbare weiße Fläche durchschlug statt nur
+Sicherheitsnetz zu sein. Fix in `js/main.js`: Sections werden beim Init
+per `getBoundingClientRect().top < window.innerHeight` geprüft — liegen
+sie schon im Viewport, sofort synchron `is-visible` setzen statt auf
+den Observer zu warten; nur echte Below-the-Fold-Sections bekommen
+weiter den animierten Scroll-Reveal über den Observer.
+
+### Favicon: erst abgerundet, dann ganz neu (schlichter Punkt)
+
+Erster Fix: `favicon.ico`/`favicon-16.png`/`favicon-32.png` wirkten im
+Browser-Tab als hartes schwarzes Quadrat, mit Python/Pillow abgerundet
+(transparente Ecken). Paul fand danach das S selbst noch zu unruhig
+("was Schlichtes") — vier Alternativ-Entwürfe generiert (dünnes S,
+reiner Punkt, aufsteigende "Schwellen"-Balken, S im Ring) und als
+512px- und 32px-Vorschau gezeigt. Entscheidung: **schlichter gelber
+Punkt**, kein Buchstabe mehr. Umgesetzt für das komplette Icon-Set:
+- Browser-Tab (`favicon-16.png`, `favicon-32.png`, `favicon.ico`):
+  transparenter Hintergrund, nur der Punkt — passt sich damit an jedes
+  Tab-Theme (hell/dunkel) an.
+- Homescreen-/PWA-Icons (`apple-touch-icon.png`, `favicon-192.png`,
+  `favicon-512.png`): weiterhin eigener schwarzer Untergrund (RGB, kein
+  Alpha), damit iOS/Android keinen weißen Hintergrund einsetzen.
+
+### Blog: Titel der neuen Karte gekürzt
+
+Nach Launch fiel auf, dass der neue Blogpost-Titel ("FTP oder Critical
+Power? Was eine Doktorarbeit über deinen Schwellentest verrät", 80
+Zeichen, Doppel-Frage) deutlich länger/dichter war als die anderen drei
+Kartentitel und dadurch im 2×2-Grid unruhig wirkte — gekürzt auf "CP
+oder FTP? Was eine Doktorarbeit zeigt" (38 Zeichen). Die eigentlichen
+Karten-Boxhöhen im Grid waren dabei nie das Problem (im Test nur
+~20–25px Differenz zwischen den Karten einer Reihe); das gelbe
+Unterstrich-Element, das im ersten Feedback-Screenshot auffiel, war nur
+der Hover-Zustand einer Karte, kein CSS-Bug.
+
+### Neuer Blogpost: "FTP oder Critical Power?"
+
+Erledigt den offenen Punkt aus §7. Neuer Eintrag im `.blog-grid` auf
+`index.html`, verlinkt auf `cp-rechner.html`. Kernbotschaft: FTP
+(Coggan, 20-Min-Test) und Critical Power (Mehrpunkt-Test, das
+Rechenmodell des CP-Rechners) sind laut Forschungsliteratur nicht
+zuverlässig austauschbar — Quelle ist primär Eanna McGraths
+PhD-Dissertation (Trinity College Dublin, 2022, liegt als PDF vor),
+ergänzt um sechs weitere recherchierte Studien/Reviews (2023–2026) als
+verlinkte Quellenliste, die zeigen dass Richtung und Größe der
+CP/FTP-Differenz protokoll-/populationsabhängig ist. Enthält:
+
+- Eine eigene, markenkonforme Inline-SVG-Grafik der
+  Power-Duration-Kurve (CP-Asymptote, W'-Fläche, FTP-Linie, 2/5/12-Min-
+  Messpunkte wie im echten CP-Rechner-Protokoll) statt eines fremden
+  Bilds.
+- Einen praktischen Abschnitt für Leser, die trotzdem einen
+  FTP-Vergleichswert brauchen (die meisten Trainings-Apps verlangen
+  FTP, nicht CP): rechnerischer Weg über `CP + W'/Zieldauer` (mit
+  Rechenbeispiel anhand Pauls eigener Bike-Werte) plus die
+  95–98-%-Faustregel, inklusive Warnung dass das CP-Modell bei langen
+  Zieldauern unzuverlässiger wird.
+
+**Dabei gefundener und behobener Bug:** Die `max-height`-Grenze des
+aufgeklappten Blog-Akkordeons (`.blog-card.is-open .blog-card-body`)
+war mit 2400px zu knapp für den neuen, längeren Beitrag — auf Mobile
+(390px Breite, mehr Zeilenumbrüche) wurde der Inhalt real 3318px hoch
+und die Quellenliste/der CTA-Button am Ende abgeschnitten. Auf 4200px
+erhöht und mit Playwright auf Mobile- und Desktop-Breite verifiziert
+(kein Clipping mehr, `scrollHeight === clientHeight`).
+
+**Status:** Alles live auf `main` (Commits `bac0ca6`, `0f76556`,
+`96c2ec3`, `61de00a`, `3c2b43c`), gepusht und über GitHub Pages
+(`CNAME` → schwellenschmops.at) automatisch deployed. Offen bleibt nur
+noch der Intervallrechner für `training.html` (§7).
