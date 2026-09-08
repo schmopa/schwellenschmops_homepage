@@ -31,9 +31,9 @@
   /* ── Sportart-Konfiguration ──────────────────────────────────── */
   const SPORT_INTRO = {
     bike: 'Vier All-Out-Efforts am Ergo-Bike — 10 Sekunden, 2, 5 und 12 Minuten.',
-    run:  'Drei Zeitfahrten — ein optionaler Sprint, 1 Kilometer, 3 Kilometer.',
+    run:  'Zwei Läufe — 1 und 3 Kilometer — plus ein optionaler Sprint.',
     row:  'Vier All-Out-Efforts am Rudergerät — 10 Sekunden, 2, 5 und 12 Minuten.',
-    ski:  'Vier All-Out-Efforts am Skiergometer — 10 Sekunden, 2, 5 und 12 Minuten.'
+    ski:  'Drei All-Out-Efforts am Skiergometer — 30 Sekunden, 2 und 5 Minuten.'
   };
 
   // Platzhalter je Sportart plausibel gehalten (Bike = Pauls echte Werte aus
@@ -50,7 +50,14 @@
 
   const BIKE_ROWS = powerRows([1022, 430, 339, 299]); // Pauls echte Werte
   const ROWERG_ROWS = powerRows([750, 420, 360, 320]); // Concept2 RowErg, Richtwert
-  const SKIERG_ROWS = powerRows([500, 320, 260, 220]); // Concept2 SkiErg, Richtwert
+
+  // Skiergometer nutzt nur drei Stützpunkte (30 Sek/2 Min/5 Min) statt der
+  // sonst üblichen vier — 12-Minuten-Tests sind am SkiErg unüblich.
+  const SKIERG_ROWS = [
+    { key: 'p30', label: '30 SEK', timePlaceholder: '0:30', valueLabel: 'Leistung', valuePlaceholder: '400 W', required: true },
+    { key: 'p2',  label: '2 MIN',  timePlaceholder: '2:00', valueLabel: 'Leistung', valuePlaceholder: '320 W', required: true },
+    { key: 'p5',  label: '5 MIN',  timePlaceholder: '5:00', valueLabel: 'Leistung', valuePlaceholder: '260 W', required: true }
+  ]; // Concept2 SkiErg, Richtwerte
 
   const RUN_ROWS = [
     { key: 'sprint', label: 'SPRINT', timePlaceholder: '0:14',  valueLabel: 'Distanz', valuePlaceholder: '100 m (optional)', required: false },
@@ -79,7 +86,9 @@
   /* ── Helfer ───────────────────────────────────────────────────── */
   function parseTime(str) {
     if (!str) return null;
-    const m = String(str).trim().match(/^(\d{1,3}):([0-5]?\d)$/);
+    // ":" ist der Normalfall, aber mobile Zifferntastaturen (inputmode="decimal")
+    // bieten oft keinen Doppelpunkt an — "." und "," werden daher ebenfalls akzeptiert.
+    const m = String(str).trim().match(/^(\d{1,3})[:.,]([0-5]?\d)$/);
     if (!m) return null;
     const total = parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
     return total > 0 ? total : null;
@@ -144,7 +153,7 @@
       timeField.className = 'cp-field';
       timeField.innerHTML =
         '<label for="cp-' + def.key + '-time">Zeit (mm:ss)</label>' +
-        '<input type="text" id="cp-' + def.key + '-time" inputmode="numeric" autocomplete="off" ' +
+        '<input type="text" id="cp-' + def.key + '-time" inputmode="decimal" autocomplete="off" ' +
         'placeholder="' + def.timePlaceholder + '" data-role="time" />';
 
       const valueField = document.createElement('div');
@@ -257,16 +266,15 @@
   }
 
   /* ── Rechenkern ───────────────────────────────────────────────── */
-  function computeBikeRow(weight, e) {
-    const points = [
-      { x: 1 / e.p2.t,  y: e.p2.p },
-      { x: 1 / e.p5.t,  y: e.p5.p },
-      { x: 1 / e.p12.t, y: e.p12.p }
-    ];
+  function computeBikeRow(weight, e, rows) {
+    // Erste Zeile ist immer der kurze Sprint-Effort (Bike/Row: 10 Sek, Ski: 30 Sek),
+    // die übrigen Zeilen (2/5/12 Min bzw. 2/5 Min) gehen in die CP-Regression ein.
+    const sprintDef = rows[0];
+    const points = rows.slice(1).map((def) => ({ x: 1 / e[def.key].t, y: e[def.key].p }));
     const { slope: wPrime, intercept: cp } = linreg(points);
     const map = cp + wPrime / 300; // 300s = 5min, feste Konstante lt. Excel-Modell
     const vo2max = (10.8 * map / weight + 7) * 1.0; // Einzelwert, Faktor 1.0
-    return { cp, wPrime, map, vo2max, sprint: e.p10.p, weight };
+    return { cp, wPrime, map, vo2max, sprint: e[sprintDef.key].p, sprintLabel: sprintDef.label, weight };
   }
 
   function computeRun(e) {
@@ -348,13 +356,13 @@
       tileHTML("W' — ANAEROBE RESERVE", (res.wPrime / 1000).toFixed(1), 'KILOJOULE', 'Dein Energie-Tank für Belastungen oberhalb der Critical Power.'),
       tileHTML('MAP', round(res.map) + ' W', (res.map / res.weight).toFixed(1) + ' W/KG', 'Die Leistung bei deiner höchsten Sauerstoffaufnahme.'),
       tileHTML('VO2MAX (GESCHÄTZT)', res.vo2max.toFixed(1), 'ML/MIN/KG', 'Das maximale Sauerstoff-Volumen, das dein Körper pro Minute verwertet.'),
-      tileHTML('SPRINT / MPO', round(res.sprint) + ' W', (res.sprint / res.weight).toFixed(1) + ' W/KG', 'Deine maximale kurzzeitige Sprintleistung (10 Sekunden).')
+      tileHTML('SPRINT / MPO', round(res.sprint) + ' W', (res.sprint / res.weight).toFixed(1) + ' W/KG', 'Deine maximale kurzzeitige Sprintleistung (' + res.sprintLabel.replace('SEK', 'Sekunden') + ').')
     ].join('');
     renderZones(res.cp, 'power');
   }
 
   function renderResultsRun(res) {
-    resultsSub.textContent = 'Deine Zahlen auf Basis deiner eingegebenen Zeitfahrten.';
+    resultsSub.textContent = 'Deine Zahlen auf Basis deiner eingegebenen Läufe.';
     const tiles = [
       tileHTML('CRITICAL SPEED', formatTime(res.paceSecPerKm), 'MIN/KM', 'Dein theoretisch unbegrenzt haltbares Tempo.'),
       tileHTML("D' — ANAEROBE RESERVE", round(res.dPrime), 'METER', 'Dein Distanz-Puffer für Tempo oberhalb der Critical Speed.')
@@ -381,7 +389,7 @@
     } else {
       const weight = collectWeight(errors);
       const efforts = collectPowerEfforts(errors);
-      if (errors.length === 0) results = computeBikeRow(weight, efforts);
+      if (errors.length === 0) results = computeBikeRow(weight, efforts, ROW_DEFS[currentSport]);
       if (errors.length === 0 && results) renderResultsBikeRow(results);
     }
 
