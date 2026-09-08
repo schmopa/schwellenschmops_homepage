@@ -410,5 +410,36 @@ erhöht und mit Playwright auf Mobile- und Desktop-Breite verifiziert
 
 **Status:** Alles live auf `main` (Commits `bac0ca6`, `0f76556`,
 `96c2ec3`, `61de00a`, `3c2b43c`), gepusht und über GitHub Pages
-(`CNAME` → schwellenschmops.at) automatisch deployed. Offen bleibt nur
-noch der Intervallrechner für `training.html` (§7).
+(`CNAME` → schwellenschmops.at) automatisch deployed.
+
+### Nachbesserungen nach erstem Live-Feedback (2026-09-08, Teil 2)
+
+- **Blog-Grid-Kacheln schlossen nicht bündig ab:** `align-items: start`
+  liess eine Karte mit kürzerem Text sichtbar früher enden als ihre
+  Reihen-Nachbarin ("Stufe" statt gerader Kante). Auf
+  `align-items: stretch` umgestellt — bewusster Trade-off: im
+  (selteneren) aufgeklappten Zustand bekommt der kürzere Nachbar etwas
+  Leerraum, dafür ist der Standard-Zustand (zu) jetzt sauber.
+- **Blogpost-Inhalt zu lang/technisch:** Von neun auf sechs Abschnitte
+  gekürzt, dichte Statistik-Absätze auf je einen klaren Satz reduziert,
+  die CP+W'/Zieldauer-Formel samt Rechenbeispiel komplett gestrichen
+  (nur noch die 95–98-%-Faustregel), Quellenliste von 7 auf 2 Einträge
+  reduziert. Titel zusätzlich gekürzt ("CP oder FTP? Was eine
+  Doktorarbeit zeigt").
+- **Doppelpunkt bei Zeiteingabe auf Mobile — Fix Nr. 1 reichte nicht:**
+  `inputmode="decimal"` + `.`/`,` als Alternative (siehe oben) löste
+  das Problem auf manchen Geräten nicht, deren Dezimal-Tastatur auch
+  keine brauchbare Satzzeichen-Taste zeigt. Robuster gelöst: Zeit-Felder
+  nutzen wieder `inputmode="numeric"` und formatieren sich beim Tippen
+  per JS (`formatTimeDigits`, Event-Delegation auf `rowsContainer`)
+  automatisch selbst zu `mm:ss` — z.B. "530" → "5:30" live während des
+  Tippens. Verlässt man ein Feld mit nur 1–2 Ziffern ohne Doppelpunkt
+  (z.B. das Sprint-Feld "10"), werden diese beim Verlassen (`focusout`)
+  als Sekunden interpretiert → "0:10". Damit ist gar keine
+  Satzzeichen-Taste mehr nötig. End-to-End mit reiner Zifferneingabe
+  gegen Pauls echte Bike-Referenzwerte getestet (Playwright): CP/W'
+  korrekt berechnet.
+
+**Status Teil 2:** Alles live auf `main` (Commits `d996fec`, `2ee14f5`,
+`b035eb9`), gepusht und deployed. Offen bleibt weiterhin nur der
+Intervallrechner für `training.html` (§7).
