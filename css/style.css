@@ -1444,3 +1444,45 @@ html.js .reveal-section.is-visible {
   .zone-spectrum { height: 64px; }
   .result-tile-value { font-size: 36px; }
 }
+
+/* PDF-Export (Ergebnis-Ausdruck via Browser-Druckdialog) */
+.cp-print-date { display: none; }
+.cp-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-cond);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 12px 22px;
+  margin: 0 0 40px;
+  background: transparent;
+  color: var(--black);
+  border: 2px solid var(--black);
+  cursor: pointer;
+  transition: background 0.25s var(--ease), color 0.25s var(--ease);
+}
+.cp-export-btn:hover { background: var(--black); color: var(--white); }
+
+@media print {
+  #site-header, .hamburger, .cp-hero, .cp-calc-section,
+  .disclaimer-bar, .section-cta, #site-footer, .cp-export-btn {
+    display: none !important;
+  }
+  html, body, .cp-results { background: #fff; color: #000; }
+  .cp-results { padding-top: 0; }
+  .cp-print-date {
+    display: block;
+    font-family: var(--font-cond);
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin: 0 0 24px;
+  }
+  .result-tile, .zone-segment {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

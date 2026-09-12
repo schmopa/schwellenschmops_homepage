@@ -21,6 +21,8 @@
   const errorSummary     = document.getElementById('cp-error-summary');
   const resultsSection   = document.getElementById('cp-results');
   const resultsSub       = document.getElementById('cp-results-sub');
+  const printDateEl      = document.getElementById('cp-print-date');
+  const exportPdfBtn     = document.getElementById('cp-export-pdf');
   const tilesContainer   = document.getElementById('cp-tiles');
   const spectrumEl       = document.getElementById('cp-zone-spectrum');
   const spectrumEndEl    = document.getElementById('cp-zone-spectrum-end');
@@ -429,6 +431,10 @@
       return;
     }
 
+    printDateEl.textContent = 'Erstellt am ' + new Date().toLocaleDateString('de-AT', {
+      day: '2-digit', month: '2-digit', year: 'numeric'
+    }) + ' · schwellenschmops.at/cp-rechner';
+
     resultsSection.hidden = false;
     resultsSection.classList.add('is-visible');
 
@@ -436,6 +442,8 @@
     const top = resultsSection.getBoundingClientRect().top + window.scrollY - offset;
     window.scrollTo({ top, behavior: 'smooth' });
   });
+
+  exportPdfBtn.addEventListener('click', () => window.print());
 
   /* ── Init ────────────────────────────────────────────────────── */
   switchSport('bike');
