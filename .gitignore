@@ -1,5 +1,6 @@
-# Claude / Tools
-.claude/
+# Claude / Tools (Skills bleiben versioniert, andere lokale Claude-Settings nicht)
+.claude/*
+!.claude/skills/
 .playwright-mcp/
 
 # Referenz-Screenshots
