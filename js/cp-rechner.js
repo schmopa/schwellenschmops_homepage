@@ -393,8 +393,7 @@
       { label: 'CRITICAL POWER', value: round(res.cp) + ' W', sub: (res.cp / res.weight).toFixed(1) + ' W/KG', def: 'Deine theoretisch unbegrenzt haltbare Dauerleistungsgrenze.' },
       { label: "W' — ANAEROBE RESERVE", value: (res.wPrime / 1000).toFixed(1), sub: 'KILOJOULE', def: 'Dein Energie-Tank für Belastungen oberhalb der Critical Power.' },
       { label: 'MAP', value: round(res.map) + ' W', sub: (res.map / res.weight).toFixed(1) + ' W/KG', def: 'Die Leistung bei deiner höchsten Sauerstoffaufnahme.' },
-      { label: 'VO2MAX (GESCHÄTZT)', value: res.vo2max.toFixed(1), sub: 'ML/MIN/KG', def: 'Das maximale Sauerstoff-Volumen, das dein Körper pro Minute verwertet.' },
-      { label: 'SPRINT / MPO', value: round(res.sprint) + ' W', sub: (res.sprint / res.weight).toFixed(1) + ' W/KG', def: 'Deine maximale kurzzeitige Sprintleistung (' + res.sprintLabel.replace('SEK', 'Sekunden') + ').' }
+      { label: 'VO2MAX (GESCHÄTZT)', value: res.vo2max.toFixed(1), sub: 'ML/MIN/KG', def: 'Das maximale Sauerstoff-Volumen, das dein Körper pro Minute verwertet.' }
     ];
     tilesContainer.innerHTML = tiles.map((t) => tileHTML(t.label, t.value, t.sub, t.def)).join('');
     lastTilesData = tiles;
