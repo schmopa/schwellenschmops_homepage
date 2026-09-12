@@ -21,7 +21,6 @@
   const errorSummary     = document.getElementById('cp-error-summary');
   const resultsSection   = document.getElementById('cp-results');
   const resultsSub       = document.getElementById('cp-results-sub');
-  const printDateEl      = document.getElementById('cp-print-date');
   const exportPdfBtn     = document.getElementById('cp-export-pdf');
   const tilesContainer   = document.getElementById('cp-tiles');
   const spectrumEl       = document.getElementById('cp-zone-spectrum');
@@ -49,6 +48,8 @@
   });
 
   let currentSport = 'bike';
+  let lastTilesData = []; // fuer PDF-Export: {label, value, sub, def}
+  let lastZonesData = []; // fuer PDF-Export: {name, rangeLabel, pctLabel, bg}
 
   /* ── Sportart-Konfiguration ──────────────────────────────────── */
   const SPORT_INTRO = {
@@ -339,6 +340,7 @@
   function renderZones(baseValue, mode) {
     spectrumEl.innerHTML = '';
     legendEl.innerHTML = '';
+    const zonesData = [];
 
     ZONES.forEach((z, i) => {
       const bg = hexMix('#f5f4f0', '#ffe55c', i / (ZONES.length - 1));
@@ -358,6 +360,7 @@
         segLabel = z.lo === 0 ? '' : formatTime(slowPace);
       }
       pctLabel = z.lo === 0 ? '< ' + round(z.hi * 100) + ' %' : round(z.lo * 100) + '–' + round(z.hi * 100) + ' %';
+      zonesData.push({ name: z.name, rangeLabel, pctLabel, bg });
 
       const seg = document.createElement('div');
       seg.className = 'zone-segment';
@@ -380,30 +383,35 @@
     spectrumEndEl.textContent = mode === 'power'
       ? round(topZone.hi * baseValue) + ' W'
       : formatTime(1000 / (topZone.hi * baseValue)) + '/km';
+
+    lastZonesData = zonesData;
   }
 
   function renderResultsBikeRow(res) {
     resultsSub.textContent = 'Deine Zahlen auf Basis deiner eingegebenen Zeitfahrten · ' + res.weight + ' kg Körpergewicht.';
-    tilesContainer.innerHTML = [
-      tileHTML('CRITICAL POWER', round(res.cp) + ' W', (res.cp / res.weight).toFixed(1) + ' W/KG', 'Deine theoretisch unbegrenzt haltbare Dauerleistungsgrenze.'),
-      tileHTML("W' — ANAEROBE RESERVE", (res.wPrime / 1000).toFixed(1), 'KILOJOULE', 'Dein Energie-Tank für Belastungen oberhalb der Critical Power.'),
-      tileHTML('MAP', round(res.map) + ' W', (res.map / res.weight).toFixed(1) + ' W/KG', 'Die Leistung bei deiner höchsten Sauerstoffaufnahme.'),
-      tileHTML('VO2MAX (GESCHÄTZT)', res.vo2max.toFixed(1), 'ML/MIN/KG', 'Das maximale Sauerstoff-Volumen, das dein Körper pro Minute verwertet.'),
-      tileHTML('SPRINT / MPO', round(res.sprint) + ' W', (res.sprint / res.weight).toFixed(1) + ' W/KG', 'Deine maximale kurzzeitige Sprintleistung (' + res.sprintLabel.replace('SEK', 'Sekunden') + ').')
-    ].join('');
+    const tiles = [
+      { label: 'CRITICAL POWER', value: round(res.cp) + ' W', sub: (res.cp / res.weight).toFixed(1) + ' W/KG', def: 'Deine theoretisch unbegrenzt haltbare Dauerleistungsgrenze.' },
+      { label: "W' — ANAEROBE RESERVE", value: (res.wPrime / 1000).toFixed(1), sub: 'KILOJOULE', def: 'Dein Energie-Tank für Belastungen oberhalb der Critical Power.' },
+      { label: 'MAP', value: round(res.map) + ' W', sub: (res.map / res.weight).toFixed(1) + ' W/KG', def: 'Die Leistung bei deiner höchsten Sauerstoffaufnahme.' },
+      { label: 'VO2MAX (GESCHÄTZT)', value: res.vo2max.toFixed(1), sub: 'ML/MIN/KG', def: 'Das maximale Sauerstoff-Volumen, das dein Körper pro Minute verwertet.' },
+      { label: 'SPRINT / MPO', value: round(res.sprint) + ' W', sub: (res.sprint / res.weight).toFixed(1) + ' W/KG', def: 'Deine maximale kurzzeitige Sprintleistung (' + res.sprintLabel.replace('SEK', 'Sekunden') + ').' }
+    ];
+    tilesContainer.innerHTML = tiles.map((t) => tileHTML(t.label, t.value, t.sub, t.def)).join('');
+    lastTilesData = tiles;
     renderZones(res.cp, 'power');
   }
 
   function renderResultsRun(res) {
     resultsSub.textContent = 'Deine Zahlen auf Basis deiner eingegebenen Läufe.';
     const tiles = [
-      tileHTML('CRITICAL SPEED', formatTime(res.paceSecPerKm), 'MIN/KM', 'Dein theoretisch unbegrenzt haltbares Tempo.'),
-      tileHTML("D' — ANAEROBE RESERVE", round(res.dPrime), 'METER', 'Dein Distanz-Puffer für Tempo oberhalb der Critical Speed.')
+      { label: 'CRITICAL SPEED', value: formatTime(res.paceSecPerKm), sub: 'MIN/KM', def: 'Dein theoretisch unbegrenzt haltbares Tempo.' },
+      { label: "D' — ANAEROBE RESERVE", value: round(res.dPrime), sub: 'METER', def: 'Dein Distanz-Puffer für Tempo oberhalb der Critical Speed.' }
     ];
     if (res.sprintPaceSecPerKm) {
-      tiles.push(tileHTML('SPRINT', formatTime(res.sprintPaceSecPerKm), 'MIN/KM', 'Dein Tempo im maximalen Sprint.'));
+      tiles.push({ label: 'SPRINT', value: formatTime(res.sprintPaceSecPerKm), sub: 'MIN/KM', def: 'Dein Tempo im maximalen Sprint.' });
     }
-    tilesContainer.innerHTML = tiles.join('');
+    tilesContainer.innerHTML = tiles.map((t) => tileHTML(t.label, t.value, t.sub, t.def)).join('');
+    lastTilesData = tiles;
     renderZones(res.cs, 'pace');
   }
 
@@ -431,10 +439,6 @@
       return;
     }
 
-    printDateEl.textContent = 'Erstellt am ' + new Date().toLocaleDateString('de-AT', {
-      day: '2-digit', month: '2-digit', year: 'numeric'
-    }) + ' · schwellenschmops.at/cp-rechner';
-
     resultsSection.hidden = false;
     resultsSection.classList.add('is-visible');
 
@@ -443,7 +447,135 @@
     window.scrollTo({ top, behavior: 'smooth' });
   });
 
-  exportPdfBtn.addEventListener('click', () => window.print());
+  /* ── PDF-Export ──────────────────────────────────────────────────
+     Wird als eigenständige Datei per jsPDF gebaut statt über den
+     Browser-Druckdialog: der lässt sich nicht von der Seite aus davon
+     abhalten, seine eigene Kopf-/Fußzeile (Datum, Titel, URL,
+     Seitenzahl) einzublenden, und die Seitenumbrüche mitten in den
+     Kacheln/Zonen lassen sich darüber nicht kontrollieren. */
+  function hexToRgb(hex) {
+    return [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
+  }
+
+  function generatePdf() {
+    if (!window.jspdf) {
+      alert('PDF-Export ist gerade nicht verfügbar. Bitte Seite neu laden und erneut versuchen.');
+      return;
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+    const pageH = doc.internal.pageSize.getHeight();
+    const marginX = 18;
+    const marginBottom = 18;
+    const contentW = doc.internal.pageSize.getWidth() - marginX * 2;
+    const BLACK = [10, 10, 10], WHITE = [245, 244, 240], ACCENT = [255, 229, 92], GRAY = [120, 120, 120];
+    let y = 18;
+
+    function ensureSpace(h) {
+      if (y + h > pageH - marginBottom) { doc.addPage(); y = 18; }
+    }
+
+    // Datum ganz oben — unabhängig vom Browser garantiert erste Zeile im Dokument.
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor.apply(doc, GRAY);
+    doc.text('ERSTELLT AM ' + new Date().toLocaleDateString('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric' }) + '  ·  SCHWELLENSCHMOPS.AT/CP-RECHNER', marginX, y);
+    y += 11;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor.apply(doc, GRAY);
+    doc.text('DEIN ERGEBNIS', marginX, y);
+    y += 8;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(26);
+    doc.setTextColor.apply(doc, BLACK);
+    doc.text('DEINE ZAHLEN.', marginX, y);
+    y += 9;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10.5);
+    doc.setTextColor.apply(doc, GRAY);
+    const subLines = doc.splitTextToSize(resultsSub.textContent, contentW);
+    doc.text(subLines, marginX, y);
+    y += subLines.length * 5 + 8;
+
+    // Ergebnis-Kacheln, 2 Spalten
+    const gap = 6;
+    const tileW = (contentW - gap) / 2;
+    const tileH = 32;
+    lastTilesData.forEach((t, i) => {
+      const col = i % 2;
+      if (col === 0) ensureSpace(tileH + gap);
+      const x = marginX + col * (tileW + gap);
+
+      doc.setFillColor.apply(doc, BLACK);
+      doc.rect(x, y, tileW, tileH, 'F');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor.apply(doc, GRAY);
+      doc.text(t.label, x + 5, y + 7);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(17);
+      doc.setTextColor.apply(doc, ACCENT);
+      doc.text(String(t.value), x + 5, y + 16);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7.5);
+      doc.setTextColor.apply(doc, GRAY);
+      doc.text(t.sub, x + 5, y + 21);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(6.8);
+      doc.setTextColor.apply(doc, WHITE);
+      const defLines = doc.splitTextToSize(t.def, tileW - 10).slice(0, 2);
+      doc.text(defLines, x + 5, y + 26);
+
+      if (col === 1 || i === lastTilesData.length - 1) y += tileH + gap;
+    });
+    y += 4;
+
+    // Trainingszonen
+    ensureSpace(24);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor.apply(doc, GRAY);
+    doc.text('DEINE TRAININGSZONEN', marginX, y);
+    y += 8;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(20);
+    doc.setTextColor.apply(doc, BLACK);
+    doc.text('VON EASY BIS VO2MAX.', marginX, y);
+    y += 11;
+
+    lastZonesData.forEach((z) => {
+      ensureSpace(9);
+      doc.setFillColor.apply(doc, hexToRgb(z.bg));
+      doc.setDrawColor(200, 200, 200);
+      doc.rect(marginX, y - 3.6, 4.5, 4.5, 'FD');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9.5);
+      doc.setTextColor.apply(doc, BLACK);
+      doc.text(z.name, marginX + 8, y);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor.apply(doc, GRAY);
+      doc.text(z.rangeLabel + ' · ' + z.pctLabel, marginX + 8, y + 4.6);
+
+      y += 11;
+    });
+
+    const stamp = new Date().toISOString().slice(0, 10);
+    doc.save('CP-Rechner_' + currentSport + '_' + stamp + '.pdf');
+  }
+
+  exportPdfBtn.addEventListener('click', generatePdf);
 
   /* ── Init ────────────────────────────────────────────────────── */
   switchSport('bike');

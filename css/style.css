@@ -1445,8 +1445,7 @@ html.js .reveal-section.is-visible {
   .result-tile-value { font-size: 36px; }
 }
 
-/* PDF-Export (Ergebnis-Ausdruck via Browser-Druckdialog) */
-.cp-print-date { display: none; }
+/* PDF-Export-Button (Datei wird direkt per JS generiert, siehe cp-rechner.js) */
 .cp-export-btn {
   display: inline-flex;
   align-items: center;
@@ -1473,14 +1472,6 @@ html.js .reveal-section.is-visible {
   }
   html, body, .cp-results { background: #fff; color: #000; }
   .cp-results { padding-top: 0; }
-  .cp-print-date {
-    display: block;
-    font-family: var(--font-cond);
-    font-size: 13px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    margin: 0 0 24px;
-  }
   .result-tile, .zone-segment {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
