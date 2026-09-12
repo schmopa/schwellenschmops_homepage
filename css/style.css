@@ -848,13 +848,20 @@ html.js .reveal-section.is-visible {
 
 /* Grid: gleich hohe Karten pro Reihe (stretch), damit Reihen sauber
    abschließen statt eine "Stufe" zu bilden, wenn eine Karte mehr Text
-   hat als ihr Nachbar. */
+   hat als ihr Nachbar. Öffnet sich eine Karte per Akkordeon, springt
+   sie auf volle Breite (beide Spalten) und hat dadurch keinen
+   Reihen-Nachbarn mehr, dessen Höhe sie leer mitziehen könnte —
+   funktioniert unabhängig davon wie lang der jeweilige Blogeintrag ist. */
 .blog-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto;
+  grid-auto-flow: row dense;
   gap: 3px;
   align-items: stretch;
+}
+.blog-card.is-open {
+  grid-column: 1 / -1;
 }
 
 .blog-card {
