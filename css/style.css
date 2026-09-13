@@ -1516,6 +1516,22 @@ html.js .reveal-section.is-visible {
    SAISONPLAN
    ═══════════════════════════════════════════════════════════════ */
 
+/* "Heute"-Schnellwahl-Button neben dem Startdatum-Feld */
+.plan-today-btn {
+  font-family: var(--font-cond);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--gray);
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.2s;
+}
+.plan-today-btn:hover { color: var(--black); }
+
 /* Pill-Toggles (Erfahrungslevel, Wettkampfdauer) — kleinere Variante
    der .cp-tab-Optik, da sekundär zur Sportart-Wahl. */
 .plan-pill-field { margin-bottom: 32px; }

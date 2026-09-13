@@ -14,6 +14,10 @@
 
   const tabs           = document.querySelectorAll('.cp-tab');
   const sportIntroEl    = document.getElementById('plan-sport-intro');
+  const startInput      = document.getElementById('plan-start');
+  const startRow        = document.getElementById('plan-start-row');
+  const startError      = document.getElementById('plan-start-error');
+  const startTodayBtn   = document.getElementById('plan-start-today');
   const tagXInput       = document.getElementById('plan-tagx');
   const tagXRow         = document.getElementById('plan-tagx-row');
   const tagXError       = document.getElementById('plan-tagx-error');
@@ -102,6 +106,14 @@
   }
   // Deutsche Substantive bleiben auch mitten im Satz groß ("1 Woche", "8 Wochen").
   function weekLabel(n) { return n + (n === 1 ? ' Woche' : ' Wochen'); }
+  // Fuer <input type="date"> — braucht "YYYY-MM-DD" in lokaler Zeit, nicht toISOString()
+  // (das wuerde bei UTC-Verschiebung auf den Vortag zurueckfallen koennen).
+  function toISODateInput(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
 
   // Teilt totalDays auf 3 Phasen nach Anteilen auf, jede Phase min. 7 Tage
   // (sofern totalDays das zulässt) — Rest wandert zur größten Phase.
@@ -119,21 +131,20 @@
   }
 
   /* ── Rechenkern ───────────────────────────────────────────────── */
-  function computePlan({ tagXDate, sport, level, duration }) {
-    const today = startOfDay(new Date());
-    const totalDays = daysBetween(today, tagXDate);
+  function computePlan({ startDate, tagXDate, sport, level, duration }) {
+    const totalDays = daysBetween(startDate, tagXDate);
     const cfg = DURATION_CONFIG[duration];
     const taperDays = cfg.taperWeeks * 7;
     const regenDays = cfg.regenWeeks * 7;
     const sportAdj = SPORT_LABELS[sport].adj;
 
     if (totalDays < taperDays) {
-      return { mode: 'tooClose', weeksTotal: Math.round(totalDays / 7), phases: [], tagXDate };
+      return { mode: 'tooClose', weeksTotal: Math.round(totalDays / 7), phases: [], startDate, tagXDate };
     }
 
     const preTaperDays = totalDays - taperDays;
     const phases = [];
-    let cursor = today;
+    let cursor = startDate;
 
     if (preTaperDays < 21) {
       // Condensed: eine Erhaltungsphase statt Grundlage/Aufbau/Wettkampf.
@@ -158,7 +169,7 @@
     return {
       mode: preTaperDays < 21 ? 'condensed' : 'full',
       weeksTotal: Math.round(totalDays / 7),
-      phases, tagXDate, sport, level, duration
+      phases, startDate, tagXDate, sport, level, duration
     };
   }
 
@@ -226,7 +237,7 @@
       '<svg viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
       '<title>Dein Saisonplan-Zeitstrahl</title>' +
       rects + dividers + labels + tagXMarkup +
-      '<text x="50" y="182" font-family="var(--font-cond)" font-size="10" letter-spacing="0.06em" fill="var(--gray)">HEUTE</text>' +
+      '<text x="50" y="182" font-family="var(--font-cond)" font-size="10" letter-spacing="0.06em" fill="var(--gray)">START · ' + formatDateShort(plan.startDate) + '</text>' +
       '<text x="590" y="182" text-anchor="end" font-family="var(--font-cond)" font-size="10" letter-spacing="0.06em" fill="var(--gray)">' + formatDateShort(plan.phases[plan.phases.length - 1].end) + '</text>' +
       '</svg>';
 
@@ -236,7 +247,7 @@
 
     timelineEl.innerHTML =
       '<div class="plan-timeline-svg-wrap" role="img" aria-label="' + ariaLabel + '">' + svg + '</div>' +
-      '<p class="plan-timeline-caption">Vom heutigen Tag bis Tag X (' + formatDate(plan.tagXDate) + ') und der Regeneration danach — dein persönlicher Saisonplan im Überblick.</p>';
+      '<p class="plan-timeline-caption">Von deinem Startdatum (' + formatDate(plan.startDate) + ') bis Tag X (' + formatDate(plan.tagXDate) + ') und der Regeneration danach — dein persönlicher Saisonplan im Überblick.</p>';
   }
 
   /* ── Phasen-Karten ────────────────────────────────────────────── */
@@ -301,35 +312,56 @@
     errorSummary.innerHTML = '';
   }
 
+  startTodayBtn.addEventListener('click', () => {
+    startInput.value = toISODateInput(new Date());
+  });
+
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     hideErrorSummary();
+    startRow.classList.remove('is-invalid');
+    startError.textContent = '';
     tagXRow.classList.remove('is-invalid');
     tagXError.textContent = '';
 
     const errors = [];
-    let tagXDate = null;
+    let startDate = null, tagXDate = null;
+
+    if (!startInput.value) {
+      errors.push('Bitte ein Startdatum angeben.');
+    } else {
+      startDate = startOfDay(new Date(startInput.value + 'T00:00:00'));
+    }
+
     if (!tagXInput.value) {
       errors.push('Bitte ein Zieldatum (Tag X) angeben.');
     } else {
       tagXDate = startOfDay(new Date(tagXInput.value + 'T00:00:00'));
-      const today = startOfDay(new Date());
-      const days = daysBetween(today, tagXDate);
+    }
+
+    if (startDate && tagXDate) {
+      const days = daysBetween(startDate, tagXDate);
       if (days < 1) {
-        errors.push('Tag X muss in der Zukunft liegen.');
+        errors.push('Tag X muss nach dem Startdatum liegen.');
       } else if (days > 730) {
-        errors.push('Tag X liegt mehr als 2 Jahre in der Zukunft — bitte ein näheres Datum wählen.');
+        errors.push('Tag X liegt mehr als 2 Jahre nach dem Startdatum — bitte näher beieinanderliegende Daten wählen.');
       }
     }
 
     if (errors.length > 0) {
-      tagXRow.classList.add('is-invalid');
-      tagXError.textContent = errors[0];
+      if (!startInput.value || (startDate && tagXDate && daysBetween(startDate, tagXDate) < 1)) {
+        startRow.classList.add('is-invalid');
+      }
+      if (!tagXInput.value || (startDate && tagXDate && daysBetween(startDate, tagXDate) < 1)) {
+        tagXRow.classList.add('is-invalid');
+      }
+      startError.textContent = !startInput.value ? errors[0] : '';
+      tagXError.textContent = errors[errors.length - 1];
       showErrorSummary(errors);
       return;
     }
 
-    const plan = computePlan({ tagXDate, sport: currentSport, level: currentLevel, duration: currentDuration });
+    const plan = computePlan({ startDate, tagXDate, sport: currentSport, level: currentLevel, duration: currentDuration });
     lastPlanData = plan;
 
     const levelLabel = LEVEL_SPLIT[currentLevel].label;
@@ -454,5 +486,6 @@
   exportPdfBtn.addEventListener('click', generatePdf);
 
   /* ── Init ────────────────────────────────────────────────────── */
+  startInput.value = toISODateInput(new Date());
   switchSport('bike');
 })();

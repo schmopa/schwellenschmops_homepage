@@ -71,7 +71,7 @@
     <section class="cp-hero">
       <div class="cp-hero-inner">
         <span class="section-label">SAISONPLAN · BETA</span>
-        <h1 class="cp-hero-title">WANN BEGINNT DEINE SAISON?</h1>
+        <h1 class="cp-hero-title">PLANE DEINE SAISON</h1>
         <p class="cp-hero-sub">Dein Zieldatum, deine Sportart, dein Level — daraus bauen wir deinen groben Fahrplan. Vom Tag X rückwärts gerechnet, mit echten Kalenderdaten statt vager Wochenangaben.</p>
       </div>
     </section>
@@ -90,6 +90,15 @@
         <p class="cp-sport-intro" id="plan-sport-intro">Dein Saisonplan fürs Radtraining.</p>
 
         <form id="plan-form" novalidate>
+
+          <div class="cp-weight-field">
+            <label class="cp-weight-label" for="plan-start">Startdatum</label>
+            <div class="cp-weight-row" id="plan-start-row">
+              <input type="date" id="plan-start" name="start" />
+              <button type="button" class="plan-today-btn" id="plan-start-today">HEUTE</button>
+            </div>
+            <p class="field-error" id="plan-start-error"></p>
+          </div>
 
           <div class="cp-weight-field">
             <label class="cp-weight-label" for="plan-tagx">Tag X — dein Zieldatum</label>
@@ -143,7 +152,7 @@
 
     <!-- ═══════════════════════════ HINWEIS ═══════════════════════════ -->
     <div class="disclaimer-bar">
-      <p>Das ist ein generischer Planentwurf basierend auf gängigen Trainingsprinzipien — kein individueller Trainingsplan. Willst du etwas Individuelles, das auf dich, deine Vorgeschichte und deinen Alltag zugeschnitten ist? <a href="training.html" class="disclaimer-link">Kontaktier Schwellenschmops.</a></p>
+      <p>Das ist ein generischer Planentwurf basierend auf gängigen Trainingsprinzipien — kein individueller Trainingsplan. Willst du etwas Individuelles, das auf dich, deine Vorgeschichte und deinen Alltag zugeschnitten ist? <a href="index.html#contact" class="disclaimer-link">Meld dich.</a></p>
     </div>
 
     <!-- ═══════════════════════════ CTA-BANNER ═══════════════════════════ -->
@@ -153,7 +162,7 @@
           <h2 class="cta-title">BEREIT FÜR ECHTE EINHEITEN?</h2>
           <p>Dieser Plan zeigt dir die Phasen — dein Coach macht daraus konkrete Trainings.</p>
         </div>
-        <a href="training.html" class="btn btn-dark">JETZT ANFRAGEN</a>
+        <a href="index.html#contact" class="btn btn-dark">JETZT ANFRAGEN</a>
       </div>
     </section>
 
