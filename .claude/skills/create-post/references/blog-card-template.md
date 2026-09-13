@@ -16,17 +16,17 @@ sonst nichts an Struktur/Klassennamen ändern.
   </p>
 
   <button class="blog-toggle" aria-expanded="false">
-    WEITERLESEN <span class="blog-toggle-icon">+</span>
+    <span class="blog-toggle-label">WEITERLESEN</span> <span class="blog-toggle-icon">+</span>
   </button>
 
   <div class="blog-card-body">
     <p class="blog-card-label">[ERSTES LABEL]</p>
-    <p class="blog-card-desc">[Absatz, ~40-70 Wörter.]</p>
+    <p class="blog-card-desc">[Absatz, ~80-150 Wörter — mehrere zusammengehörige Gedanken mit Überleitungssätzen verbunden, siehe Abschnitt 5 unten.]</p>
 
     <p class="blog-card-label">[ZWEITES LABEL]</p>
     <p class="blog-card-desc">[Absatz.]</p>
 
-    <!-- 3-8 Label/Absatz-Paare je nach Thema, dann: -->
+    <!-- 2-4 Label/Absatz-Paare je nach Thema (siehe Abschnitt 5), dann: -->
 
     <p class="blog-card-label">EIN EHRLICHER HINWEIS</p>
     <p class="blog-card-desc">[Siehe Abschnitt 4 unten für zwei Varianten.]</p>
@@ -97,3 +97,36 @@ die generische Regel zwingt es auf eine falsche Mindestbreite.
 Beide sind ehrlich und konkret statt einer austauschbaren Standardfloskel —
 formuliere für jeden neuen Post eine passende dritte Variante statt eine der
 beiden wortwörtlich zu kopieren.
+
+## 5. Struktur: wenige, volle Abschnitte statt viele Mini-Labels
+
+Pauls Feedback (2026-09-13, rückwirkend auf alle drei Bestandsposts
+angewendet): zu viele `.blog-card-label`-Überschriften mit je nur einem
+Satz Text darunter wirken zerhackt statt wie ein Artikel. Branchen-Faustregel
+(Crazy Egg, Kontent.ai u.a.): eine Zwischenüberschrift pro ~150-300 Wörter
+bzw. nur bei echtem Themenwechsel — jedes Label sollte für sich als
+Mini-Zusammenfassung funktionieren, nicht nur ein Ein-Satz-Etikett sein.
+
+**Konkret beim Schreiben:** sammle erst alle Einzelpunkte, gruppiere sie
+danach nach Thema/Zusammenhang, und verbinde die Punkte innerhalb einer
+Gruppe mit Überleitungssätzen ("Wie groß der Unterschied in der Praxis
+ausfällt, hat eine Doktorarbeit..." statt einer neuen eigenen Überschrift
+dafür) statt jeden Einzelfakt als eigenes Label mit einem Satz abzuhandeln.
+Ergebnis: 2-4 Label/Absatz-Paare mit ~80-150 Wörtern statt 6-8 Paaren mit
+~20-40 Wörtern. Die Fixpunkte "EIN EHRLICHER HINWEIS" und "QUELLEN" bleiben
+davon ausgenommen — die dürfen kurz bleiben.
+
+**Ausnahme: reine Empfehlungs-/Linklisten** (wie der Podcast-Post). Dort
+keine eigene `.blog-card-label`-Überschrift pro Einzelpunkt, sondern
+thematische Gruppen (z.B. "FÜR SPORT & TRAINING" / "FÜR ALLES ANDERE") mit
+je einer `<ul class="blog-list">`:
+
+```html
+<p class="blog-card-label">[GRUPPENNAME]</p>
+<ul class="blog-list">
+  <li><strong>[Name]</strong> — [Kurzbeschreibung, 1 Satz.]</li>
+  <li><strong>[Name]</strong> — [Kurzbeschreibung.]</li>
+</ul>
+```
+
+`.blog-list` ist bereits in `css/style.css` definiert (neben `.source-list`).

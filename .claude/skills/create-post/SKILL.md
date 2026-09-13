@@ -68,11 +68,17 @@ Aufbau pro Karte:
 - Titel (`.blog-card-title`)
 - Kurzer Teaser (`.blog-card-desc`, 1–3 Sätze) — das Einzige was sichtbar
   ist bevor jemand auf WEITERLESEN klickt, muss also neugierig machen
-- `.blog-toggle`-Button ("WEITERLESEN" + `.blog-toggle-icon`)
-- `.blog-card-body` mit 3–8 Abschnitten, je ein `.blog-card-label`
+- `.blog-toggle`-Button (`.blog-toggle-label` mit "WEITERLESEN" +
+  `.blog-toggle-icon`) — `js/main.js` toggelt das Label automatisch zu
+  "SCHLIESSEN" (und Icon zu "×"), sobald der Klassenname stimmt
+- `.blog-card-body` mit 2–4 Abschnitten, je ein `.blog-card-label`
   (Mini-Header, GROSSGESCHRIEBEN) + ein `.blog-card-desc`-Absatz
-  (~40–70 Wörter). Ausnahme: reine Listen-Posts (wie die
-  Podcast-Empfehlungen) dürfen pro Label deutlich kürzer sein (~15–30 Wörter).
+  (~80–150 Wörter, mehrere zusammengehörige Gedanken mit Überleitungssätzen
+  verbunden — siehe Abschnitt 5 in `references/blog-card-template.md`).
+  **Nicht** für jeden Einzelfakt ein eigenes Ein-Satz-Label anlegen, das wirkt
+  zerhackt. Ausnahme: reine Empfehlungs-/Linklisten (wie die
+  Podcast-Empfehlungen) bekommen statt vieler Einzel-Labels thematische
+  Gruppen-Labels mit je einer `<ul class="blog-list">` darunter.
 
 ## Schritt 4 — Der ehrliche Hinweis (immer)
 
@@ -145,9 +151,14 @@ Paul explizit statt es hier mitzuerledigen.
 ## Schritt 9 — Kurzer Self-Check vor Fertigmeldung
 
 - Klassennamen exakt wie im Bestand: `blog-card`, `blog-toggle`,
-  `blog-toggle-icon`, `blog-card-body`, `blog-card-label`, `blog-card-desc`
-  — `js/main.js` selektiert darüber (`btn.closest('.blog-card')` usw.), ein
-  abweichender Klassenname bricht das Akkordeon lautlos.
+  `blog-toggle-label`, `blog-toggle-icon`, `blog-card-body`,
+  `blog-card-label`, `blog-card-desc` — `js/main.js` selektiert darüber
+  (`btn.closest('.blog-card')`, `btn.querySelector('.blog-toggle-label')`
+  usw.), ein abweichender Klassenname bricht das Akkordeon lautlos oder
+  lässt den Button-Text beim Öffnen/Schließen stehen bleiben.
+- Höchstens 2–4 `.blog-card-label`-Abschnitte mit vollen Absätzen
+  (Abschnitt 5, `references/blog-card-template.md`) — nicht für jeden
+  Einzelfakt ein neues Mini-Label.
 - Keine Inline-Styles, keine neuen Wrapper-Divs um die Karte herum.
 - Bei SVG: `min-width` gesetzt (Schritt 6), `aria-hidden` auf dem `<svg>`,
   `role="img"` + `aria-label` auf dem Wrapper.

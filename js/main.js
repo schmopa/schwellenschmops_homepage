@@ -113,6 +113,7 @@
       const card = btn.closest('.blog-card');
       const isOpen = card.classList.toggle('is-open');
       btn.setAttribute('aria-expanded', isOpen);
+      btn.querySelector('.blog-toggle-label').textContent = isOpen ? 'SCHLIESSEN' : 'WEITERLESEN';
       btn.querySelector('.blog-toggle-icon').textContent = isOpen ? '×' : '+';
     });
   });
