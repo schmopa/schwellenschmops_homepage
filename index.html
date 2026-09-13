@@ -239,58 +239,66 @@
             </button>
             <div class="blog-card-body">
               <p class="blog-card-label">STAND BESTIMMEN (OPTIONAL)</p>
-              <p class="blog-card-desc">Bevor es überhaupt an die Planung geht, kannst du optional erstmal wissen wo du stehst — für Anfänger:innen nicht notwendig, aber sobald gewisse Ambitionen da sind, richtig interessant. Ich nutze dafür DIY-Tests am Ergo oder beim Laufen, die sich direkt über meine CP-Rechner-Seite auswerten lassen, oder bei Bedarf eine Laktattestung für die metabolischen Parameter — egal ob isoliert am Laufband/Smarttrainer oder als Feldtest draußen. Der Sinn dahinter: Nach einem Trainingszyklus hast du einen Vergleichswert, machst Fortschritt messbar und bestätigst das Bauchgefühl mit Zahlen. Und für die Trainingssteuerung weißt du danach genau, welche Pace oder welche Watt in den einzelnen Einheiten überhaupt Sinn ergeben.</p>
+              <p class="blog-card-desc">Bevor es überhaupt an die Planung geht, kannst du optional erstmal wissen wo du stehst — für Anfänger:innen nicht notwendig, aber sobald gewisse Ambitionen da sind, richtig interessant. Ich nutze dafür DIY-Tests am Ergo oder beim Laufen, die sich direkt über meine CP-Rechner-Seite auswerten lassen, oder bei Bedarf eine Laktattestung für die metabolischen Parameter — egal ob isoliert am Laufband/Smarttrainer oder als Feldtest draußen.</p>
+              <p class="blog-card-desc">Der Sinn dahinter: Nach einem Trainingszyklus hast du einen Vergleichswert, machst Fortschritt messbar und bestätigst das Bauchgefühl mit Zahlen. Und für die Trainingssteuerung weißt du danach genau, welche Pace oder welche Watt in den einzelnen Einheiten überhaupt Sinn ergeben.</p>
 
               <p class="blog-card-label">MAKROZYKLUS: VOM ZIEL RÜCKWÄRTS</p>
-              <p class="blog-card-desc">Der Makrozyklus ist das große Ganze: Was ist dein Ziel? Ein Event oder ein rein persönliches Ziel — Hauptsache es gibt idealerweise einen Tag X, von dem aus du rückwärts terminieren kannst. Auch mehrere Ziele mit unterschiedlichen Prioritäten sind völlig normal, zum Beispiel ein Hauptrennen mit ein, zwei Nebenzielen als Formtest davor. Von diesem Tag X aus baut sich das Grundgerüst: eine Aufbauphase, eine Phase mit spezifischerem, wettkampfnahem Training — und ganz am Ende der Taper. Wie wichtig dieser letzte Schritt ist, zeigt eine aktuelle Meta-Analyse: Ein bis zu 21-tägiger Taper mit 41–60 % weniger Trainingsumfang (Intensität und Häufigkeit bleiben gleich) bringt die größten Leistungssprünge, am stärksten bei 8–14 Tagen. Mit heißer Nadel eine Woche vor dem Ziel durchzuziehen bringt also wenig — das Timing entscheidet mit.</p>
+              <p class="blog-card-desc">Der Makrozyklus ist das große Ganze: Was ist dein Ziel? Ein Event oder ein rein persönliches Ziel — Hauptsache es gibt idealerweise einen Tag X, von dem aus du rückwärts terminieren kannst.</p>
+              <p class="blog-card-desc">Auch mehrere Ziele mit unterschiedlichen Prioritäten sind völlig normal, zum Beispiel ein Hauptrennen mit ein, zwei Nebenzielen als Formtest davor. Daraus ergibt sich das klassische Grundgerüst eines Trainingsjahres: Die Grundlagenphase schafft Ausdauer und Technik, die Aufbauphase steigert die Belastung und bringt erste Vorbereitungswettkämpfe, in der Wettkampfphase rufst du die Leistung dann ab — und in der Regenerationsphase danach erholst du dich aktiv und passiv, bevor der nächste Zyklus beginnt.</p>
 
-              <div class="blog-diagram" role="img" aria-label="Zeitstrahl der Saisonphasen, rückwärts vom Zieltag geplant: eine Aufbauphase mit hohem Trainingsumfang, gefolgt von einer spezifischeren Phase mit mittlerem Umfang, dann der Taper mit deutlich reduziertem Umfang, bis hin zu Tag X, dem eigentlichen Zieltag.">
-                <svg viewBox="0 0 640 210" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <title>Zeitstrahl der Saisonplanung: Aufbau, Spezifisch, Taper, Tag X</title>
+              <div class="blog-diagram" role="img" aria-label="Zeitstrahl eines Trainingsjahres mit vier Phasen: Grundlagenphase für Ausdauer und Technik, Aufbauphase zum Leistungsaufbau mit Vorbereitungswettkämpfen, Wettkampfphase mit Tag X zu Beginn, in der die Leistung abgerufen wird, und Regenerationsphase mit aktiver und passiver Erholung danach.">
+                <svg viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <title>Zeitstrahl eines Trainingsjahres: Grundlage, Aufbau, Wettkampf, Regeneration</title>
 
-                  <!-- Rückwärts-Pfeil -->
-                  <line x1="580" y1="30" x2="66" y2="30" stroke="var(--gray-light)" stroke-width="1.5"/>
-                  <path d="M 66 30 L 78 24 M 66 30 L 78 36" fill="none" stroke="var(--gray-light)" stroke-width="1.5" stroke-linecap="round"/>
-                  <text x="323" y="18" text-anchor="middle" font-family="var(--font-cond)" font-size="10" letter-spacing="0.14em" fill="var(--gray-light)">RÜCKWÄRTS GEPLANT</text>
+                  <!-- Phasen-Band -->
+                  <rect x="50" y="80" width="240" height="40" fill="var(--accent)" fill-opacity="0.22"/>
+                  <rect x="290" y="80" width="160" height="40" fill="var(--accent)" fill-opacity="0.42"/>
+                  <rect x="450" y="80" width="80" height="40" fill="var(--accent)" fill-opacity="0.85"/>
+                  <rect x="530" y="80" width="60" height="40" fill="var(--gray-light)" fill-opacity="0.35"/>
 
-                  <!-- Baseline -->
-                  <line x1="50" y1="165" x2="595" y2="165" stroke="var(--gray)" stroke-width="1.5" opacity="0.4"/>
+                  <!-- Trenner -->
+                  <line x1="290" y1="80" x2="290" y2="120" stroke="var(--dark)" stroke-width="2"/>
+                  <line x1="450" y1="80" x2="450" y2="120" stroke="var(--dark)" stroke-width="2"/>
+                  <line x1="530" y1="80" x2="530" y2="120" stroke="var(--dark)" stroke-width="2"/>
 
-                  <!-- Aufbau -->
-                  <rect x="50" y="70" width="190" height="95" fill="var(--accent)" fill-opacity="0.5"/>
-                  <text x="145" y="188" text-anchor="middle" font-family="var(--font-cond)" font-size="11" font-weight="600" letter-spacing="0.08em" fill="var(--white)">AUFBAU</text>
+                  <!-- Tag X Marker -->
+                  <line x1="450" y1="55" x2="450" y2="80" stroke="var(--white)" stroke-width="1.5" stroke-dasharray="3 4"/>
+                  <circle cx="450" cy="80" r="4" fill="var(--white)"/>
+                  <text x="450" y="42" text-anchor="middle" font-family="var(--font-cond)" font-size="11" font-weight="700" letter-spacing="0.08em" fill="var(--accent)">TAG X</text>
 
-                  <!-- Spezifisch -->
-                  <rect x="250" y="95" width="150" height="70" fill="var(--accent)" fill-opacity="0.35"/>
-                  <text x="325" y="188" text-anchor="middle" font-family="var(--font-cond)" font-size="11" font-weight="600" letter-spacing="0.08em" fill="var(--white)">SPEZIFISCH</text>
+                  <!-- Phasen-Labels -->
+                  <text x="170" y="140" text-anchor="middle" font-family="var(--font-cond)" font-size="11" font-weight="600" letter-spacing="0.06em" fill="var(--white)">GRUNDLAGE</text>
+                  <text x="170" y="153" text-anchor="middle" font-family="var(--font-cond)" font-size="8.5" letter-spacing="0.02em" fill="var(--gray-light)">Ausdauer &amp; Technik</text>
 
-                  <!-- Taper -->
-                  <rect x="410" y="125" width="110" height="40" fill="var(--accent)" fill-opacity="0.22"/>
-                  <text x="465" y="188" text-anchor="middle" font-family="var(--font-cond)" font-size="11" font-weight="600" letter-spacing="0.08em" fill="var(--white)">TAPER</text>
+                  <text x="370" y="140" text-anchor="middle" font-family="var(--font-cond)" font-size="11" font-weight="600" letter-spacing="0.06em" fill="var(--white)">AUFBAU</text>
+                  <text x="370" y="153" text-anchor="middle" font-family="var(--font-cond)" font-size="8.5" letter-spacing="0.02em" fill="var(--gray-light)">Leistung aufbauen</text>
 
-                  <!-- Tag X -->
-                  <line x1="560" y1="145" x2="560" y2="165" stroke="var(--white)" stroke-width="1.5" stroke-dasharray="3 4"/>
-                  <circle cx="560" cy="165" r="5" fill="var(--white)"/>
-                  <text x="560" y="188" text-anchor="middle" font-family="var(--font-cond)" font-size="11" font-weight="700" letter-spacing="0.08em" fill="var(--accent)">TAG X</text>
+                  <text x="490" y="140" text-anchor="middle" font-family="var(--font-cond)" font-size="11" font-weight="600" letter-spacing="0.06em" fill="var(--white)">WETTKAMPF</text>
+                  <text x="490" y="153" text-anchor="middle" font-family="var(--font-cond)" font-size="8.5" letter-spacing="0.02em" fill="var(--gray-light)">Leistung abrufen</text>
+
+                  <text x="560" y="140" text-anchor="middle" font-family="var(--font-cond)" font-size="11" font-weight="600" letter-spacing="0.06em" fill="var(--white)">REGENERATION</text>
+                  <text x="560" y="153" text-anchor="middle" font-family="var(--font-cond)" font-size="8.5" letter-spacing="0.02em" fill="var(--gray-light)">Erholen</text>
+
+                  <!-- Achsenbeschriftung -->
+                  <text x="50" y="182" font-family="var(--font-cond)" font-size="10" letter-spacing="0.06em" fill="var(--gray)">SAISONSTART</text>
+                  <text x="590" y="182" text-anchor="end" font-family="var(--font-cond)" font-size="10" letter-spacing="0.06em" fill="var(--gray)">SAISONENDE</text>
                 </svg>
-                <p class="blog-diagram-caption">So baut sich eine Saison von hinten auf: erst steht Tag X fest, dann werden Taper, spezifisches Training und Aufbauphase rückwärts eingeplant.</p>
+                <p class="blog-diagram-caption">Vom Grundlagentraining über den Aufbau bis zum Wettkampftag — die Regeneration danach macht dich bereit für den nächsten Zyklus.</p>
               </div>
 
-              <p class="blog-card-desc">Betreibst du nur eine Sportart, ist das schon anspruchsvoll genug — aber machbar. Bist du wie ich in mehreren Sportarten unterwegs (bei mir Rad, Laufen, Rudern) und willst dich in allen gleichzeitig verbessern, wird die Planung nochmal deutlich komplexer. Theoretisch kann jede Sportart ihre eigene Periodisierung mit eigenen Aufbau-, Spezifisch- und Taper-Phasen haben — die dann noch untereinander abgestimmt werden müssen, damit sich die Belastungsspitzen nicht gegenseitig in die Quere kommen. In der Praxis heißt das für mich: Eine Sportart bekommt gerade den klaren Fokus, meist die mit dem nächsten Tag X, die anderen laufen in einer Erhaltungsdosis mit.</p>
+              <p class="blog-card-desc">Betreibst du nur eine Sportart, ist das schon anspruchsvoll genug — aber machbar. Bist du wie ich in mehreren Sportarten unterwegs (bei mir Rad, Laufen, Rudern) und willst dich in allen gleichzeitig verbessern, wird die Planung nochmal deutlich komplexer.</p>
+              <p class="blog-card-desc">Theoretisch kann jede Sportart ihre eigene Periodisierung mit eigener Grundlagen-, Aufbau- und Wettkampfphase haben — die dann noch untereinander abgestimmt werden müssen, damit sich die Belastungsspitzen nicht gegenseitig in die Quere kommen. In der Praxis heißt das für mich: Eine Sportart bekommt gerade den klaren Fokus, meist die mit dem nächsten Tag X, die anderen laufen in einer Erhaltungsdosis mit.</p>
 
               <p class="blog-card-label">MIKROZYKLUS: DEINE TRAININGSWOCHE</p>
-              <p class="blog-card-desc">Der Mikrozyklus ist deine ganz konkrete Trainingswoche — und hier wird es individuell. Für mich heißt LIT (Low Intensity Training) lange, lockere Einheiten im Grundlagenbereich, bei denen ich mich problemlos unterhalten könnte; HIT (High Intensity Training) sind die ein, zwei Einheiten pro Woche, die wirklich wehtun. Wann was passiert, entscheidet nicht die Theorie, sondern mein Alltag: Die harten Einheiten lege ich dahin, wo ich Kopf und Zeit dafür habe, die langen, lockeren dahin, wo sie sich am ehesten integrieren lassen — früh morgens, am Wochenende, was gerade realistisch ist. Ein Plan, der auf dem Papier perfekt aussieht, aber im Alltag nicht funktioniert, bringt niemandem was.</p>
+              <p class="blog-card-desc">Der Mikrozyklus ist deine ganz konkrete Trainingswoche — und hier wird es individuell. Für mich heißt LIT (Low Intensity Training) lange, lockere Einheiten im Grundlagenbereich, bei denen ich mich problemlos unterhalten könnte; HIT (High Intensity Training) sind die ein, zwei Einheiten pro Woche, die wirklich wehtun.</p>
+              <p class="blog-card-desc">Wann was passiert, entscheidet nicht die Theorie, sondern mein Alltag: Die harten Einheiten lege ich dahin, wo ich Kopf und Zeit dafür habe, die langen, lockeren dahin, wo sie sich am ehesten integrieren lassen — früh morgens, am Wochenende, was gerade realistisch ist. Ein Plan, der auf dem Papier perfekt aussieht, aber im Alltag nicht funktioniert, bringt niemandem was.</p>
 
               <p class="blog-card-label">SPASS, FREUNDE, NACHHALTIGKEIT</p>
-              <p class="blog-card-desc">Die ersten drei Punkte hast du wahrscheinlich schon mal gehört — ziemliches Standard-Blabla jedes Trainingsplanungs-Ratgebers. Was für mich mindestens genauso wichtig ist, abseits von Leistungs- oder Spitzensport: Wenn niemand einen Weltrekord anpeilt, steht ziemlich schnell der Spaß an der Sache im Vordergrund. Ich plane meine Events gern danach, wo meine Freunde mitmachen und wo daraus ein cooles Wochenende werden könnte — das motiviert mich mehr, als verbissen Bestzeiten hinterherzujagen. Deshalb teile ich meine Saisonplanung auch immer mit Leuten, die ich mag. Geteilte Freude ist einfach etwas Cooles — egal ob es die Vorfreude ist oder die Freude über ein geschafftes Ziel.</p>
+              <p class="blog-card-desc">Die ersten drei Punkte hast du wahrscheinlich schon mal gehört — ziemliches Standard-Blabla jedes Trainingsplanungs-Ratgebers. Was für mich mindestens genauso wichtig ist, abseits von Leistungs- oder Spitzensport: Wenn niemand einen Weltrekord anpeilt, steht ziemlich schnell der Spaß an der Sache im Vordergrund.</p>
+              <p class="blog-card-desc">Ich plane meine Events gern danach, wo meine Freunde mitmachen und wo daraus ein cooles Wochenende werden könnte — das motiviert mich mehr, als verbissen Bestzeiten hinterherzujagen. Deshalb teile ich meine Saisonplanung auch immer mit Leuten, die ich mag. Geteilte Freude ist einfach etwas Cooles — egal ob es die Vorfreude ist oder die Freude über ein geschafftes Ziel.</p>
 
               <p class="blog-card-label">EIN EHRLICHER HINWEIS</p>
-              <p class="blog-card-desc">Auch dieser Text ist KI-unterstützt formuliert — die Struktur und die Meinung dahinter sind zu 100 % meine eigenen, ich hab mir nur beim Feintuning der Sätze geholfen. Die Zahlen zum Taper stammen aus echter Forschung (Quelle unten), der Rest ist meine persönliche Herangehensweise, kein Universalrezept.</p>
-
-              <p class="blog-card-label">QUELLEN</p>
-              <ul class="source-list">
-                <li><a class="source-link" href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0282838" target="_blank" rel="noopener">Wang et al. (2023) — Effects of tapering on performance in endurance athletes: A systematic review and meta-analysis</a></li>
-              </ul>
+              <p class="blog-card-desc">Auch dieser Text ist KI-unterstützt formuliert — die Struktur und die Meinung dahinter sind zu 100 % meine eigenen, ich hab mir nur beim Feintuning der Sätze geholfen. Das hier ist meine persönliche Herangehensweise, kein Universalrezept.</p>
 
               <a href="training.html" class="blog-card-cta">
                 ZUR TRAININGSPLANUNG <span>↗</span>
@@ -358,10 +366,12 @@
               </div>
 
               <p class="blog-card-label">SIND CP UND FTP DASSELBE?</p>
-              <p class="blog-card-desc">Nein — und wie groß der Unterschied in der Praxis ausfällt, hat eine Doktorarbeit der Trinity College Dublin (2022) an Radfahrern getestet: CP lag im Schnitt rund 16 Watt über FTP. Andere Studien fanden sogar das Gegenteil. Eine feste Umrechnung zwischen beiden Werten gibt es also nicht — vergleichst du deine CP-Werte mit einer FTP-Zonentabelle aus einer anderen App, wundere dich also nicht über kleine Abweichungen. Am besten bleibst du innerhalb eines Systems.</p>
+              <p class="blog-card-desc">Nein — und wie groß der Unterschied in der Praxis ausfällt, hat eine Doktorarbeit der Trinity College Dublin (2022) an Radfahrern getestet: CP lag im Schnitt rund 16 Watt über FTP. Andere Studien fanden sogar das Gegenteil.</p>
+              <p class="blog-card-desc">Eine feste Umrechnung zwischen beiden Werten gibt es also nicht — vergleichst du deine CP-Werte mit einer FTP-Zonentabelle aus einer anderen App, wundere dich also nicht über kleine Abweichungen. Am besten bleibst du innerhalb eines Systems.</p>
 
               <p class="blog-card-label">WAS HEISST DAS FÜR DICH?</p>
-              <p class="blog-card-desc">Mehrere kurze All-out-Tests lassen sich leichter sauber durchziehen als ein einzelnes 20-Minuten-Zeitfahren — und du bekommst W' gratis dazu. Fragt eine App wie Zwift, TrainingPeaks oder Garmin trotzdem explizit nach FTP, hilft die Faustregel: FTP liegt bei den meisten grob bei 95–98 % der CP. Willst du es genau wissen, fährst du einmal separat den klassischen 20-Minuten-FTP-Test. Und weil die gleiche Studie zeigte, dass ein aus Rad-Daten trainiertes Modell auch beim Rudern fast genauso gut funktionierte, nutzt der CP-Rechner für Bike, Row und Ski dasselbe Modell — nur beim Laufen wird daraus Critical Speed.</p>
+              <p class="blog-card-desc">Mehrere kurze All-out-Tests lassen sich leichter sauber durchziehen als ein einzelnes 20-Minuten-Zeitfahren — und du bekommst W' gratis dazu. Fragt eine App wie Zwift, TrainingPeaks oder Garmin trotzdem explizit nach FTP, hilft die Faustregel: FTP liegt bei den meisten grob bei 95–98 % der CP. Willst du es genau wissen, fährst du einmal separat den klassischen 20-Minuten-FTP-Test.</p>
+              <p class="blog-card-desc">Und weil die gleiche Studie zeigte, dass ein aus Rad-Daten trainiertes Modell auch beim Rudern fast genauso gut funktionierte, nutzt der CP-Rechner für Bike, Row und Ski dasselbe Modell — nur beim Laufen wird daraus Critical Speed.</p>
 
               <p class="blog-card-label">EIN EHRLICHER HINWEIS</p>
               <p class="blog-card-desc">Ich bin kein Sportwissenschaftler, aber ich lese gerne, was die rausfinden. Dieser Beitrag ist eine vereinfachte, KI-unterstützte Zusammenfassung einer Dissertation und einer weiteren Studie (Quellen unten).</p>
@@ -424,7 +434,8 @@
             </button>
             <div class="blog-card-body">
               <p class="blog-card-label">WIE ES DAZU KAM</p>
-              <p class="blog-card-desc">In meiner Zeit als Unterhaus-Kicker wurde ich im Verein liebevoll SCHMOPA getauft — Schmollmüller Paul, zusammengezogen. Irgendwann kannte den Namen der halbe Ort, daraus wurde die Verniedlichung SCHMOPS. Im Ausdauersport dreht sich derweil vieles um Schwellen — die aerobe, die anaerobe, die Critical Power. Sie zeigen wo dein Körper gerade steht und wo er hin kann — genau das ist es, was ich mit dir gemeinsam suchen und finden will. Deine Schwellen finden, gemeinsam mit dem Schmops — Schwellenschmops: ein bisschen Fußball-Nostalgie, ein bisschen Sportwissenschaft. Passt eigentlich ganz gut.</p>
+              <p class="blog-card-desc">In meiner Zeit als Unterhaus-Kicker wurde ich im Verein liebevoll SCHMOPA getauft — Schmollmüller Paul, zusammengezogen. Irgendwann kannte den Namen der halbe Ort, daraus wurde die Verniedlichung SCHMOPS.</p>
+              <p class="blog-card-desc">Im Ausdauersport dreht sich derweil vieles um Schwellen — die aerobe, die anaerobe, die Critical Power. Sie zeigen wo dein Körper gerade steht und wo er hin kann — genau das ist es, was ich mit dir gemeinsam suchen und finden will. Deine Schwellen finden, gemeinsam mit dem Schmops — Schwellenschmops: ein bisschen Fußball-Nostalgie, ein bisschen Sportwissenschaft. Passt eigentlich ganz gut.</p>
 
               <p class="blog-card-label">EIN EHRLICHER HINWEIS</p>
               <p class="blog-card-desc">Auch dieser Text ist KI-unterstützt formuliert — die Geschichte dahinter ist trotzdem zu 100 % echt (und leider auch der Spitzname).</p>

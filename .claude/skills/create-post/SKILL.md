@@ -79,6 +79,15 @@ Aufbau pro Karte:
   zerhackt. Ausnahme: reine Empfehlungs-/Linklisten (wie die
   Podcast-Empfehlungen) bekommen statt vieler Einzel-Labels thematische
   Gruppen-Labels mit je einer `<ul class="blog-list">` darunter.
+- Ist ein `.blog-card-desc`-Absatz innerhalb eines Labels trotzdem länger
+  als ~70 Wörter, an einer natürlichen Gedankenpause in zwei separate
+  `<p class="blog-card-desc">` aufteilen statt einen Wall-of-Text zu lassen
+  — `css/style.css` fügt zwischen zwei direkt aufeinanderfolgenden
+  `.blog-card-desc` automatisch 14px Abstand ein (Pauls Feedback
+  2026-09-13: "macht nicht das ein oder andere Mal ein Zeilenumbruch Sinn
+  für bessere Lesbarkeit?"). `.blog-card-label` selbst ist bewusst als
+  klare, abgesetzte Zwischenüberschrift gestylt (11.5px, fett, 26px
+  Abstand nach oben) — daran beim Schreiben nichts inline überschreiben.
 
 ## Schritt 4 — Der ehrliche Hinweis (immer)
 
@@ -90,11 +99,20 @@ Formuliere ihn passend zum Post-Typ — bei einer Studien-Zusammenfassung
 anders als bei einem persönlichen Text (siehe die zwei bestehenden Varianten
 in `references/blog-card-template.md`).
 
-## Schritt 5 — Quellen (Pflicht bei Wissenschafts-Content)
+## Schritt 5 — Quellen (Pflicht bei Wissenschafts-Content, NICHT bei Praxiswissen)
 
 Sobald der Post eine wissenschaftliche Aussage, Studie oder Zahl aus fremder
 Forschung enthält, MUSS ein Quellen-Abschnitt folgen — keine Ausnahme, das
-ist Pauls explizite Vorgabe. Format exakt wie im bestehenden CP/FTP-Post
+ist Pauls explizite Vorgabe. **Kein** Quellen-Zwang dagegen bei etabliertem
+Praxis-/Trainingslehre-Vokabular ohne konkrete Studienzahl (z.B.
+Periodisierungs-Phasenmodelle wie Grundlage/Aufbau/Wettkampf/Regeneration,
+HIT/LIT-Begriffe) — Paul hat das 2026-09-13 beim Saisonplanungs-Post explizit
+klargestellt ("keine Wissenschaft notwendig"), nachdem ein Diagramm mit
+Tapering-Studienzahl entfernt wurde. Bei sowas lieber praxisnah bleiben oder,
+falls Paul eine Referenzseite nennt, deren Ansatz/Wording übernehmen statt
+eine Studie zu suchen. Im Zweifel nachfragen statt automatisch zu zitieren.
+
+Wenn Quellen doch nötig sind, Format exakt wie im bestehenden CP/FTP-Post
 (Snippet in `references/blog-card-template.md`):
 `<p class="blog-card-label">QUELLEN</p>` + `<ul class="source-list">` mit
 je einem `<li><a class="source-link" href="..." target="_blank"
