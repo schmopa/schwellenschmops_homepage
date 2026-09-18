@@ -93,7 +93,7 @@ CTA-Button:  ____________
 ```
 Titel:       Trainingsplanung & Steuerung
 Beschreibung:
-  Mit TrainingsLab, meinem selbst entwickelten Tool, siehst du dein sportliches Profil, deinen Plan – und vor allem warum du jede einzelne Einheit machst. Kein blindes Abarbeiten, sondern Training mit Verständnis.
+  Du bekommst dein sportliches Profil, deinen Plan – und vor allem weißt du, warum du jede einzelne Einheit machst. Kein blindes Abarbeiten, sondern Training mit Verständnis.
 Bild:        ____________
 Link/URL:    ____________
 CTA-Button:  ____________

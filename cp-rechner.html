@@ -5,7 +5,7 @@
   <script>document.documentElement.classList.add('js');</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Critical-Power-Rechner — SCHWELLENSCHMOPS</title>
-  <meta name="description" content="Berechne deine Critical Power (Bike/Row) oder Critical Speed (Run) aus wenigen Zeitfahrten — inklusive deiner persönlichen Trainingszonen. Kostenlos, ohne Anmeldung." />
+  <meta name="description" content="Berechne deine Critical Power (Bike/Row/SkiErg) oder Critical Speed (Run) aus wenigen Zeitfahrten — inklusive deiner persönlichen Trainingszonen. Kostenlos, ohne Anmeldung." />
   <link rel="canonical" href="https://schwellenschmops.at/cp-rechner.html" />
   <link rel="icon" href="favicon.ico" sizes="any" />
   <link rel="icon" href="images/favicon-32.png" type="image/png" sizes="32x32" />
@@ -18,13 +18,13 @@
   <meta property="og:locale" content="de_AT" />
   <meta property="og:url" content="https://schwellenschmops.at/cp-rechner.html" />
   <meta property="og:title" content="Critical-Power-Rechner — SCHWELLENSCHMOPS" />
-  <meta property="og:description" content="Berechne deine Critical Power (Bike/Row) oder Critical Speed (Run) aus wenigen Zeitfahrten — inklusive deiner persönlichen Trainingszonen. Kostenlos, ohne Anmeldung." />
+  <meta property="og:description" content="Berechne deine Critical Power (Bike/Row/SkiErg) oder Critical Speed (Run) aus wenigen Zeitfahrten — inklusive deiner persönlichen Trainingszonen. Kostenlos, ohne Anmeldung." />
   <meta property="og:image" content="https://schwellenschmops.at/images/og-image.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Critical-Power-Rechner — SCHWELLENSCHMOPS" />
-  <meta name="twitter:description" content="Berechne deine Critical Power (Bike/Row) oder Critical Speed (Run) aus wenigen Zeitfahrten — inklusive deiner persönlichen Trainingszonen. Kostenlos, ohne Anmeldung." />
+  <meta name="twitter:description" content="Berechne deine Critical Power (Bike/Row/SkiErg) oder Critical Speed (Run) aus wenigen Zeitfahrten — inklusive deiner persönlichen Trainingszonen. Kostenlos, ohne Anmeldung." />
   <meta name="twitter:image" content="https://schwellenschmops.at/images/og-image.jpg" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -72,7 +72,7 @@
       <div class="cp-hero-inner">
         <span class="section-label">CRITICAL POWER RECHNER · BETA</span>
         <h1 class="cp-hero-title">WO STEHST DU WIRKLICH?</h1>
-        <p class="cp-hero-sub">Vier Zahlen von dir, ein klares Bild deiner Leistungsfähigkeit. Wähle deine Sportart, trag deine Bestzeiten ein — den Rest übernehmen wir.</p>
+        <p class="cp-hero-sub">Vier Sportarten, ein Ansatz — aber jedes Testprotokoll tickt etwas anders. Wähle deine Sportart, trag deine Bestzeiten ein — den Rest übernimmt die Auswertung.</p>
       </div>
     </section>
 
@@ -91,13 +91,42 @@
 
         <form id="cp-form" novalidate>
 
-          <div class="cp-weight-field" id="cp-weight-field">
-            <label class="cp-weight-label" for="cp-weight">Körpergewicht</label>
-            <div class="cp-weight-row">
-              <input type="number" id="cp-weight" name="weight" placeholder="85" min="20" max="250" step="0.1" inputmode="decimal" />
-              <span class="cp-weight-unit">KG</span>
+          <div class="cp-meta-fields" id="cp-meta-fields">
+            <div class="cp-weight-field" id="cp-weight-field">
+              <label class="cp-weight-label" for="cp-weight">Körpergewicht</label>
+              <div class="cp-weight-row">
+                <input type="number" id="cp-weight" name="weight" placeholder="85" min="20" max="250" step="0.1" inputmode="decimal" />
+                <span class="cp-weight-unit">KG</span>
+              </div>
+              <p class="field-error" id="cp-weight-error"></p>
             </div>
-            <p class="field-error" id="cp-weight-error"></p>
+
+            <div class="cp-weight-field" id="cp-dragfactor-field" hidden>
+              <label class="cp-weight-label" for="cp-dragfactor">Drag Factor <span class="cp-optional-tag">(optional)</span></label>
+              <div class="cp-weight-row">
+                <input type="number" id="cp-dragfactor" name="dragfactor" placeholder="z.B. 130" min="1" max="999" step="1" inputmode="numeric" />
+                <span class="cp-weight-unit">DF</span>
+              </div>
+              <p class="field-error" id="cp-dragfactor-error"></p>
+            </div>
+
+            <div class="cp-gender-field" id="cp-gender-field">
+              <span class="cp-weight-label">Geschlecht</span>
+              <div class="cp-gender-toggle" role="radiogroup" aria-label="Geschlecht">
+                <button type="button" class="cp-gender-btn is-active" data-gender="m" role="radio" aria-checked="true">MÄNNLICH</button>
+                <button type="button" class="cp-gender-btn" data-gender="w" role="radio" aria-checked="false">WEIBLICH</button>
+              </div>
+            </div>
+
+            <div class="cp-weight-field" id="cp-cycle-field" hidden>
+              <label class="cp-weight-label" for="cp-cycle">Zyklusphase <span class="cp-optional-tag">(optional)</span></label>
+              <select id="cp-cycle" name="cycle">
+                <option value="">Keine Angabe</option>
+                <option value="menstruation">Menstruation</option>
+                <option value="erste_haelfte">Erste Zyklushälfte</option>
+                <option value="zweite_haelfte">Zweite Zyklushälfte</option>
+              </select>
+            </div>
           </div>
 
           <div class="cp-rows" id="cp-rows"><!-- wird von cp-rechner.js befüllt --></div>
@@ -130,6 +159,13 @@
         <div class="zone-spectrum-end" id="cp-zone-spectrum-end"></div>
 
         <div class="zone-legend" id="cp-zone-legend"></div>
+      </div>
+
+      <div class="cp-protocol-inner" id="cp-protocol" hidden>
+        <span class="section-label">TESTPROTOKOLL</span>
+        <h3 class="cp-zones-title">DEINE EINGABEN.</h3>
+        <p class="cp-protocol-meta" id="cp-protocol-meta"></p>
+        <div class="cp-protocol-table" id="cp-protocol-table"></div>
       </div>
     </section>
 

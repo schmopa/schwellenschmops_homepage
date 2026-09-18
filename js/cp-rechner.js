@@ -17,6 +17,14 @@
   const weightRow        = weightField.querySelector('.cp-weight-row');
   const weightInput      = document.getElementById('cp-weight');
   const weightError      = document.getElementById('cp-weight-error');
+  const dragFactorField  = document.getElementById('cp-dragfactor-field');
+  const dragFactorRow    = dragFactorField.querySelector('.cp-weight-row');
+  const dragFactorInput  = document.getElementById('cp-dragfactor');
+  const dragFactorError  = document.getElementById('cp-dragfactor-error');
+  const genderField      = document.getElementById('cp-gender-field');
+  const genderBtns       = document.querySelectorAll('.cp-gender-btn');
+  const cycleField       = document.getElementById('cp-cycle-field');
+  const cycleSelect      = document.getElementById('cp-cycle');
   const rowsContainer    = document.getElementById('cp-rows');
   const errorSummary     = document.getElementById('cp-error-summary');
   const resultsSection   = document.getElementById('cp-results');
@@ -26,6 +34,15 @@
   const spectrumEl       = document.getElementById('cp-zone-spectrum');
   const spectrumEndEl    = document.getElementById('cp-zone-spectrum-end');
   const legendEl         = document.getElementById('cp-zone-legend');
+  const protocolSection  = document.getElementById('cp-protocol');
+  const protocolMeta     = document.getElementById('cp-protocol-meta');
+  const protocolTable    = document.getElementById('cp-protocol-table');
+
+  const CYCLE_LABELS = {
+    menstruation: 'Menstruation',
+    erste_haelfte: 'Erste Zyklushälfte',
+    zweite_haelfte: 'Zweite Zyklushälfte'
+  };
 
   // Auto-Maske fuer alle Zeit-Felder (per Delegation, ueberlebt also auch das
   // Neu-Rendern der Zeilen beim Sportart-Wechsel): Ziffern -> "mm:ss".
@@ -48,8 +65,10 @@
   });
 
   let currentSport = 'bike';
+  let currentGender = 'm';
   let lastTilesData = []; // fuer PDF-Export: {label, value, sub, def}
   let lastZonesData = []; // fuer PDF-Export: {name, rangeLabel, pctLabel, bg}
+  let lastProtocolRows = []; // fuer PDF-Export: {label, lacLabel, hrLabel}
 
   /* ── Sportart-Konfiguration ──────────────────────────────────── */
   const SPORT_INTRO = {
@@ -72,12 +91,17 @@
   }
 
   const BIKE_ROWS = powerRows([1022, 430, 339, 299]); // Pauls echte Werte
+
+  // Row/SkiErg: der kurze Sprint-Effort fließt (wie beim Bike) ohnehin nicht in
+  // die CP-Regression ein, nur die 2/5(/12)-Minuten-Punkte tun das — anders als
+  // beim Bike ist er hier deshalb bewusst optional (required: false).
   const ROWERG_ROWS = powerRows([750, 420, 360, 320]); // Concept2 RowErg, Richtwert
+  ROWERG_ROWS[0].required = false;
 
   // Skiergometer nutzt nur drei Stützpunkte (30 Sek/2 Min/5 Min) statt der
   // sonst üblichen vier — 12-Minuten-Tests sind am SkiErg unüblich.
   const SKIERG_ROWS = [
-    { key: 'p30', label: '30 SEK', timePlaceholder: '0:30', valueLabel: 'Leistung', valuePlaceholder: '400 W', required: true },
+    { key: 'p30', label: '30 SEK', timePlaceholder: '0:30', valueLabel: 'Leistung', valuePlaceholder: '400 W', required: false },
     { key: 'p2',  label: '2 MIN',  timePlaceholder: '2:00', valueLabel: 'Leistung', valuePlaceholder: '320 W', required: true },
     { key: 'p5',  label: '5 MIN',  timePlaceholder: '5:00', valueLabel: 'Leistung', valuePlaceholder: '260 W', required: true }
   ]; // Concept2 SkiErg, Richtwerte
@@ -175,13 +199,20 @@
   function renderRows(sport) {
     rowsContainer.innerHTML = '';
     ROW_DEFS[sport].forEach((def) => {
+      const isOptional = def.required === false;
       const row = document.createElement('div');
-      row.className = 'cp-row';
+      row.className = 'cp-row' + (isOptional ? ' cp-row--optional' : '');
       row.dataset.key = def.key;
 
       const labelCol = document.createElement('div');
       labelCol.className = 'cp-row-label';
       labelCol.textContent = def.label;
+      if (isOptional) {
+        const tag = document.createElement('span');
+        tag.className = 'cp-row-optional-tag';
+        tag.textContent = 'optional';
+        labelCol.appendChild(tag);
+      }
 
       const timeField = document.createElement('div');
       timeField.className = 'cp-field';
@@ -197,11 +228,32 @@
         '<input type="text" id="cp-' + def.key + '-value" inputmode="decimal" autocomplete="off" ' +
         'placeholder="' + def.valuePlaceholder + '" data-role="value" />';
 
+      // Laktat/Ø-Herzfrequenz je Zeitfahren — rein informativ zum Dokumentieren
+      // des Testprotokolls, fließt in keine Formel ein, daher immer optional.
+      const extraField = document.createElement('div');
+      extraField.className = 'cp-row-extra';
+      extraField.innerHTML =
+        '<div></div>' +
+        '<div class="cp-field"><label for="cp-' + def.key + '-lac">Laktat (optional)</label>' +
+        '<input type="text" id="cp-' + def.key + '-lac" inputmode="decimal" autocomplete="off" ' +
+        'placeholder="mmol/l" data-role="lac" /></div>' +
+        '<div class="cp-field"><label for="cp-' + def.key + '-hr">Ø Herzfrequenz (optional)</label>' +
+        '<input type="text" id="cp-' + def.key + '-hr" inputmode="numeric" autocomplete="off" ' +
+        'placeholder="bpm" data-role="hr" /></div>';
+
       row.appendChild(labelCol);
       row.appendChild(timeField);
       row.appendChild(valueField);
+      row.appendChild(extraField);
       rowsContainer.appendChild(row);
     });
+  }
+
+  function updateCycleVisibility() {
+    // Geschlecht/Zyklus fließen nur in die VO2max-Schätzung ein, und die zeigen
+    // wir nur beim Bike an (siehe renderResultsBikeRow) — die ACSM-Formel dafür
+    // ist für Rad-Ergometrie kalibriert und auf Row/SkiErg nicht validiert.
+    cycleField.hidden = currentSport !== 'bike' || currentGender !== 'w';
   }
 
   function switchSport(sport) {
@@ -212,7 +264,11 @@
       t.setAttribute('aria-selected', String(active));
     });
     sportIntroEl.textContent = SPORT_INTRO[sport];
-    weightField.hidden = sport === 'run';
+    const isRun = sport === 'run';
+    weightField.hidden = isRun;
+    genderField.hidden = sport !== 'bike';
+    dragFactorField.hidden = isRun || sport === 'bike';
+    updateCycleVisibility();
     renderRows(sport);
     resultsSection.hidden = true;
     hideErrorSummary();
@@ -220,6 +276,18 @@
 
   tabs.forEach((btn) => {
     btn.addEventListener('click', () => switchSport(btn.dataset.sport));
+  });
+
+  genderBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      currentGender = btn.dataset.gender;
+      genderBtns.forEach((b) => {
+        const active = b === btn;
+        b.classList.toggle('is-active', active);
+        b.setAttribute('aria-checked', String(active));
+      });
+      updateCycleVisibility();
+    });
   });
 
   /* ── Validierung & Ergebnis-Sammlung ─────────────────────────── */
@@ -240,18 +308,75 @@
       timeInput.classList.remove('is-invalid');
       valueInput.classList.remove('is-invalid');
 
-      const t = parseTime(timeInput.value);
-      const p = parseNumber(valueInput.value);
+      const rawTime  = timeInput.value.trim();
+      const rawValue = valueInput.value.trim();
+      const bothEmpty = rawTime === '' && rawValue === '';
+
+      if (def.required === false && bothEmpty) return; // Sprint optional, leer = ok
+
+      const t = parseTime(rawTime);
+      const p = parseNumber(rawValue);
 
       if (t === null || p === null || p <= 0) {
         timeInput.classList.add('is-invalid');
         valueInput.classList.add('is-invalid');
-        errors.push('„' + def.label + '“: bitte Zeit (mm:ss) und Leistung (Watt) angeben.');
+        errors.push(
+          def.required === false
+            ? '„' + def.label + '“: bitte entweder Zeit UND Leistung angeben, oder beide leer lassen.'
+            : '„' + def.label + '“: bitte Zeit (mm:ss) und Leistung (Watt) angeben.'
+        );
         return;
       }
       efforts[def.key] = { t, p };
     });
     return efforts;
+  }
+
+  function collectExtras(rows, efforts, errors) {
+    const extras = {};
+    rows.forEach((def) => {
+      if (!efforts[def.key]) return; // ohne Zeitfahren keine sinnvolle Laktat/HF-Zuordnung
+      const lacInput = document.getElementById('cp-' + def.key + '-lac');
+      const hrInput  = document.getElementById('cp-' + def.key + '-hr');
+      lacInput.classList.remove('is-invalid');
+      hrInput.classList.remove('is-invalid');
+
+      const rawLac = lacInput.value.trim();
+      const rawHr  = hrInput.value.trim();
+      let lac = null, hr = null;
+
+      if (rawLac !== '') {
+        lac = parseNumber(rawLac);
+        if (lac === null || lac <= 0) {
+          lacInput.classList.add('is-invalid');
+          errors.push('„' + def.label + '“: Laktat bitte als Zahl (mmol/l) angeben oder leer lassen.');
+        }
+      }
+      if (rawHr !== '') {
+        hr = parseNumber(rawHr);
+        if (hr === null || hr <= 0) {
+          hrInput.classList.add('is-invalid');
+          errors.push('„' + def.label + '“: Ø Herzfrequenz bitte als Zahl (bpm) angeben oder leer lassen.');
+        }
+      }
+      if (lac !== null || hr !== null) extras[def.key] = { lac, hr };
+    });
+    return extras;
+  }
+
+  function collectDragFactor(errors) {
+    dragFactorRow.classList.remove('is-invalid');
+    dragFactorError.textContent = '';
+    const raw = dragFactorInput.value.trim();
+    if (raw === '') return null; // optional
+    const df = parseNumber(raw);
+    if (df === null || df <= 0) {
+      dragFactorRow.classList.add('is-invalid');
+      dragFactorError.textContent = 'Bitte einen gültigen Drag-Factor-Wert eingeben oder leer lassen.';
+      errors.push('Bitte einen gültigen Drag-Factor-Wert eingeben oder leer lassen.');
+      return null;
+    }
+    return df;
   }
 
   function collectRunEfforts(errors) {
@@ -300,15 +425,32 @@
   }
 
   /* ── Rechenkern ───────────────────────────────────────────────── */
-  function computeBikeRow(weight, e, rows) {
+  // Geschlechtsspezifischer VO2max-Faktor aus Pauls Excel-Sheet (Formel-Zellen
+  // F41/G41: ×0.96 und ×1.04, ohne Beschriftung welcher Wert für wen gilt).
+  // Zuordnung hier per Recherche in der Sportphysiologie-Literatur bestätigt:
+  // bei gleicher relativer Leistung liegt der VO2max-Koeffizient von Frauen
+  // durchweg unter dem von Männern (z.B. FRIEND-Gleichung: 1.65 vs. 1.76;
+  // Storer-Davis-Modell nutzt ebenfalls niedrigere Koeffizienten für Frauen) —
+  // daher Frauen = 0.96 (niedriger), Männer = 1.04 (höher).
+  const VO2MAX_GENDER_FACTOR = { m: 1.04, w: 0.96 };
+
+  // Concept2-Formel (identisch für RowErg und SkiErg, offiziell bestätigt):
+  // Watts = 2.80 × (500 / Pace[s/500m])³ → nach Pace aufgelöst.
+  function paceFromWatts(watts) {
+    return 500 * Math.pow(2.80 / watts, 1 / 3);
+  }
+
+  function computeBikeRow(weight, gender, e, rows) {
     // Erste Zeile ist immer der kurze Sprint-Effort (Bike/Row: 10 Sek, Ski: 30 Sek),
     // die übrigen Zeilen (2/5/12 Min bzw. 2/5 Min) gehen in die CP-Regression ein.
     const sprintDef = rows[0];
     const points = rows.slice(1).map((def) => ({ x: 1 / e[def.key].t, y: e[def.key].p }));
     const { slope: wPrime, intercept: cp } = linreg(points);
     const map = cp + wPrime / 300; // 300s = 5min, feste Konstante lt. Excel-Modell
-    const vo2max = (10.8 * map / weight + 7) * 1.0; // Einzelwert, Faktor 1.0
-    return { cp, wPrime, map, vo2max, sprint: e[sprintDef.key].p, sprintLabel: sprintDef.label, weight };
+    const factor = VO2MAX_GENDER_FACTOR[gender] || VO2MAX_GENDER_FACTOR.m;
+    const vo2max = (10.8 * map / weight + 7) * factor;
+    const sprint = e[sprintDef.key] ? e[sprintDef.key].p : null;
+    return { cp, wPrime, map, vo2max, sprint, sprintLabel: sprintDef.label, weight, gender };
   }
 
   function computeRun(e) {
@@ -387,14 +529,33 @@
     lastZonesData = zonesData;
   }
 
-  function renderResultsBikeRow(res) {
-    resultsSub.textContent = 'Deine Zahlen auf Basis deiner eingegebenen Zeitfahrten · ' + res.weight + ' kg Körpergewicht.';
+  function metaSuffix(dragFactor) {
+    const parts = [];
+    // Geschlecht/Zyklus werden nur beim Bike erfasst (steuern nur die dortige
+    // VO2max-Schätzung) — bei Row/Ski tauchen sie folgerichtig nicht auf.
+    if (currentSport === 'bike') {
+      parts.push(currentGender === 'w' ? 'Weiblich' : 'Männlich');
+      if (currentGender === 'w' && cycleSelect.value) {
+        parts.push(CYCLE_LABELS[cycleSelect.value]);
+      }
+    }
+    if (dragFactor) parts.push('Drag Factor ' + dragFactor);
+    return parts.join(' · ');
+  }
+
+  function renderResultsBikeRow(res, dragFactor) {
+    const suffix = metaSuffix(dragFactor);
+    resultsSub.textContent = 'Deine Zahlen auf Basis deiner eingegebenen Zeitfahrten · ' + res.weight + ' kg Körpergewicht' + (suffix ? ' · ' + suffix : '') + '.';
     const tiles = [
       { label: 'CRITICAL POWER', value: round(res.cp) + ' W', sub: (res.cp / res.weight).toFixed(1) + ' W/KG', def: 'Deine theoretisch unbegrenzt haltbare Dauerleistungsgrenze.' },
       { label: "W' — ANAEROBE RESERVE", value: (res.wPrime / 1000).toFixed(1), sub: 'KILOJOULE', def: 'Dein Energie-Tank für Belastungen oberhalb der Critical Power.' },
-      { label: 'MAP', value: round(res.map) + ' W', sub: (res.map / res.weight).toFixed(1) + ' W/KG', def: 'Die Leistung bei deiner höchsten Sauerstoffaufnahme.' },
-      { label: 'VO2MAX (GESCHÄTZT)', value: res.vo2max.toFixed(1), sub: 'ML/MIN/KG', def: 'Das maximale Sauerstoff-Volumen, das dein Körper pro Minute verwertet.' }
+      { label: 'MAP', value: round(res.map) + ' W', sub: (res.map / res.weight).toFixed(1) + ' W/KG', def: 'Die Leistung bei deiner höchsten Sauerstoffaufnahme.' }
     ];
+    if (currentSport === 'bike') {
+      tiles.push({ label: 'VO2MAX (GESCHÄTZT)', value: res.vo2max.toFixed(1), sub: 'ML/MIN/KG', def: 'Das maximale Sauerstoff-Volumen, das dein Körper pro Minute verwertet.' });
+    } else {
+      tiles.push({ label: '/500M PACE (CP)', value: formatTime(paceFromWatts(res.cp)), sub: 'MIN/500M', def: 'Deine Critical Power umgerechnet in die Concept2-Pace pro 500 Meter.' });
+    }
     tilesContainer.innerHTML = tiles.map((t) => tileHTML(t.label, t.value, t.sub, t.def)).join('');
     lastTilesData = tiles;
     renderZones(res.cp, 'power');
@@ -414,29 +575,76 @@
     renderZones(res.cs, 'pace');
   }
 
+  // Laktat/Ø-HF sind reine Dokumentationswerte (fließen in keine Formel ein) —
+  // die Tabelle erscheint daher nur, wenn zu mindestens einem Zeitfahren
+  // tatsächlich etwas eingetragen wurde.
+  function renderProtocol(rows, extras) {
+    const filled = rows.filter((def) => extras[def.key]);
+    if (filled.length === 0) {
+      protocolSection.hidden = true;
+      protocolTable.innerHTML = '';
+      lastProtocolRows = [];
+      return;
+    }
+
+    protocolMeta.textContent = 'Laktat- und Herzfrequenzwerte, die du zu deinen Zeitfahren angegeben hast.';
+
+    const protocolRows = filled.map((def) => {
+      const ex = extras[def.key];
+      return {
+        label: def.label,
+        lacLabel: ex.lac !== null ? ex.lac.toFixed(1) + ' mmol/l' : '—',
+        hrLabel: ex.hr !== null ? round(ex.hr) + ' bpm' : '—'
+      };
+    });
+
+    const head =
+      '<div class="cp-protocol-row cp-protocol-row-head">' +
+      '<div>ZEITFAHREN</div><div>LAKTAT</div><div>Ø HERZFREQUENZ</div>' +
+      '</div>';
+    const body = protocolRows.map((r) =>
+      '<div class="cp-protocol-row">' +
+      '<div class="cp-protocol-label">' + r.label + '</div>' +
+      '<div>' + r.lacLabel + '</div>' +
+      '<div>' + r.hrLabel + '</div>' +
+      '</div>'
+    ).join('');
+
+    protocolTable.innerHTML = head + body;
+    protocolSection.hidden = false;
+    lastProtocolRows = protocolRows;
+  }
+
   /* ── Submit ──────────────────────────────────────────────────── */
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     hideErrorSummary();
 
     const errors = [];
+    const rows = ROW_DEFS[currentSport];
     let results;
+    let extras = {};
 
     if (currentSport === 'run') {
       const efforts = collectRunEfforts(errors);
+      extras = collectExtras(rows, efforts, errors);
       if (errors.length === 0) results = computeRun(efforts);
       if (errors.length === 0 && results) renderResultsRun(results);
     } else {
       const weight = collectWeight(errors);
+      const dragFactor = (currentSport === 'row' || currentSport === 'ski') ? collectDragFactor(errors) : null;
       const efforts = collectPowerEfforts(errors);
-      if (errors.length === 0) results = computeBikeRow(weight, efforts, ROW_DEFS[currentSport]);
-      if (errors.length === 0 && results) renderResultsBikeRow(results);
+      extras = collectExtras(rows, efforts, errors);
+      if (errors.length === 0) results = computeBikeRow(weight, currentGender, efforts, rows);
+      if (errors.length === 0 && results) renderResultsBikeRow(results, dragFactor);
     }
 
     if (errors.length > 0) {
       showErrorSummary(errors);
       return;
     }
+
+    renderProtocol(rows, extras);
 
     resultsSection.hidden = false;
     resultsSection.classList.add('is-visible');
@@ -569,6 +777,38 @@
 
       y += 11;
     });
+
+    // Testprotokoll (Laktat/Ø-HF) — nur falls tatsächlich Werte eingetragen wurden.
+    if (lastProtocolRows.length > 0) {
+      y += 6;
+      ensureSpace(20);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor.apply(doc, GRAY);
+      doc.text('TESTPROTOKOLL', marginX, y);
+      y += 8;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(20);
+      doc.setTextColor.apply(doc, BLACK);
+      doc.text('DEINE EINGABEN.', marginX, y);
+      y += 11;
+
+      lastProtocolRows.forEach((r) => {
+        ensureSpace(9);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9.5);
+        doc.setTextColor.apply(doc, BLACK);
+        doc.text(r.label, marginX, y);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor.apply(doc, GRAY);
+        doc.text('Laktat ' + r.lacLabel + '  ·  Ø HF ' + r.hrLabel, marginX + 40, y);
+
+        y += 7;
+      });
+    }
 
     const stamp = new Date().toISOString().slice(0, 10);
     doc.save('CP-Rechner_' + currentSport + '_' + stamp + '.pdf');
