@@ -250,10 +250,10 @@
   }
 
   function updateCycleVisibility() {
-    // Geschlecht/Zyklus fließen nur in die VO2max-Schätzung ein, und die zeigen
-    // wir nur beim Bike an (siehe renderResultsBikeRow) — die ACSM-Formel dafür
-    // ist für Rad-Ergometrie kalibriert und auf Row/SkiErg nicht validiert.
-    cycleField.hidden = currentSport !== 'bike' || currentGender !== 'w';
+    // Bei Bike beeinflusst das Geschlecht die VO2max-Schätzung; bei Row/SkiErg
+    // (kein VO2max, siehe renderResultsBikeRow) ist es wie Drag Factor/Laktat/
+    // HF rein dokumentarisch — daher bei allen drei Kraft-Sportarten sichtbar.
+    cycleField.hidden = currentSport === 'run' || currentGender !== 'w';
   }
 
   function switchSport(sport) {
@@ -266,7 +266,7 @@
     sportIntroEl.textContent = SPORT_INTRO[sport];
     const isRun = sport === 'run';
     weightField.hidden = isRun;
-    genderField.hidden = sport !== 'bike';
+    genderField.hidden = isRun;
     dragFactorField.hidden = isRun || sport === 'bike';
     updateCycleVisibility();
     renderRows(sport);
@@ -530,14 +530,12 @@
   }
 
   function metaSuffix(dragFactor) {
-    const parts = [];
-    // Geschlecht/Zyklus werden nur beim Bike erfasst (steuern nur die dortige
-    // VO2max-Schätzung) — bei Row/Ski tauchen sie folgerichtig nicht auf.
-    if (currentSport === 'bike') {
-      parts.push(currentGender === 'w' ? 'Weiblich' : 'Männlich');
-      if (currentGender === 'w' && cycleSelect.value) {
-        parts.push(CYCLE_LABELS[cycleSelect.value]);
-      }
+    // Geschlecht/Zyklus werden bei Bike/Row/Ski erfasst — bei Bike fließt das
+    // Geschlecht in die VO2max-Schätzung ein, bei Row/Ski ist es (wie Drag
+    // Factor) rein dokumentarisch.
+    const parts = [currentGender === 'w' ? 'Weiblich' : 'Männlich'];
+    if (currentGender === 'w' && cycleSelect.value) {
+      parts.push(CYCLE_LABELS[cycleSelect.value]);
     }
     if (dragFactor) parts.push('Drag Factor ' + dragFactor);
     return parts.join(' · ');
