@@ -250,10 +250,10 @@
   }
 
   function updateCycleVisibility() {
-    // Bei Bike beeinflusst das Geschlecht die VO2max-Schätzung; bei Row/SkiErg
-    // (kein VO2max, siehe renderResultsBikeRow) ist es wie Drag Factor/Laktat/
-    // HF rein dokumentarisch — daher bei allen drei Kraft-Sportarten sichtbar.
-    cycleField.hidden = currentSport === 'run' || currentGender !== 'w';
+    // Geschlecht fließt jetzt bei jeder Sportart in eine VO2max-Schätzung ein
+    // (Bike/Run direkt, Row/Ski dokumentarisch) — Zyklusphase daher überall
+    // sichtbar, sobald "weiblich" gewählt ist.
+    cycleField.hidden = currentGender !== 'w';
   }
 
   function switchSport(sport) {
@@ -265,8 +265,13 @@
     });
     sportIntroEl.textContent = SPORT_INTRO[sport];
     const isRun = sport === 'run';
+    // Gewicht wird nur bei Bike/Row/Ski gebraucht (Watt/kg, VO2max-Formel).
+    // Die Lauf-VO2max-Formel (ACSM) rechnet direkt mit der Geschwindigkeit
+    // und ist bereits pro kg normiert — kein Körpergewicht nötig. Geschlecht
+    // fließt dagegen bei allen Sportarten in die jeweilige VO2max-Schätzung
+    // ein (bei Row/Ski rein dokumentarisch, siehe renderResultsBikeRow).
     weightField.hidden = isRun;
-    genderField.hidden = isRun;
+    genderField.hidden = false;
     dragFactorField.hidden = isRun || sport === 'bike';
     updateCycleVisibility();
     renderRows(sport);
@@ -453,7 +458,7 @@
     return { cp, wPrime, map, vo2max, sprint, sprintLabel: sprintDef.label, weight, gender };
   }
 
-  function computeRun(e) {
+  function computeRun(e, gender) {
     const speed1 = e.d1.d / e.d1.t;
     const speed3 = e.d3.d / e.d3.t;
     const points = [
@@ -463,7 +468,17 @@
     const { slope: dPrime, intercept: cs } = linreg(points);
     const paceSecPerKm = 1000 / cs;
     const sprintPaceSecPerKm = e.sprint ? 1000 / (e.sprint.d / e.sprint.t) : null;
-    return { cs, dPrime, paceSecPerKm, sprintPaceSecPerKm };
+
+    // Maximal Aerobic Speed (MAS): dieselbe Extrapolation auf ~5 Minuten wie
+    // MAP beim Bike (map = cp + wPrime/300), nur mit Tempo statt Watt.
+    // ACSM-Laufformel (horizontal, Steigung 0): VO2 (ml/kg/min) = 0.2 ×
+    // Geschwindigkeit[m/min] + 3.5 — bereits pro kg normiert, kein Gewicht
+    // nötig. Geschlechtsfaktor wie beim Bike (siehe VO2MAX_GENDER_FACTOR).
+    const mas = cs + dPrime / 300;
+    const factor = VO2MAX_GENDER_FACTOR[gender] || VO2MAX_GENDER_FACTOR.m;
+    const vo2max = (0.2 * (mas * 60) + 3.5) * factor;
+
+    return { cs, dPrime, paceSecPerKm, sprintPaceSecPerKm, vo2max };
   }
 
   /* ── Ergebnis-Rendering ──────────────────────────────────────── */
@@ -560,10 +575,12 @@
   }
 
   function renderResultsRun(res) {
-    resultsSub.textContent = 'Deine Zahlen auf Basis deiner eingegebenen Läufe.';
+    const suffix = metaSuffix(null);
+    resultsSub.textContent = 'Deine Zahlen auf Basis deiner eingegebenen Läufe' + (suffix ? ' · ' + suffix : '') + '.';
     const tiles = [
       { label: 'CRITICAL SPEED', value: formatTime(res.paceSecPerKm), sub: 'MIN/KM', def: 'Dein theoretisch unbegrenzt haltbares Tempo.' },
-      { label: "D' — ANAEROBE RESERVE", value: round(res.dPrime), sub: 'METER', def: 'Dein Distanz-Puffer für Tempo oberhalb der Critical Speed.' }
+      { label: "D' — ANAEROBE RESERVE", value: round(res.dPrime), sub: 'METER', def: 'Dein Distanz-Puffer für Tempo oberhalb der Critical Speed.' },
+      { label: 'VO2MAX (GESCHÄTZT)', value: res.vo2max.toFixed(1), sub: 'ML/MIN/KG', def: 'Das maximale Sauerstoff-Volumen, das dein Körper pro Minute verwertet.' }
     ];
     if (res.sprintPaceSecPerKm) {
       tiles.push({ label: 'SPRINT', value: formatTime(res.sprintPaceSecPerKm), sub: 'MIN/KM', def: 'Dein Tempo im maximalen Sprint.' });
@@ -626,7 +643,7 @@
     if (currentSport === 'run') {
       const efforts = collectRunEfforts(errors);
       extras = collectExtras(rows, efforts, errors);
-      if (errors.length === 0) results = computeRun(efforts);
+      if (errors.length === 0) results = computeRun(efforts, currentGender);
       if (errors.length === 0 && results) renderResultsRun(results);
     } else {
       const weight = collectWeight(errors);
