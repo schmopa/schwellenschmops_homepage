@@ -862,6 +862,7 @@ html.js .reveal-section.is-visible {
 }
 .blog-card.is-open {
   grid-column: 1 / -1;
+  max-width: 760px;
 }
 
 .blog-card {
