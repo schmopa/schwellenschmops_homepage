@@ -846,23 +846,17 @@ html.js .reveal-section.is-visible {
   line-height: 1;
 }
 
-/* Grid: gleich hohe Karten pro Reihe (stretch), damit Reihen sauber
-   abschließen statt eine "Stufe" zu bilden, wenn eine Karte mehr Text
-   hat als ihr Nachbar. Öffnet sich eine Karte per Akkordeon, springt
-   sie auf volle Breite (beide Spalten) und hat dadurch keinen
-   Reihen-Nachbarn mehr, dessen Höhe sie leer mitziehen könnte —
-   funktioniert unabhängig davon wie lang der jeweilige Blogeintrag ist. */
+/* Einspalten-Liste statt 2-Spalten-Grid (seit 2026-09-19): Jede Karte ist
+   immer 100% breit, ob offen oder geschlossen. Vermeidet die ganze Klasse
+   von Problemen, die ein Akkordeon in einem Mehrspalten-Grid mitbringt
+   (Reihen-Nachbar wird leer mitgestreckt, geöffnete Karte muss künstlich
+   auf volle Breite springen und dabei ihren Inhalt neu einrahmen) —
+   siehe [[blog-grid-readability-fixes]] für die Vorgeschichte dieser
+   Kette an Workarounds. */
 .blog-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto;
-  grid-auto-flow: row dense;
+  grid-template-columns: 1fr;
   gap: 3px;
-  align-items: stretch;
-}
-.blog-card.is-open {
-  grid-column: 1 / -1;
-  max-width: 760px;
 }
 
 .blog-card {
@@ -916,6 +910,7 @@ html.js .reveal-section.is-visible {
   text-transform: uppercase;
   color: var(--white);
   line-height: 1.1;
+  max-width: 680px;
 }
 
 .blog-card-desc {
@@ -923,6 +918,7 @@ html.js .reveal-section.is-visible {
   color: var(--gray-light);
   line-height: 1.7;
   flex-grow: 1;
+  max-width: 680px;
 }
 .blog-card-desc em { color: var(--accent); font-style: normal; }
 .blog-card-desc + .blog-card-desc { margin-top: 14px; }
@@ -1486,9 +1482,6 @@ html.js .reveal-section.is-visible {
    ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 900px) {
   .about-inner {
-    grid-template-columns: 1fr;
-  }
-  .blog-grid {
     grid-template-columns: 1fr;
   }
   .services-grid {
