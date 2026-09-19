@@ -929,8 +929,17 @@ html.js .reveal-section.is-visible {
 /* Accordion */
 .blog-card-body {
   max-height: 0;
+  max-width: 680px;
   overflow: hidden;
   transition: max-height 0.5s var(--ease-out);
+}
+/* Geöffneter Fließtext: breiter, heller und mit kürzerer Zeilenlänge als
+   der Teaser — Paul-Feedback 2026-09-19: volle Kartenbreite (~1200px) beim
+   Lesen ermüdend, zu wenig Kontrast. */
+.blog-card-body .blog-card-desc {
+  font-size: 16px;
+  line-height: 1.75;
+  color: #e2e2e2;
 }
 .blog-card.is-open .blog-card-body {
   max-height: 2000px;
@@ -966,10 +975,16 @@ html.js .reveal-section.is-visible {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--accent);
-  margin-top: 26px;
+  margin-top: 34px;
   margin-bottom: 6px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
-.blog-card-body > .blog-card-label:first-child { margin-top: 8px; }
+.blog-card-body > .blog-card-label:first-child {
+  margin-top: 8px;
+  padding-top: 0;
+  border-top: none;
+}
 
 .blog-card-cta {
   display: inline-flex;
