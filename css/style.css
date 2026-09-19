@@ -862,6 +862,7 @@ html.js .reveal-section.is-visible {
 .blog-card {
   background: var(--dark-mid);
   padding: clamp(28px, 3.5vw, 48px);
+  max-width: 780px;
   display: flex;
   flex-direction: column;
   gap: 14px;
