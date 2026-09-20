@@ -138,6 +138,28 @@ eigenen Datei.
 
 All colors and spacing as CSS custom properties in `:root` — only change there.
 
+### CTA-/Link-Taxonomie (3 Stufen)
+
+Damit Querverweise zwischen Seiten/Tools nicht zu einem Wildwuchs aus
+Buttons und Links werden, gilt eine feste Gewichtung:
+
+- **Tier 1 — `.btn.btn-accent`** (voller gelber Button): genau EINE
+  primäre Aktion pro Seite/Sektion — "das ist der Grund, warum dieser
+  Block existiert" (z.B. die Tool-Teaser auf `training.html`).
+- **`.btn.btn-dark`**: reserviert für den Coaching-/Kontakt-Upsell
+  ("JETZT ANFRAGEN", "ZUM INDIVIDUELLEN COACHING") — nicht für andere
+  Zwecke verwenden.
+- **Tier 2 — `.card-cta` / `.cp-intervalle-cta`-Muster** (Inline-Text-Link
+  mit Pfeil, mittlere Betonung): "du hast gerade ein Ergebnis gesehen,
+  hier ist der naheliegende nächste Schritt" — die richtige Wahl für
+  Tool-zu-Tool-Querverweise. `.cp-intervalle-cta` ist die Variante für
+  helle Hintergründe (dunkler Text statt gelbem `.card-cta`-Text).
+- **Tier 3 — reiner Inline-`<a>` ohne Klasse** im Fließtext: für
+  beiläufige Erwähnungen, die nicht der Kernpunkt des Satzes sind.
+
+Ein neues Tool bekommt seine Querverweise zu den anderen Tools über
+Tier 2, nicht über einen weiteren `.btn-accent`.
+
 ---
 
 ## Content management
