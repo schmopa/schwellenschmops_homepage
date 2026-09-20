@@ -9,12 +9,25 @@
 # hat, oder ein Cache-Buster in build.js geändert, aber build.js seither
 # nicht mehr laufen gelassen wurde).
 
+# Nur die tatsaechlich gestagten HTML-Dateien merken, BEVOR build.js
+# laeuft -- sonst blockt der Hook auch wegen HTML-Dateien, die gerade
+# gar nicht committet werden (z.B. andere, noch unfertige Edits im
+# Working Tree). Nur wenn build.js eine STAGED Datei nach dem Staging
+# noch veraendert, ist der gestagte Stand tatsaechlich veraltet.
+staged_html=$(git diff --cached --name-only -- '*.html')
+
 node build.js || exit 1
 
-changed=$(git diff --name-only -- '*.html')
-if [ -n "$changed" ]; then
-  echo "pre-commit: build.js hat folgende Datei(en) aktualisiert -- bitte pruefen und erneut 'git add' + committen:"
-  echo "$changed"
+stale=""
+for f in $staged_html; do
+  if ! git diff --quiet -- "$f"; then
+    stale="$stale $f"
+  fi
+done
+
+if [ -n "$stale" ]; then
+  echo "pre-commit: build.js hat folgende gestagte Datei(en) noch veraendert -- bitte pruefen und erneut 'git add' + committen:"
+  echo "$stale"
   exit 1
 fi
 
