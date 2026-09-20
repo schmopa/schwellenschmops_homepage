@@ -1510,54 +1510,29 @@ body:has(.cp-hero) #site-header {
 .cp-intervalle-cta:hover { gap: 14px; }
 
 /* ═══════════════════════════════════════════════════════════════
-   INTERVALLRECHNER — Zonenkarten (intervalle.html)
+   INTERVALLRECHNER — Formate-Tabelle (intervalle.html)
+   Schlichte Tabelle statt breiter Kästchen (Paul-Feedback 2026-09-20:
+   volle Breite mit Text nur ganz links wirkte unnötig groß/leer) —
+   nutzt .cp-protocol-table/-row vom CP-Rechner-Testprotokoll weiter.
+   Farbiger linker Rand pro Zone statt Farbfläche hält die Zonen
+   trotzdem auf einen Blick unterscheidbar.
    ═══════════════════════════════════════════════════════════════ */
-.interval-zone-list {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  margin-top: clamp(32px, 5vh, 48px);
+.interval-table { margin-top: clamp(32px, 5vh, 48px); }
+.interval-table .cp-protocol-row {
+  grid-template-columns: 190px 1fr 1fr;
+  padding-left: 14px;
 }
-.interval-zone-card {
-  background: var(--black);
-  border-left: 4px solid var(--zone-color, var(--accent));
-  padding: clamp(20px, 2.5vw, 32px);
+.interval-row--group-start {
+  border-top: 2px solid var(--black);
+  margin-top: 10px;
+  padding-top: 20px;
 }
-.interval-zone-name {
-  font-family: var(--font-cond);
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 16px;
-}
-.interval-zone-formats {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.interval-format-line {
-  font-family: var(--font-display);
-  font-size: clamp(18px, 2vw, 22px);
-  font-weight: 400;
-  letter-spacing: 0.01em;
-  color: var(--white);
-}
-.interval-format-rest {
-  font-family: var(--font-cond);
-  font-size: 13px;
-  letter-spacing: 0.03em;
-  color: var(--gray-light);
-  margin-top: 2px;
-}
+.interval-note-row { padding-top: 2px; padding-bottom: 18px; }
 .interval-zone-note {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 13px;
+  font-size: 12.5px;
+  font-style: italic;
   line-height: 1.5;
-  color: var(--gray-light);
+  color: var(--gray);
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1661,6 +1636,12 @@ body:has(.cp-hero) #site-header {
     grid-template-columns: 1fr;
     row-gap: 4px;
   }
+  .interval-table .cp-protocol-row {
+    grid-template-columns: 1fr;
+    row-gap: 4px;
+    padding-left: 10px;
+  }
+  .interval-row--group-start { padding-top: 16px; }
 }
 
 @media (max-width: 640px) {

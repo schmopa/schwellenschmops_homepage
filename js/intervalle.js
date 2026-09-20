@@ -268,30 +268,31 @@
     });
   }
 
-  function buildCard(zone, baseValue, mode) {
+  function buildCard(zone, baseValue, mode, bg) {
     return {
       key: zone.key,
       name: zone.name,
+      bg,
       formats: buildFormats(zone, baseValue, mode),
       note: zone.note || null
     };
   }
 
-  function cardHTML(card, bg) {
-    return (
-      '<div class="interval-zone-card" style="--zone-color:' + bg + ';">' +
-      '<div class="interval-zone-name">' + card.name + '</div>' +
-      '<div class="interval-zone-formats">' +
-      card.formats.map((f) =>
-        '<div class="interval-format">' +
-        '<div class="interval-format-line">' + f.line + '</div>' +
-        '<div class="interval-format-rest">' + f.restLine + '</div>' +
-        '</div>'
-      ).join('') +
-      '</div>' +
-      (card.note ? '<p class="interval-zone-note">' + card.note + '</p>' : '') +
-      '</div>'
-    );
+  // Schlichte Tabelle statt breiter Kästchen mit viel Leerraum (Paul-
+  // Feedback 2026-09-20) — wiederverwendet .cp-protocol-table/-row vom
+  // CP-Rechner-Testprotokoll. Farbiger linker Rand pro Zone (statt großer
+  // Farbfläche) hält die Zonen trotzdem auf einen Blick unterscheidbar.
+  function rowsHTML(card) {
+    const style = 'border-left: 4px solid ' + card.bg + ';';
+    const rows = card.formats.map((f, i) => {
+      const groupClass = i === 0 ? ' interval-row--group-start' : '';
+      const labelCell = i === 0 ? '<div class="cp-protocol-label">' + card.name + '</div>' : '<div></div>';
+      return '<div class="cp-protocol-row' + groupClass + '" style="' + style + '">' + labelCell + '<div>' + f.line + '</div><div>' + f.restLine + '</div></div>';
+    });
+    if (card.note) {
+      rows.push('<div class="cp-protocol-row interval-note-row" style="' + style + '"><div></div><div class="interval-zone-note">' + card.note + '</div></div>');
+    }
+    return rows.join('');
   }
 
   function renderResults(baseValue) {
@@ -301,13 +302,13 @@
       : 'Deine Intervallformate auf Basis von ' + formatTime(baseValue) + '/km Critical Speed.';
 
     const cards = INTERVAL_ZONES.map((zone, i) => {
-      const card = buildCard(zone, baseValue, cfg.mode);
       const bg = hexMix('#f5f4f0', '#ffe55c', i / (INTERVAL_ZONES.length - 1));
-      return { card, bg };
+      return buildCard(zone, baseValue, cfg.mode, bg);
     });
 
-    zoneListEl.innerHTML = cards.map((c) => cardHTML(c.card, c.bg)).join('');
-    lastCardsData = cards.map((c) => c.card);
+    const head = '<div class="cp-protocol-row cp-protocol-row-head"><div>ZONE</div><div>FORMAT</div><div>PAUSE</div></div>';
+    zoneListEl.innerHTML = head + cards.map((c) => rowsHTML(c)).join('');
+    lastCardsData = cards;
 
     resultsSection.hidden = false;
     resultsSection.classList.add('is-visible');
