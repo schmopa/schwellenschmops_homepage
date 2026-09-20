@@ -37,6 +37,14 @@
   const protocolSection  = document.getElementById('cp-protocol');
   const protocolMeta     = document.getElementById('cp-protocol-meta');
   const protocolTable    = document.getElementById('cp-protocol-table');
+  const intervalleCta    = document.getElementById('cp-intervalle-cta');
+
+  // Handoff zum Intervallrechner: CP (Watt) bzw. CS (Pace) direkt als
+  // URL-Parameter mitgeben, damit dort nichts erneut eingetippt werden muss.
+  function updateIntervalleCta(sport, value) {
+    if (!intervalleCta) return;
+    intervalleCta.href = 'intervalle.html?sport=' + encodeURIComponent(sport) + '&value=' + encodeURIComponent(value);
+  }
 
   const CYCLE_LABELS = {
     menstruation: 'Menstruation',
@@ -572,6 +580,7 @@
     tilesContainer.innerHTML = tiles.map((t) => tileHTML(t.label, t.value, t.sub, t.def)).join('');
     lastTilesData = tiles;
     renderZones(res.cp, 'power');
+    updateIntervalleCta(currentSport, round(res.cp));
   }
 
   function renderResultsRun(res) {
@@ -588,6 +597,7 @@
     tilesContainer.innerHTML = tiles.map((t) => tileHTML(t.label, t.value, t.sub, t.def)).join('');
     lastTilesData = tiles;
     renderZones(res.cs, 'pace');
+    updateIntervalleCta('run', formatTime(res.paceSecPerKm));
   }
 
   // Laktat/Ø-HF sind reine Dokumentationswerte (fließen in keine Formel ein) —
@@ -690,7 +700,7 @@
     const marginX = 18;
     const marginBottom = 18;
     const contentW = doc.internal.pageSize.getWidth() - marginX * 2;
-    const BLACK = [10, 10, 10], WHITE = [245, 244, 240], ACCENT = [255, 229, 92], GRAY = [120, 120, 120];
+    const BLACK = [10, 10, 10], ACCENT = [255, 229, 92], GRAY = [120, 120, 120];
     let y = 18;
 
     function ensureSpace(h) {
@@ -723,7 +733,8 @@
     doc.text(subLines, marginX, y);
     y += subLines.length * 5 + 8;
 
-    // Ergebnis-Kacheln, 2 Spalten
+    // Ergebnis-Kacheln, 2 Spalten. Dünner Rahmen + Akzentstreifen statt
+    // vollflächigem schwarzen Kasten — sieht gedruckt/als PDF sauberer aus.
     const gap = 6;
     const tileW = (contentW - gap) / 2;
     const tileH = 32;
@@ -732,29 +743,32 @@
       if (col === 0) ensureSpace(tileH + gap);
       const x = marginX + col * (tileW + gap);
 
-      doc.setFillColor.apply(doc, BLACK);
-      doc.rect(x, y, tileW, tileH, 'F');
+      doc.setDrawColor(225, 225, 225);
+      doc.setLineWidth(0.3);
+      doc.rect(x, y, tileW, tileH, 'S');
+      doc.setFillColor.apply(doc, ACCENT);
+      doc.rect(x, y, tileW, 2, 'F');
 
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(7.5);
       doc.setTextColor.apply(doc, GRAY);
-      doc.text(t.label, x + 5, y + 7);
+      doc.text(t.label, x + 5, y + 9);
 
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(17);
-      doc.setTextColor.apply(doc, ACCENT);
-      doc.text(String(t.value), x + 5, y + 16);
+      doc.setTextColor.apply(doc, BLACK);
+      doc.text(String(t.value), x + 5, y + 18);
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(7.5);
       doc.setTextColor.apply(doc, GRAY);
-      doc.text(t.sub, x + 5, y + 21);
+      doc.text(t.sub, x + 5, y + 23);
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(6.8);
-      doc.setTextColor.apply(doc, WHITE);
+      doc.setTextColor.apply(doc, GRAY);
       const defLines = doc.splitTextToSize(t.def, tileW - 10).slice(0, 2);
-      doc.text(defLines, x + 5, y + 26);
+      doc.text(defLines, x + 5, y + 28);
 
       if (col === 1 || i === lastTilesData.length - 1) y += tileH + gap;
     });

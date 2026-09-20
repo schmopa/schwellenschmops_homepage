@@ -126,6 +126,14 @@ html.js .reveal-section.is-visible {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
+/* Seiten mit hellem .cp-hero (cp-rechner.html, intervalle.html) brauchen
+   den dunklen Hintergrund von Anfang an — sonst ist die (immer weiße)
+   Logo-/Nav-Schrift beim Laden unsichtbar, bevor .scrolled greift. */
+body:has(.cp-hero) #site-header {
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
 
 .header-inner {
   max-width: var(--max-w);
@@ -1480,6 +1488,77 @@ html.js .reveal-section.is-visible {
 }
 .cp-protocol-label { font-family: var(--font-cond); font-weight: 600; letter-spacing: 0.04em; }
 .cp-protocol-empty { color: var(--gray); }
+
+/* CTA von den Zonen zum Intervallrechner — eigener, dunkler Link-Stil,
+   weil .cp-zones-inner (weißer Hintergrund) sonst mit dem hellgelben
+   .card-cta/.blog-card-cta-Akzent kaum lesbar wäre. */
+.cp-intervalle-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 32px;
+  font-family: var(--font-cond);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--black);
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 4px;
+  transition: gap 0.2s;
+}
+.cp-intervalle-cta:hover { gap: 14px; }
+
+/* ═══════════════════════════════════════════════════════════════
+   INTERVALLRECHNER — Zonenkarten (intervalle.html)
+   ═══════════════════════════════════════════════════════════════ */
+.interval-zone-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: clamp(32px, 5vh, 48px);
+}
+.interval-zone-card {
+  background: var(--black);
+  border-left: 4px solid var(--zone-color, var(--accent));
+  padding: clamp(20px, 2.5vw, 32px);
+}
+.interval-zone-name {
+  font-family: var(--font-cond);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+.interval-zone-formats {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.interval-format-line {
+  font-family: var(--font-display);
+  font-size: clamp(18px, 2vw, 22px);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: var(--white);
+}
+.interval-format-rest {
+  font-family: var(--font-cond);
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  color: var(--gray-light);
+  margin-top: 2px;
+}
+.interval-zone-note {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--gray-light);
+}
 
 /* ═══════════════════════════════════════════════════════════════
    RESPONSIVE

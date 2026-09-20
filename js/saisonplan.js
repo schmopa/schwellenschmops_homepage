@@ -404,7 +404,7 @@
     const marginX = 18;
     const marginBottom = 18;
     const contentW = doc.internal.pageSize.getWidth() - marginX * 2;
-    const BLACK = [10, 10, 10], WHITE = [245, 244, 240], ACCENT = [255, 229, 92], GRAY = [120, 120, 120];
+    const BLACK = [10, 10, 10], ACCENT = [255, 229, 92], GRAY = [120, 120, 120];
     let y = 18;
 
     function ensureSpace(h) {
@@ -444,29 +444,33 @@
     doc.text(subLines, marginX, y);
     y += subLines.length * 5 + 8;
 
-    // Phasen, volle Breite je Karte (mehr Text als bei CP-Rechner-Kacheln).
+    // Phasen, volle Breite je Karte. Dünner Akzentstreifen statt
+    // vollflächigem schwarzen Kasten — sieht gedruckt/als PDF sauberer aus.
     const cardH = 40;
     lastPlanData.phases.forEach((p) => {
       ensureSpace(cardH + 5);
 
-      doc.setFillColor.apply(doc, BLACK);
-      doc.rect(marginX, y, contentW, cardH, 'F');
+      doc.setDrawColor(225, 225, 225);
+      doc.setLineWidth(0.3);
+      doc.rect(marginX, y, contentW, cardH, 'S');
+      doc.setFillColor.apply(doc, ACCENT);
+      doc.rect(marginX, y, 3, cardH, 'F');
 
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(13);
-      doc.setTextColor.apply(doc, ACCENT);
-      doc.text(p.label.toUpperCase(), marginX + 6, y + 9);
+      doc.setTextColor.apply(doc, BLACK);
+      doc.text(p.label.toUpperCase(), marginX + 9, y + 9);
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
       doc.setTextColor.apply(doc, GRAY);
-      doc.text(formatDate(p.start) + ' – ' + formatDate(p.end) + '  ·  ' + weekLabel(p.weeks) + '  ·  ' + p.litHit, marginX + 6, y + 16);
+      doc.text(formatDate(p.start) + ' – ' + formatDate(p.end) + '  ·  ' + weekLabel(p.weeks) + '  ·  ' + p.litHit, marginX + 9, y + 16);
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9.5);
-      doc.setTextColor.apply(doc, WHITE);
-      const focusLines = doc.splitTextToSize(p.focusText, contentW - 12).slice(0, 2);
-      doc.text(focusLines, marginX + 6, y + 25);
+      doc.setTextColor.apply(doc, BLACK);
+      const focusLines = doc.splitTextToSize(p.focusText, contentW - 15).slice(0, 2);
+      doc.text(focusLines, marginX + 9, y + 25);
 
       y += cardH + 5;
     });

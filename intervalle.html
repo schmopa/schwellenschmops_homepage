@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <script>document.documentElement.classList.add('js');</script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Saisonplan — SCHWELLENSCHMOPS</title>
-  <meta name="description" content="Trag dein Zieldatum ein und bekomm einen groben Saisonplan: Grundlage, Aufbau, Wettkampf, Taper — mit echten Kalenderdaten. Kostenlos, ohne Anmeldung." />
-  <link rel="canonical" href="https://schwellenschmops.at/saisonplan.html" />
+  <title>Intervallrechner — SCHWELLENSCHMOPS</title>
+  <meta name="description" content="Konkrete Intervallformate für Bike, Row, Run und SkiErg — abgeleitet aus deiner Critical Power bzw. Critical Speed. Kostenlos, ohne Anmeldung." />
+  <link rel="canonical" href="https://schwellenschmops.at/intervalle.html" />
   <link rel="icon" href="favicon.ico" sizes="any" />
   <link rel="icon" href="images/favicon-32.png" type="image/png" sizes="32x32" />
   <link rel="icon" href="images/favicon-16.png" type="image/png" sizes="16x16" />
@@ -16,15 +16,15 @@
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="SCHWELLENSCHMOPS" />
   <meta property="og:locale" content="de_AT" />
-  <meta property="og:url" content="https://schwellenschmops.at/saisonplan.html" />
-  <meta property="og:title" content="Saisonplan — SCHWELLENSCHMOPS" />
-  <meta property="og:description" content="Trag dein Zieldatum ein und bekomm einen groben Saisonplan: Grundlage, Aufbau, Wettkampf, Taper — mit echten Kalenderdaten. Kostenlos, ohne Anmeldung." />
+  <meta property="og:url" content="https://schwellenschmops.at/intervalle.html" />
+  <meta property="og:title" content="Intervallrechner — SCHWELLENSCHMOPS" />
+  <meta property="og:description" content="Konkrete Intervallformate für Bike, Row, Run und SkiErg — abgeleitet aus deiner Critical Power bzw. Critical Speed. Kostenlos, ohne Anmeldung." />
   <meta property="og:image" content="https://schwellenschmops.at/images/og-image.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Saisonplan — SCHWELLENSCHMOPS" />
-  <meta name="twitter:description" content="Trag dein Zieldatum ein und bekomm einen groben Saisonplan: Grundlage, Aufbau, Wettkampf, Taper — mit echten Kalenderdaten. Kostenlos, ohne Anmeldung." />
+  <meta name="twitter:title" content="Intervallrechner — SCHWELLENSCHMOPS" />
+  <meta name="twitter:description" content="Konkrete Intervallformate für Bike, Row, Run und SkiErg — abgeleitet aus deiner Critical Power bzw. Critical Speed. Kostenlos, ohne Anmeldung." />
   <meta name="twitter:image" content="https://schwellenschmops.at/images/og-image.jpg" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -71,9 +71,9 @@
     <!-- ═══════════════════════════ HERO ═══════════════════════════ -->
     <section class="cp-hero">
       <div class="cp-hero-inner">
-        <span class="section-label">SAISONPLAN · BETA</span>
-        <h1 class="cp-hero-title">PLANE DEINE SAISON</h1>
-        <p class="cp-hero-sub">Dein Zieldatum, deine Sportart, dein Level — daraus bauen wir deinen groben Fahrplan. Vom Tag X rückwärts gerechnet, mit echten Kalenderdaten statt vager Wochenangaben.</p>
+        <span class="section-label">INTERVALLRECHNER</span>
+        <h1 class="cp-hero-title">SCHAFFBARE INTERVALLE.</h1>
+        <p class="cp-hero-sub">Ein Wert genügt: deine Critical Power (Bike/Row/SkiErg) oder Critical Speed (Run) aus dem <a href="cp-rechner.html">CP-Rechner</a> — daraus werden konkrete Intervallformate für fünf Trainingszonen.</p>
       </div>
     </section>
 
@@ -88,82 +88,52 @@
           <button type="button" class="cp-tab" data-sport="ski" role="tab" aria-selected="false">SKI</button>
         </div>
 
-        <p class="cp-sport-intro" id="plan-sport-intro">Dein Saisonplan fürs Radtraining.</p>
+        <p class="cp-sport-intro" id="int-sport-intro"></p>
 
-        <form id="plan-form" novalidate>
-
-          <div class="cp-weight-field">
-            <label class="cp-weight-label" for="plan-start">Startdatum</label>
-            <div class="cp-weight-row" id="plan-start-row">
-              <input type="date" id="plan-start" name="start" />
-              <button type="button" class="plan-today-btn" id="plan-start-today">HEUTE</button>
+        <form id="int-form" novalidate>
+          <div class="cp-weight-field" id="int-value-row">
+            <label class="cp-weight-label" for="int-value" id="int-value-label">Critical Power</label>
+            <div class="cp-weight-row">
+              <input type="text" id="int-value" inputmode="decimal" autocomplete="off" placeholder="274" />
+              <span class="cp-weight-unit" id="int-value-unit">W</span>
             </div>
-            <p class="field-error" id="plan-start-error"></p>
+            <p class="field-error" id="int-value-error"></p>
           </div>
 
-          <div class="cp-weight-field">
-            <label class="cp-weight-label" for="plan-tagx">Tag X — dein Zieldatum</label>
-            <div class="cp-weight-row" id="plan-tagx-row">
-              <input type="date" id="plan-tagx" name="tagx" />
-            </div>
-            <p class="field-error" id="plan-tagx-error"></p>
-          </div>
-
-          <div class="plan-pill-field">
-            <label class="cp-weight-label">Erfahrungslevel</label>
-            <div class="plan-pill-group" id="plan-level-group" role="radiogroup" aria-label="Erfahrungslevel">
-              <button type="button" class="plan-pill is-active" data-level="beginner" role="radio" aria-checked="true">EINSTEIGER</button>
-              <button type="button" class="plan-pill" data-level="intermediate" role="radio" aria-checked="false">FORTGESCHRITTEN</button>
-              <button type="button" class="plan-pill" data-level="advanced" role="radio" aria-checked="false">AMBITIONIERT</button>
-            </div>
-          </div>
-
-          <div class="plan-pill-field">
-            <label class="cp-weight-label">Wettkampfdauer</label>
-            <div class="plan-pill-group" id="plan-duration-group" role="radiogroup" aria-label="Wettkampfdauer">
-              <button type="button" class="plan-pill" data-duration="short" role="radio" aria-checked="false">&lt; 2 STD.</button>
-              <button type="button" class="plan-pill is-active" data-duration="medium" role="radio" aria-checked="true">2–5 STD.</button>
-              <button type="button" class="plan-pill" data-duration="long" role="radio" aria-checked="false">&gt; 5 STD.</button>
-            </div>
-          </div>
-
-          <button type="submit" class="cp-submit">JETZT PLANEN</button>
+          <button type="submit" class="cp-submit">INTERVALLE BERECHNEN</button>
           <p class="cp-submit-note">Keine Anmeldung nötig · Ergebnis sofort sichtbar</p>
         </form>
 
-        <div class="cp-error-summary" id="plan-error-summary" role="alert" hidden></div>
+        <div class="cp-error-summary" id="int-error-summary" role="alert" hidden></div>
 
       </div>
     </section>
 
     <!-- ═══════════════════════════ ERGEBNIS ═══════════════════════════ -->
-    <section class="cp-results reveal-section" id="plan-results" hidden>
+    <section class="cp-results reveal-section" id="int-results" hidden>
       <div class="cp-results-inner">
-        <span class="section-label">DEIN SAISONPLAN</span>
-        <h2 class="cp-results-title">DEIN FAHRPLAN.</h2>
-        <p class="cp-results-sub" id="plan-results-sub"></p>
+        <span class="section-label">DEINE FORMATE</span>
+        <h2 class="cp-results-title">DEIN TRAINING.</h2>
+        <p class="cp-results-sub" id="int-results-sub"></p>
+        <button type="button" class="cp-export-btn" id="int-export-pdf">ALS PDF SPEICHERN</button>
 
-        <div class="plan-timeline" id="plan-timeline"></div>
-
-        <button type="button" class="cp-export-btn" id="plan-export-pdf">ALS PDF SPEICHERN</button>
-
-        <div class="plan-phase-cards" id="plan-phase-cards"><!-- wird von saisonplan.js befüllt --></div>
+        <div class="interval-zone-list" id="int-zone-list"><!-- wird von intervalle.js befüllt --></div>
       </div>
     </section>
 
     <!-- ═══════════════════════════ HINWEIS ═══════════════════════════ -->
     <div class="disclaimer-bar">
-      <p>Das ist ein generischer Planentwurf basierend auf gängigen Trainingsprinzipien — kein individueller Trainingsplan. Willst du etwas Individuelles, das auf dich, deine Vorgeschichte und deinen Alltag zugeschnitten ist? <a href="index.html#contact" class="disclaimer-link">Meld dich.</a></p>
+      <p>Diese Formate sind generische, zonenbasierte Ausgangspunkte auf Basis anerkannter Trainingswissenschaft — keine individuelle Wochenplanung und kein Ersatz für ein auf dich abgestimmtes Coaching. Taste dich bei neuen Intervallformen erst an die untere Grenze der Wiederholungszahl heran.</p>
     </div>
 
     <!-- ═══════════════════════════ CTA-BANNER ═══════════════════════════ -->
     <section class="section-cta">
       <div class="cta-inner">
         <div class="cta-text">
-          <h2 class="cta-title">BEREIT FÜR ECHTE EINHEITEN?</h2>
-          <p>Dieser Plan zeigt dir die Phasen — dein Coach macht daraus konkrete Trainings.</p>
+          <h2 class="cta-title">EIN PLAN STATT NUR FORMATE?</h2>
+          <p>Ich sortiere deine Intervalle in einen echten Trainingsplan ein — mit Progression, Timing und Blick auf dein Gesamtbild.</p>
         </div>
-        <a href="index.html#contact" class="btn btn-dark">JETZT ANFRAGEN</a>
+        <a href="training.html" class="btn btn-dark">ZUM INDIVIDUELLEN COACHING</a>
       </div>
     </section>
 
@@ -189,6 +159,6 @@
 
   <script src="js/main.js?v=20260918"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/4.2.1/jspdf.umd.min.js" integrity="sha512-plOdviVmws4Y3JAvbnpfKb2hVxKM1lCwsi3vmElYRj+tiDLffZ4FVUj5a8vyKJ9pIgl8JCAHEJ4D1iUKBecswg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="js/saisonplan.js?v=20260920"></script>
+  <script src="js/intervalle.js?v=20260920"></script>
 </body>
 </html>
