@@ -893,10 +893,6 @@ body:has(.cp-hero) #site-header {
 .blog-card:hover::after { width: 100%; }
 .blog-card:hover { background: #1f1f1f; }
 
-.blog-card--placeholder {
-  opacity: 0.45;
-}
-
 .blog-card-tag {
   font-family: var(--font-cond);
   font-size: 10px;
@@ -1487,7 +1483,6 @@ body:has(.cp-hero) #site-header {
   color: var(--gray);
 }
 .cp-protocol-label { font-family: var(--font-cond); font-weight: 600; letter-spacing: 0.04em; }
-.cp-protocol-empty { color: var(--gray); }
 
 /* CTA von den Zonen zum Intervallrechner — eigener, dunkler Link-Stil,
    weil .cp-zones-inner (weißer Hintergrund) sonst mit dem hellgelben
