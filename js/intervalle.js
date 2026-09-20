@@ -355,11 +355,39 @@
     const marginX = 18;
     const marginBottom = 18;
     const contentW = doc.internal.pageSize.getWidth() - marginX * 2;
-    const BLACK = [10, 10, 10], ACCENT = [255, 229, 92], GRAY = [120, 120, 120];
+    const BLACK = [10, 10, 10], GRAY = [120, 120, 120];
+    const colZone = marginX + 6, colFormat = marginX + 62, colPause = marginX + 122;
     let y = 18;
 
+    function hexToRgb(hex) {
+      return [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
+    }
+
+    // Tabellenkopf wird nach jedem Seitenumbruch neu gezeichnet, damit eine
+    // fortgesetzte Tabelle auf Folgeseiten weiter als Tabelle lesbar bleibt.
+    function drawTableHead() {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor.apply(doc, GRAY);
+      doc.text('ZONE', colZone, y);
+      doc.text('FORMAT', colFormat, y);
+      doc.text('PAUSE', colPause, y);
+      y += 3;
+      doc.setDrawColor.apply(doc, BLACK);
+      doc.setLineWidth(0.5);
+      doc.line(marginX, y, marginX + contentW, y);
+      y += 7;
+    }
+
+    // h = benötigte Höhe der GESAMTEN Zonen-Gruppe (beide Formate + Notiz),
+    // nie nur einer einzelnen Zeile — sonst könnte der Umbruch mitten in
+    // einer Zone landen. Bricht die Seite, wird die Kopfzeile neu gezeichnet.
     function ensureSpace(h) {
-      if (y + h > pageH - marginBottom) { doc.addPage(); y = 18; }
+      if (y + h > pageH - marginBottom) {
+        doc.addPage();
+        y = 18;
+        drawTableHead();
+      }
     }
 
     doc.setFont('helvetica', 'normal');
@@ -387,51 +415,79 @@
     doc.text(subLines, marginX, y);
     y += subLines.length * 5 + 8;
 
-    // Dünner Akzentstrich statt vollflächigem schwarzen Kasten — sieht
-    // gedruckt/als PDF deutlich sauberer aus als ein satter Farbfüller.
+    // Tabelle statt Kästchen — spiegelt die Bildschirmdarstellung
+    // (.cp-protocol-table). Farbiger linker Tick pro Zonen-Gruppe statt
+    // Farbfläche, dickere Trennlinie zwischen Zonen-Gruppen.
+    drawTableHead();
+
     lastCardsData.forEach((card) => {
-      doc.setFont('helvetica', 'italic');
-      doc.setFontSize(8.5);
-      const noteLines = card.note ? doc.splitTextToSize(card.note, contentW - 12) : [];
-
-      const cardH = 8 + card.formats.length * 11 + (noteLines.length ? noteLines.length * 4.5 + 3 : 0);
-      ensureSpace(cardH + 8);
-
-      doc.setFillColor.apply(doc, ACCENT);
-      doc.rect(marginX, y, 3, cardH, 'F');
-
-      let ly = y + 6;
+      // Lange Zonennamen ("VO2MAX KURZ — VO2MAX-FOKUSSIERT") brechen bei
+      // splitTextToSize sonst mitten im Wort um -- am " — " manuell in zwei
+      // Zeilen teilen, jede für sich schmal genug für die Spalte.
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(11);
-      doc.setTextColor.apply(doc, BLACK);
-      doc.text(card.name, marginX + 8, ly);
-      ly += 7;
+      doc.setFontSize(9);
+      const nameParts = card.name.split(' — ');
+      const nameLines = nameParts.length === 2
+        ? doc.splitTextToSize(nameParts[0], 46).concat(doc.splitTextToSize('— ' + nameParts[1], 46))
+        : doc.splitTextToSize(card.name, 46);
 
-      card.formats.forEach((f) => {
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(10.5);
-        doc.setTextColor.apply(doc, BLACK);
-        doc.text(f.line, marginX + 8, ly);
-        ly += 5;
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(9);
-        doc.setTextColor.apply(doc, GRAY);
-        doc.text(f.restLine, marginX + 8, ly);
-        ly += 6;
-      });
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(8);
+      const noteLines = card.note ? doc.splitTextToSize(card.note, contentW - 46) : [];
+
+      const row0H = Math.max(nameLines.length * 4.2, 5) + 4;
+      const row1H = 9;
+      const noteH = noteLines.length ? noteLines.length * 3.8 + 4 : 0;
+      const groupH = row0H + row1H + noteH;
+      ensureSpace(groupH + 6);
+
+      const groupTop = y;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor.apply(doc, BLACK);
+      doc.text(nameLines, colZone, y + 4);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9.5);
+      doc.text(card.formats[0].line, colFormat, y + 4);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor.apply(doc, GRAY);
+      doc.text(card.formats[0].restLine, colPause, y + 4);
+
+      doc.setDrawColor(230, 230, 230);
+      doc.setLineWidth(0.2);
+      doc.line(marginX, y + row0H, marginX + contentW, y + row0H);
+      y += row0H;
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9.5);
+      doc.setTextColor.apply(doc, BLACK);
+      doc.text(card.formats[1].line, colFormat, y + 4);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor.apply(doc, GRAY);
+      doc.text(card.formats[1].restLine, colPause, y + 4);
+      y += row1H;
 
       if (noteLines.length) {
         doc.setFont('helvetica', 'italic');
-        doc.setFontSize(8.5);
+        doc.setFontSize(8);
         doc.setTextColor.apply(doc, GRAY);
-        doc.text(noteLines, marginX + 8, ly);
+        doc.text(noteLines, colFormat, y + 3);
+        y += noteH;
       }
 
-      doc.setDrawColor(225, 225, 225);
-      doc.setLineWidth(0.3);
-      doc.line(marginX, y + cardH + 4, marginX + contentW, y + cardH + 4);
+      doc.setFillColor.apply(doc, hexToRgb(card.bg));
+      doc.rect(marginX, groupTop, 1.5, y - groupTop, 'F');
 
-      y += cardH + 9;
+      doc.setDrawColor.apply(doc, BLACK);
+      doc.setLineWidth(0.5);
+      doc.line(marginX, y, marginX + contentW, y);
+      y += 7;
     });
 
     const stamp = new Date().toISOString().slice(0, 10);
