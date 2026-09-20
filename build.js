@@ -29,7 +29,7 @@ const PARTIALS_DIR = path.join(ROOT, 'partials');
 // synchron gehalten. Bei jeder inhaltlichen Änderung an der jeweiligen
 // Datei hier hochzählen (siehe README.md).
 const GLOBAL_TOKENS = {
-  CSS_VERSION: '20260920-2',
+  CSS_VERSION: '20260920-4',
   MAIN_JS_VERSION: '20260918',
   RECHNER_UTILS_VERSION: '20260920',
   PDF_UTILS_VERSION: '20260920'

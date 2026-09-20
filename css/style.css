@@ -517,6 +517,14 @@ body:has(.cp-hero) #site-header {
   color: var(--white);
   line-height: 1;
 }
+.services-intro {
+  max-width: 640px;
+  margin-top: 16px;
+  font-size: clamp(14px, 1.2vw, 16px);
+  font-weight: 300;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.7;
+}
 
 /* Grid */
 .services-grid {
@@ -532,6 +540,15 @@ body:has(.cp-hero) #site-header {
   background: var(--dark-mid);
   overflow: hidden;
   transition: background 0.3s var(--ease);
+}
+/* 5. Karte (kostenlose Tools) bewusst als eigene, volle Zeile -- kategorisch
+   anders als das bezahlte Angebot, spannt außerdem sauber die verbleibende
+   Zeile im 2-Spalten-Grid statt eine Luecke daneben zu lassen. */
+.service-card[data-index="05"] {
+  grid-column: 1 / -1;
+}
+.service-card[data-index="05"] .card-desc {
+  max-width: 640px;
 }
 .service-card::before {
   content: '';
