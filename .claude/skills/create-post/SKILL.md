@@ -101,16 +101,25 @@ in `references/blog-card-template.md`).
 
 ## Schritt 5 — Quellen (Pflicht bei Wissenschafts-Content, NICHT bei Praxiswissen)
 
-Sobald der Post eine wissenschaftliche Aussage, Studie oder Zahl aus fremder
-Forschung enthält, MUSS ein Quellen-Abschnitt folgen — keine Ausnahme, das
-ist Pauls explizite Vorgabe. **Kein** Quellen-Zwang dagegen bei etabliertem
-Praxis-/Trainingslehre-Vokabular ohne konkrete Studienzahl (z.B.
-Periodisierungs-Phasenmodelle wie Grundlage/Aufbau/Wettkampf/Regeneration,
-HIT/LIT-Begriffe) — Paul hat das 2026-09-13 beim Saisonplanungs-Post explizit
-klargestellt ("keine Wissenschaft notwendig"), nachdem ein Diagramm mit
-Tapering-Studienzahl entfernt wurde. Bei sowas lieber praxisnah bleiben oder,
-falls Paul eine Referenzseite nennt, deren Ansatz/Wording übernehmen statt
-eine Studie zu suchen. Im Zweifel nachfragen statt automatisch zu zitieren.
+Sobald der Post eine **konkrete** wissenschaftliche Aussage, Studie oder
+Zahl aus einer bestimmten fremden Arbeit enthält, MUSS ein Quellen-Abschnitt
+folgen — keine Ausnahme, das ist Pauls explizite Vorgabe. **Kein**
+Quellen-Zwang dagegen bei:
+- etabliertem Praxis-/Trainingslehre-Vokabular ohne konkrete Studienzahl
+  (z.B. Periodisierungs-Phasenmodelle wie Grundlage/Aufbau/Wettkampf/
+  Regeneration, HIT/LIT-Begriffe) — Paul hat das 2026-09-13 beim
+  Saisonplanungs-Post explizit klargestellt ("keine Wissenschaft
+  notwendig"), nachdem ein Diagramm mit Tapering-Studienzahl entfernt wurde.
+- einem vagen, unspezifischen Verweis auf den allgemeinen Forschungsstand
+  ohne konkrete Einzelstudie/Zahl (z.B. "Studien kommen dabei zu
+  unterschiedlichen Ergebnissen" oder "die Forschung ist sich uneinig") —
+  das ist eine Einordnung/Meinung, kein zitierfähiger Einzelfakt. Sobald
+  daraus eine konkrete Zahl oder ein bestimmtes Studienergebnis wird,
+  kippt es wieder in die Quellenpflicht.
+
+Bei sowas lieber praxisnah bleiben oder, falls Paul eine Referenzseite
+nennt, deren Ansatz/Wording übernehmen statt eine Studie zu suchen. Im
+Zweifel nachfragen statt automatisch zu zitieren.
 
 Wenn Quellen doch nötig sind, Format exakt wie im bestehenden CP/FTP-Post
 (Snippet in `references/blog-card-template.md`):
@@ -180,5 +189,7 @@ Paul explizit statt es hier mitzuerledigen.
 - Keine Inline-Styles, keine neuen Wrapper-Divs um die Karte herum.
 - Bei SVG: `min-width` gesetzt (Schritt 6), `aria-hidden` auf dem `<svg>`,
   `role="img"` + `aria-label` auf dem Wrapper.
-- Bei Wissenschafts-Content: Quellen-Abschnitt vorhanden.
+- Bei konkreter Studie/Zahl aus einer bestimmten Arbeit: Quellen-Abschnitt
+  vorhanden (vage Verweise auf den Forschungsstand ohne Einzelstudie/Zahl
+  sind davon ausgenommen, siehe Schritt 5).
 - "EIN EHRLICHER HINWEIS"-Abschnitt vorhanden.
