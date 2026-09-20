@@ -21,6 +21,7 @@
   const tagXInput       = document.getElementById('plan-tagx');
   const tagXRow         = document.getElementById('plan-tagx-row');
   const tagXError       = document.getElementById('plan-tagx-error');
+  const eventInput      = document.getElementById('plan-event');
   const levelGroup      = document.getElementById('plan-level-group');
   const durationGroup   = document.getElementById('plan-duration-group');
   const errorSummary    = document.getElementById('plan-error-summary');
@@ -82,16 +83,22 @@
     regeneration: { label: 'Regeneration', color: 'var(--gray-light)', opacity: 0.3 }
   };
 
-  function focusText(key, sportAdj) {
+  function focusText(key, sportAdj, goalLabel) {
     switch (key) {
       case 'grundlage': return 'Ausdauer und ' + sportAdj + 'Technik aufbauen — hoher Umfang, ruhige Intensität.';
       case 'aufbau': return 'Belastung steigern, erste ' + sportAdj + 'spezifische Reize und Vorbereitungswettkämpfe.';
       case 'wettkampf': return 'Wettkampfnahes Training, die Leistung wird abgerufen.';
-      case 'taper': return 'Umfang deutlich runter, frisch werden für Tag X.';
+      case 'taper': return 'Umfang deutlich runter, frisch werden für ' + goalLabel + '.';
       case 'regeneration': return 'Aktiv und passiv erholen, bevor der nächste Zyklus beginnt.';
       case 'erhaltung': return 'Form halten statt neu aufbauen — kurze, knackige Reize statt großer Umfänge.';
       default: return '';
     }
+  }
+
+  // Kürzt lange Eventnamen für Stellen mit wenig Platz (Zeitstrahl-Marker),
+  // volle Namen bleiben in Fließtext/PDF-Titel/Aria-Label erhalten.
+  function shortLabel(name, max) {
+    return name.length > max ? name.slice(0, max - 1).trimEnd() + '…' : name;
   }
 
   /* ── Datums-Helfer ────────────────────────────────────────────── */
@@ -131,15 +138,16 @@
   }
 
   /* ── Rechenkern ───────────────────────────────────────────────── */
-  function computePlan({ startDate, tagXDate, sport, level, duration }) {
+  function computePlan({ startDate, tagXDate, sport, level, duration, eventName }) {
     const totalDays = daysBetween(startDate, tagXDate);
     const cfg = DURATION_CONFIG[duration];
     const taperDays = cfg.taperWeeks * 7;
     const regenDays = cfg.regenWeeks * 7;
     const sportAdj = SPORT_LABELS[sport].adj;
+    const goalLabel = eventName || 'Tag X';
 
     if (totalDays < taperDays) {
-      return { mode: 'tooClose', weeksTotal: Math.round(totalDays / 7), phases: [], startDate, tagXDate };
+      return { mode: 'tooClose', weeksTotal: Math.round(totalDays / 7), phases: [], startDate, tagXDate, eventName };
     }
 
     const preTaperDays = totalDays - taperDays;
@@ -149,38 +157,38 @@
     if (preTaperDays < 21) {
       // Condensed: eine Erhaltungsphase statt Grundlage/Aufbau/Wettkampf.
       const erhaltungDays = Math.max(7, preTaperDays);
-      phases.push(buildPhase('erhaltung', cursor, erhaltungDays, sportAdj));
+      phases.push(buildPhase('erhaltung', cursor, erhaltungDays, sportAdj, goalLabel));
       cursor = addDays(cursor, erhaltungDays);
     } else {
       const split = LEVEL_SPLIT[level];
       const [gDays, aDays, wDays] = splitDays(preTaperDays, split);
-      phases.push(buildPhase('grundlage', cursor, gDays, sportAdj)); cursor = addDays(cursor, gDays);
-      phases.push(buildPhase('aufbau', cursor, aDays, sportAdj)); cursor = addDays(cursor, aDays);
-      phases.push(buildPhase('wettkampf', cursor, wDays, sportAdj)); cursor = addDays(cursor, wDays);
+      phases.push(buildPhase('grundlage', cursor, gDays, sportAdj, goalLabel)); cursor = addDays(cursor, gDays);
+      phases.push(buildPhase('aufbau', cursor, aDays, sportAdj, goalLabel)); cursor = addDays(cursor, aDays);
+      phases.push(buildPhase('wettkampf', cursor, wDays, sportAdj, goalLabel)); cursor = addDays(cursor, wDays);
     }
 
     // Taper endet exakt einen Tag vor Tag X (cursor steht hier bereits an
     // dieser Stelle, da preTaperDays/erhaltungDays exakt bis hierhin reichen).
-    phases.push(buildPhase('taper', cursor, taperDays, sportAdj));
+    phases.push(buildPhase('taper', cursor, taperDays, sportAdj, goalLabel));
 
     const regenStart = addDays(tagXDate, 1);
-    phases.push(buildPhase('regeneration', regenStart, regenDays, sportAdj));
+    phases.push(buildPhase('regeneration', regenStart, regenDays, sportAdj, goalLabel));
 
     return {
       mode: preTaperDays < 21 ? 'condensed' : 'full',
       weeksTotal: Math.round(totalDays / 7),
-      phases, startDate, tagXDate, sport, level, duration
+      phases, startDate, tagXDate, sport, level, duration, eventName
     };
   }
 
-  function buildPhase(key, start, days, sportAdj) {
+  function buildPhase(key, start, days, sportAdj, goalLabel) {
     const meta = PHASE_META[key];
     const end = addDays(start, days - 1);
     return {
       key, label: meta.label, color: meta.color, opacity: meta.opacity,
       start, end, weeks: Math.max(1, Math.round(days / 7)),
       isPostRace: key === 'regeneration',
-      focusText: focusText(key, sportAdj),
+      focusText: focusText(key, sportAdj, goalLabel),
       litHit: intensityLine(key)
     };
   }
@@ -196,6 +204,8 @@
 
     const plotX = 50, plotEndX = 590, plotW = plotEndX - plotX, bandY = 80, bandH = 40;
     const totalWeeksForWidth = plan.phases.reduce((s, p) => s + p.weeks, 0);
+    const goalLabel = plan.eventName || 'Tag X';
+    const markerLabel = shortLabel(goalLabel, 16).toUpperCase();
 
     let x = plotX;
     let rects = '', dividers = '', labels = '', tagXMarkup = '';
@@ -226,7 +236,7 @@
         tagXMarkup =
           '<line x1="' + tagXPixel.toFixed(1) + '" y1="55" x2="' + tagXPixel.toFixed(1) + '" y2="' + bandY + '" stroke="var(--white)" stroke-width="1.5" stroke-dasharray="3 4"/>' +
           '<circle cx="' + tagXPixel.toFixed(1) + '" cy="' + bandY + '" r="4" fill="var(--white)"/>' +
-          '<text x="' + tagXPixel.toFixed(1) + '" y="42" text-anchor="middle" font-family="var(--font-cond)" font-size="11" font-weight="700" letter-spacing="0.08em" fill="var(--accent)">TAG X</text>' +
+          '<text x="' + tagXPixel.toFixed(1) + '" y="42" text-anchor="middle" font-family="var(--font-cond)" font-size="11" font-weight="700" letter-spacing="0.08em" fill="var(--accent)">' + markerLabel + '</text>' +
           '<text x="' + tagXPixel.toFixed(1) + '" y="30" text-anchor="middle" font-family="var(--font-cond)" font-size="8.5" letter-spacing="0.02em" fill="var(--gray-light)">' + formatDateShort(plan.tagXDate) + '</text>';
       }
 
@@ -243,7 +253,7 @@
 
     const ariaLabel = 'Zeitstrahl deines Saisonplans mit den Phasen ' +
       plan.phases.map((p) => p.label + ' (' + weekLabel(p.weeks) + ')').join(', ') +
-      ', mit Tag X am ' + formatDate(plan.tagXDate) + '.';
+      ', mit ' + goalLabel + ' am ' + formatDate(plan.tagXDate) + '.';
 
     timelineEl.innerHTML =
       '<div class="plan-timeline-svg-wrap" role="img" aria-label="' + ariaLabel + '">' + svg + '</div>' +
@@ -378,12 +388,14 @@
       return;
     }
 
-    const plan = computePlan({ startDate, tagXDate, sport: currentSport, level: currentLevel, duration: currentDuration });
+    const eventName = eventInput.value.trim();
+    const plan = computePlan({ startDate, tagXDate, sport: currentSport, level: currentLevel, duration: currentDuration, eventName: eventName || null });
     lastPlanData = plan;
 
     const levelLabel = LEVEL_SPLIT[currentLevel].label;
     const durationLabel = DURATION_CONFIG[currentDuration].label;
-    resultsSub.textContent = weekLabel(plan.weeksTotal) + ' bis Tag X (' + formatDate(tagXDate) + ') · ' +
+    const goalLabel = eventName || 'Tag X';
+    resultsSub.textContent = weekLabel(plan.weeksTotal) + ' bis ' + goalLabel + ' (' + formatDate(tagXDate) + ') · ' +
       SPORT_LABELS[currentSport].name + ' · ' + levelLabel + ' · ' + durationLabel;
 
     renderTimeline(plan);
@@ -448,11 +460,15 @@
     doc.text('DEIN SAISONPLAN', marginX, y);
     y += 8;
 
+    // Lange Eventnamen (statt "Tag X") koennten die Titelzeile sonst ueber
+    // den Seitenrand hinausschieben -- bei Bedarf auf 2 Zeilen umbrechen.
+    const goalLabelPdf = lastPlanData.eventName || 'Tag X';
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(24);
     doc.setTextColor.apply(doc, BLACK);
-    doc.text('TAG X: ' + formatDate(lastPlanData.tagXDate).toUpperCase(), marginX, y);
-    y += 9;
+    const titleLines = doc.splitTextToSize((goalLabelPdf + ': ' + formatDate(lastPlanData.tagXDate)).toUpperCase(), contentW);
+    doc.text(titleLines, marginX, y);
+    y += 9 + (titleLines.length - 1) * 9;
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10.5);
@@ -460,6 +476,71 @@
     const subLines = doc.splitTextToSize(resultsSub.textContent, contentW);
     doc.text(subLines, marginX, y);
     y += subLines.length * 5 + 8;
+
+    // Zeitstrahl — vektorbasiert nachgebaut (kein SVG-Embed nötig), spiegelt
+    // die Bildschirm-Grafik (Phasenbänder + Tag-X-Marker) im PDF.
+    function hexToRgb(hex) {
+      return [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
+    }
+    function hexMix(h1, h2, t) {
+      const p = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+      const [r1, g1, b1] = p(h1);
+      const [r2, g2, b2] = p(h2);
+      return '#' + [r1, g1, b1].map((c, i) => Math.round(c + ([r2, g2, b2][i] - c) * t).toString(16).padStart(2, '0')).join('');
+    }
+
+    if (lastPlanData.phases.length) {
+      const bandH = 12, markerLabel = shortLabel(goalLabelPdf, 22).toUpperCase();
+      ensureSpace(bandH + 24);
+      const bandY = y + 8;
+      const totalWeeks = lastPlanData.phases.reduce((s, p) => s + p.weeks, 0);
+      let x = marginX;
+
+      lastPlanData.phases.forEach((p, i) => {
+        const w = Math.max(8, contentW * (p.weeks / totalWeeks));
+        const tint = p.key === 'regeneration' ? '#cccccc' : '#ffe55c';
+        doc.setFillColor.apply(doc, hexToRgb(hexMix('#ffffff', tint, p.opacity)));
+        doc.rect(x, bandY, w, bandH, 'F');
+        doc.setDrawColor(220, 220, 220);
+        doc.setLineWidth(0.2);
+        doc.rect(x, bandY, w, bandH, 'S');
+
+        // Schmale Segmente (< 20mm, z.B. 1-Wochen-Taper) bekommen wie im
+        // SVG rechts-/linksbündige Labels statt zentriert, sonst kollidieren
+        // benachbarte kurze Phasen (siehe [[saisonplan-feature]]-Bug-Learning).
+        const isLastPreRace = !p.isPostRace && (i === lastPlanData.phases.length - 1 || lastPlanData.phases[i + 1].isPostRace);
+        const isFirstPostRace = p.isPostRace && (i === 0 || !lastPlanData.phases[i - 1].isPostRace);
+        const compact = w < 20;
+        let labelAlign = 'center', labelX = x + w / 2;
+        if (compact && isLastPreRace) { labelAlign = 'right'; labelX = x + w - 1.5; }
+        else if (compact && isFirstPostRace) { labelAlign = 'left'; labelX = x + 1.5; }
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7);
+        doc.setTextColor.apply(doc, BLACK);
+        doc.text(p.label.toUpperCase(), labelX, bandY + bandH + 5, { align: labelAlign });
+        if (!compact) {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(6.5);
+          doc.setTextColor.apply(doc, GRAY);
+          doc.text(weekLabel(p.weeks), x + w / 2, bandY + bandH + 9, { align: 'center' });
+        }
+
+        if (isLastPreRace) {
+          const markX = x + w;
+          doc.setDrawColor.apply(doc, BLACK);
+          doc.setLineWidth(0.4);
+          doc.line(markX, bandY - 5, markX, bandY);
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(7.5);
+          doc.setTextColor.apply(doc, BLACK);
+          doc.text(markerLabel, Math.min(Math.max(markX, marginX + 15), marginX + contentW - 15), bandY - 7, { align: 'center' });
+        }
+        x += w;
+      });
+
+      y = bandY + bandH + 15;
+    }
 
     // Phasen, volle Breite je Karte. Dünner Akzentstreifen statt
     // vollflächigem schwarzen Kasten — sieht gedruckt/als PDF sauberer aus.
