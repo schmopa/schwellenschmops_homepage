@@ -3,7 +3,9 @@
    Reines Client-Side-JS, keine Datenübertragung, keine Speicherung.
    Rechenmodell: siehe KONZEPT.md §7 — Formeln gegen Pauls echten
    CriticalPower-Report (CP≈274.5W, W'≈18732J bei 85kg,
-   10s=1022W/2min=430W/5min=339W/12min=299W) verifiziert. */
+   10s=1022W/2min=430W/5min=339W/12min=299W) verifiziert.
+   Geteilte Helfer (parseTime/formatTime/hexMix/…) liegen in
+   js/rechner-utils.js, das PDF-Pagination-Gerüst in js/pdf-utils.js. */
 
 (function () {
   'use strict';
@@ -56,7 +58,7 @@
   // Neu-Rendern der Zeilen beim Sportart-Wechsel): Ziffern -> "mm:ss".
   rowsContainer.addEventListener('input', (e) => {
     if (e.target.dataset.role !== 'time') return;
-    const formatted = formatTimeDigits(e.target.value);
+    const formatted = RechnerUtils.formatTimeDigits(e.target.value);
     e.target.value = formatted;
     e.target.setSelectionRange(formatted.length, formatted.length);
   });
@@ -139,55 +141,6 @@
   ];
 
   /* ── Helfer ───────────────────────────────────────────────────── */
-  function parseTime(str) {
-    if (!str) return null;
-    // ":" ist der Normalfall; "." und "," werden zur Sicherheit ebenfalls
-    // akzeptiert (z.B. bei eingefügtem/eingetipptem Text ohne Auto-Maske).
-    const m = String(str).trim().match(/^(\d{1,3})[:.,]([0-5]?\d)$/);
-    if (!m) return null;
-    const total = parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
-    return total > 0 ? total : null;
-  }
-
-  // Formatiert Zeit-Eingaben automatisch als "mm:ss" beim Tippen. Wichtig auf
-  // Mobile: reine Ziffern-Tastaturen (inputmode="numeric") bieten auf vielen
-  // Geraeten gar keine Satzzeichen-Taste an, der Doppelpunkt laesst sich also
-  // nicht selbst eintippen. Nutzer:innen tippen daher einfach Ziffern
-  // (z.B. "530" fuer 5:30), der Doppelpunkt wird automatisch eingefuegt.
-  function formatTimeDigits(raw) {
-    const digits = String(raw).replace(/\D/g, '').slice(0, 5);
-    if (digits.length <= 2) return digits;
-    return digits.slice(0, -2) + ':' + digits.slice(-2);
-  }
-
-  function formatTime(totalSeconds) {
-    const s = Math.max(0, Math.round(totalSeconds));
-    const min = Math.floor(s / 60);
-    const sec = s % 60;
-    return min + ':' + String(sec).padStart(2, '0');
-  }
-
-  function parseNumber(str) {
-    if (str === null || str === undefined || String(str).trim() === '') return null;
-    const cleaned = String(str).trim().replace(',', '.').match(/^-?\d+(\.\d+)?/);
-    if (!cleaned) return null;
-    const n = parseFloat(cleaned[0]);
-    return Number.isFinite(n) ? n : null;
-  }
-
-  function round(n) { return Math.round(n); }
-
-  function hexMix(h1, h2, t) {
-    const p = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
-    const [r1, g1, b1] = p(h1);
-    const [r2, g2, b2] = p(h2);
-    const r = Math.round(r1 + (r2 - r1) * t);
-    const g = Math.round(g1 + (g2 - g1) * t);
-    const b = Math.round(b1 + (b2 - b1) * t);
-    const toHex = (v) => v.toString(16).padStart(2, '0');
-    return '#' + toHex(r) + toHex(g) + toHex(b);
-  }
-
   /* Lineare Regression (Excel SLOPE/INTERCEPT-Äquivalent) */
   function linreg(points) {
     const n = points.length;
@@ -284,7 +237,7 @@
     updateCycleVisibility();
     renderRows(sport);
     resultsSection.hidden = true;
-    hideErrorSummary();
+    RechnerUtils.hideErrorSummary(errorSummary);
   }
 
   tabs.forEach((btn) => {
@@ -304,15 +257,6 @@
   });
 
   /* ── Validierung & Ergebnis-Sammlung ─────────────────────────── */
-  function showErrorSummary(messages) {
-    errorSummary.innerHTML = messages.map((m) => '<p>' + m + '</p>').join('');
-    errorSummary.hidden = false;
-  }
-  function hideErrorSummary() {
-    errorSummary.hidden = true;
-    errorSummary.innerHTML = '';
-  }
-
   function collectPowerEfforts(errors) {
     const efforts = {};
     ROW_DEFS[currentSport].forEach((def) => {
@@ -327,8 +271,8 @@
 
       if (def.required === false && bothEmpty) return; // Sprint optional, leer = ok
 
-      const t = parseTime(rawTime);
-      const p = parseNumber(rawValue);
+      const t = RechnerUtils.parseTime(rawTime);
+      const p = RechnerUtils.parseNumber(rawValue);
 
       if (t === null || p === null || p <= 0) {
         timeInput.classList.add('is-invalid');
@@ -359,14 +303,14 @@
       let lac = null, hr = null;
 
       if (rawLac !== '') {
-        lac = parseNumber(rawLac);
+        lac = RechnerUtils.parseNumber(rawLac);
         if (lac === null || lac <= 0) {
           lacInput.classList.add('is-invalid');
           errors.push('„' + def.label + '“: Laktat bitte als Zahl (mmol/l) angeben oder leer lassen.');
         }
       }
       if (rawHr !== '') {
-        hr = parseNumber(rawHr);
+        hr = RechnerUtils.parseNumber(rawHr);
         if (hr === null || hr <= 0) {
           hrInput.classList.add('is-invalid');
           errors.push('„' + def.label + '“: Ø Herzfrequenz bitte als Zahl (bpm) angeben oder leer lassen.');
@@ -382,7 +326,7 @@
     dragFactorError.textContent = '';
     const raw = dragFactorInput.value.trim();
     if (raw === '') return null; // optional
-    const df = parseNumber(raw);
+    const df = RechnerUtils.parseNumber(raw);
     if (df === null || df <= 0) {
       dragFactorRow.classList.add('is-invalid');
       dragFactorError.textContent = 'Bitte einen gültigen Drag-Factor-Wert eingeben oder leer lassen.';
@@ -406,8 +350,8 @@
 
       if (!def.required && bothEmpty) return; // Sprint optional, leer = ok
 
-      const t = parseTime(rawTime);
-      const d = parseNumber(rawValue);
+      const t = RechnerUtils.parseTime(rawTime);
+      const d = RechnerUtils.parseNumber(rawValue);
 
       if (t === null || d === null || d <= 0) {
         timeInput.classList.add('is-invalid');
@@ -427,7 +371,7 @@
   function collectWeight(errors) {
     weightRow.classList.remove('is-invalid');
     weightError.textContent = '';
-    const w = parseNumber(weightInput.value);
+    const w = RechnerUtils.parseNumber(weightInput.value);
     if (w === null || w <= 0) {
       weightRow.classList.add('is-invalid');
       weightError.textContent = 'Bitte ein gültiges Körpergewicht eingeben.';
@@ -508,23 +452,23 @@
     const zonesData = [];
 
     ZONES.forEach((z, i) => {
-      const bg = hexMix('#f5f4f0', '#ffe55c', i / (ZONES.length - 1));
+      const bg = RechnerUtils.hexMix('#f5f4f0', '#ffe55c', i / (ZONES.length - 1));
       let rangeLabel, pctLabel, segLabel;
 
       if (mode === 'power') {
-        const lowW  = round(z.lo * baseValue);
-        const highW = round(z.hi * baseValue);
+        const lowW  = RechnerUtils.round(z.lo * baseValue);
+        const highW = RechnerUtils.round(z.hi * baseValue);
         rangeLabel = z.lo === 0 ? '< ' + highW + ' W' : lowW + '–' + highW + ' W';
         segLabel   = z.lo === 0 ? '0' : String(lowW);
       } else {
         const fastPace = 1000 / (z.hi * baseValue);
         const slowPace = z.lo === 0 ? null : 1000 / (z.lo * baseValue);
         rangeLabel = z.lo === 0
-          ? 'langsamer als ' + formatTime(fastPace) + '/km'
-          : formatTime(fastPace) + '–' + formatTime(slowPace) + '/km';
-        segLabel = z.lo === 0 ? '' : formatTime(slowPace);
+          ? 'langsamer als ' + RechnerUtils.formatTime(fastPace) + '/km'
+          : RechnerUtils.formatTime(fastPace) + '–' + RechnerUtils.formatTime(slowPace) + '/km';
+        segLabel = z.lo === 0 ? '' : RechnerUtils.formatTime(slowPace);
       }
-      pctLabel = z.lo === 0 ? '< ' + round(z.hi * 100) + ' %' : round(z.lo * 100) + '–' + round(z.hi * 100) + ' %';
+      pctLabel = z.lo === 0 ? '< ' + RechnerUtils.round(z.hi * 100) + ' %' : RechnerUtils.round(z.lo * 100) + '–' + RechnerUtils.round(z.hi * 100) + ' %';
       zonesData.push({ name: z.name, rangeLabel, pctLabel, bg });
 
       const seg = document.createElement('div');
@@ -546,8 +490,8 @@
 
     const topZone = ZONES[ZONES.length - 1];
     spectrumEndEl.textContent = mode === 'power'
-      ? round(topZone.hi * baseValue) + ' W'
-      : formatTime(1000 / (topZone.hi * baseValue)) + '/km';
+      ? RechnerUtils.round(topZone.hi * baseValue) + ' W'
+      : RechnerUtils.formatTime(1000 / (topZone.hi * baseValue)) + '/km';
 
     lastZonesData = zonesData;
   }
@@ -568,36 +512,36 @@
     const suffix = metaSuffix(dragFactor);
     resultsSub.textContent = 'Deine Zahlen auf Basis deiner eingegebenen Zeitfahrten · ' + res.weight + ' kg Körpergewicht' + (suffix ? ' · ' + suffix : '') + '.';
     const tiles = [
-      { label: 'CRITICAL POWER', value: round(res.cp) + ' W', sub: (res.cp / res.weight).toFixed(1) + ' W/KG', def: 'Deine theoretisch unbegrenzt haltbare Dauerleistungsgrenze.' },
+      { label: 'CRITICAL POWER', value: RechnerUtils.round(res.cp) + ' W', sub: (res.cp / res.weight).toFixed(1) + ' W/KG', def: 'Deine theoretisch unbegrenzt haltbare Dauerleistungsgrenze.' },
       { label: "W' — ANAEROBE RESERVE", value: (res.wPrime / 1000).toFixed(1), sub: 'KILOJOULE', def: 'Dein Energie-Tank für Belastungen oberhalb der Critical Power.' },
-      { label: 'MAP', value: round(res.map) + ' W', sub: (res.map / res.weight).toFixed(1) + ' W/KG', def: 'Die Leistung bei deiner höchsten Sauerstoffaufnahme.' }
+      { label: 'MAP', value: RechnerUtils.round(res.map) + ' W', sub: (res.map / res.weight).toFixed(1) + ' W/KG', def: 'Die Leistung bei deiner höchsten Sauerstoffaufnahme.' }
     ];
     if (currentSport === 'bike') {
       tiles.push({ label: 'VO2MAX (GESCHÄTZT)', value: res.vo2max.toFixed(1), sub: 'ML/MIN/KG', def: 'Das maximale Sauerstoff-Volumen, das dein Körper pro Minute verwertet.' });
     } else {
-      tiles.push({ label: '/500M PACE (CP)', value: formatTime(paceFromWatts(res.cp)), sub: 'MIN/500M', def: 'Deine Critical Power umgerechnet in die Concept2-Pace pro 500 Meter.' });
+      tiles.push({ label: '/500M PACE (CP)', value: RechnerUtils.formatTime(paceFromWatts(res.cp)), sub: 'MIN/500M', def: 'Deine Critical Power umgerechnet in die Concept2-Pace pro 500 Meter.' });
     }
     tilesContainer.innerHTML = tiles.map((t) => tileHTML(t.label, t.value, t.sub, t.def)).join('');
     lastTilesData = tiles;
     renderZones(res.cp, 'power');
-    updateIntervalleCta(currentSport, round(res.cp));
+    updateIntervalleCta(currentSport, RechnerUtils.round(res.cp));
   }
 
   function renderResultsRun(res) {
     const suffix = metaSuffix(null);
     resultsSub.textContent = 'Deine Zahlen auf Basis deiner eingegebenen Läufe' + (suffix ? ' · ' + suffix : '') + '.';
     const tiles = [
-      { label: 'CRITICAL SPEED', value: formatTime(res.paceSecPerKm), sub: 'MIN/KM', def: 'Dein theoretisch unbegrenzt haltbares Tempo.' },
-      { label: "D' — ANAEROBE RESERVE", value: round(res.dPrime), sub: 'METER', def: 'Dein Distanz-Puffer für Tempo oberhalb der Critical Speed.' },
+      { label: 'CRITICAL SPEED', value: RechnerUtils.formatTime(res.paceSecPerKm), sub: 'MIN/KM', def: 'Dein theoretisch unbegrenzt haltbares Tempo.' },
+      { label: "D' — ANAEROBE RESERVE", value: RechnerUtils.round(res.dPrime), sub: 'METER', def: 'Dein Distanz-Puffer für Tempo oberhalb der Critical Speed.' },
       { label: 'VO2MAX (GESCHÄTZT)', value: res.vo2max.toFixed(1), sub: 'ML/MIN/KG', def: 'Das maximale Sauerstoff-Volumen, das dein Körper pro Minute verwertet.' }
     ];
     if (res.sprintPaceSecPerKm) {
-      tiles.push({ label: 'SPRINT', value: formatTime(res.sprintPaceSecPerKm), sub: 'MIN/KM', def: 'Dein Tempo im maximalen Sprint.' });
+      tiles.push({ label: 'SPRINT', value: RechnerUtils.formatTime(res.sprintPaceSecPerKm), sub: 'MIN/KM', def: 'Dein Tempo im maximalen Sprint.' });
     }
     tilesContainer.innerHTML = tiles.map((t) => tileHTML(t.label, t.value, t.sub, t.def)).join('');
     lastTilesData = tiles;
     renderZones(res.cs, 'pace');
-    updateIntervalleCta('run', formatTime(res.paceSecPerKm));
+    updateIntervalleCta('run', RechnerUtils.formatTime(res.paceSecPerKm));
   }
 
   // Laktat/Ø-HF sind reine Dokumentationswerte (fließen in keine Formel ein) —
@@ -619,7 +563,7 @@
       return {
         label: def.label,
         lacLabel: ex.lac !== null ? ex.lac.toFixed(1) + ' mmol/l' : '—',
-        hrLabel: ex.hr !== null ? round(ex.hr) + ' bpm' : '—'
+        hrLabel: ex.hr !== null ? RechnerUtils.round(ex.hr) + ' bpm' : '—'
       };
     });
 
@@ -643,7 +587,7 @@
   /* ── Submit ──────────────────────────────────────────────────── */
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    hideErrorSummary();
+    RechnerUtils.hideErrorSummary(errorSummary);
 
     const errors = [];
     const rows = ROW_DEFS[currentSport];
@@ -665,7 +609,7 @@
     }
 
     if (errors.length > 0) {
-      showErrorSummary(errors);
+      RechnerUtils.showErrorSummary(errorSummary, errors);
       return;
     }
 
@@ -685,162 +629,141 @@
      abhalten, seine eigene Kopf-/Fußzeile (Datum, Titel, URL,
      Seitenzahl) einzublenden, und die Seitenumbrüche mitten in den
      Kacheln/Zonen lassen sich darüber nicht kontrollieren. */
-  function hexToRgb(hex) {
-    return [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
-  }
-
   function generatePdf() {
     if (!window.jspdf) {
       alert('PDF-Export ist gerade nicht verfügbar. Bitte Seite neu laden und erneut versuchen.');
       return;
     }
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-    const pageH = doc.internal.pageSize.getHeight();
-    const marginX = 18;
-    const marginBottom = 18;
-    const contentW = doc.internal.pageSize.getWidth() - marginX * 2;
-    const BLACK = [10, 10, 10], ACCENT = [255, 229, 92], GRAY = [120, 120, 120];
-    let y = 18;
-
-    function ensureSpace(h) {
-      if (y + h > pageH - marginBottom) { doc.addPage(); y = 18; }
-    }
-
-    // Datum ganz oben — unabhängig vom Browser garantiert erste Zeile im Dokument.
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor.apply(doc, GRAY);
-    doc.text('ERSTELLT AM ' + new Date().toLocaleDateString('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric' }) + '  ·  SCHWELLENSCHMOPS.AT/CP-RECHNER', marginX, y);
-    y += 11;
+    const { doc, state } = PdfUtils.createDoc('CP-RECHNER');
+    const ensureSpace = PdfUtils.makeEnsureSpace(doc, state, null);
+    const { BLACK, ACCENT, GRAY } = PdfUtils.COLORS;
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
     doc.setTextColor.apply(doc, GRAY);
-    doc.text('DEIN ERGEBNIS', marginX, y);
-    y += 8;
+    doc.text('DEIN ERGEBNIS', state.marginX, state.y);
+    state.y += 8;
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(26);
     doc.setTextColor.apply(doc, BLACK);
-    doc.text('DEINE ZAHLEN.', marginX, y);
-    y += 9;
+    doc.text('DEINE ZAHLEN.', state.marginX, state.y);
+    state.y += 9;
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10.5);
     doc.setTextColor.apply(doc, GRAY);
-    const subLines = doc.splitTextToSize(resultsSub.textContent, contentW);
-    doc.text(subLines, marginX, y);
-    y += subLines.length * 5 + 8;
+    const subLines = doc.splitTextToSize(resultsSub.textContent, state.contentW);
+    doc.text(subLines, state.marginX, state.y);
+    state.y += subLines.length * 5 + 8;
 
     // Ergebnis-Kacheln, 2 Spalten. Dünner Rahmen + Akzentstreifen statt
     // vollflächigem schwarzen Kasten — sieht gedruckt/als PDF sauberer aus.
     const gap = 6;
-    const tileW = (contentW - gap) / 2;
+    const tileW = (state.contentW - gap) / 2;
     const tileH = 32;
     lastTilesData.forEach((t, i) => {
       const col = i % 2;
       if (col === 0) ensureSpace(tileH + gap);
-      const x = marginX + col * (tileW + gap);
+      const x = state.marginX + col * (tileW + gap);
 
       doc.setDrawColor(225, 225, 225);
       doc.setLineWidth(0.3);
-      doc.rect(x, y, tileW, tileH, 'S');
+      doc.rect(x, state.y, tileW, tileH, 'S');
       doc.setFillColor.apply(doc, ACCENT);
-      doc.rect(x, y, tileW, 2, 'F');
+      doc.rect(x, state.y, tileW, 2, 'F');
 
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(7.5);
       doc.setTextColor.apply(doc, GRAY);
-      doc.text(t.label, x + 5, y + 9);
+      doc.text(t.label, x + 5, state.y + 9);
 
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(17);
       doc.setTextColor.apply(doc, BLACK);
-      doc.text(String(t.value), x + 5, y + 18);
+      doc.text(String(t.value), x + 5, state.y + 18);
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(7.5);
       doc.setTextColor.apply(doc, GRAY);
-      doc.text(t.sub, x + 5, y + 23);
+      doc.text(t.sub, x + 5, state.y + 23);
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(6.8);
       doc.setTextColor.apply(doc, GRAY);
       const defLines = doc.splitTextToSize(t.def, tileW - 10).slice(0, 2);
-      doc.text(defLines, x + 5, y + 28);
+      doc.text(defLines, x + 5, state.y + 28);
 
-      if (col === 1 || i === lastTilesData.length - 1) y += tileH + gap;
+      if (col === 1 || i === lastTilesData.length - 1) state.y += tileH + gap;
     });
-    y += 4;
+    state.y += 4;
 
     // Trainingszonen
     ensureSpace(24);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
     doc.setTextColor.apply(doc, GRAY);
-    doc.text('DEINE TRAININGSZONEN', marginX, y);
-    y += 8;
+    doc.text('DEINE TRAININGSZONEN', state.marginX, state.y);
+    state.y += 8;
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(20);
     doc.setTextColor.apply(doc, BLACK);
-    doc.text('VON EASY BIS VO2MAX.', marginX, y);
-    y += 11;
+    doc.text('VON EASY BIS VO2MAX.', state.marginX, state.y);
+    state.y += 11;
 
     lastZonesData.forEach((z) => {
       ensureSpace(9);
-      doc.setFillColor.apply(doc, hexToRgb(z.bg));
+      doc.setFillColor.apply(doc, PdfUtils.hexToRgb(z.bg));
       doc.setDrawColor(200, 200, 200);
-      doc.rect(marginX, y - 3.6, 4.5, 4.5, 'FD');
+      doc.rect(state.marginX, state.y - 3.6, 4.5, 4.5, 'FD');
 
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(9.5);
       doc.setTextColor.apply(doc, BLACK);
-      doc.text(z.name, marginX + 8, y);
+      doc.text(z.name, state.marginX + 8, state.y);
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
       doc.setTextColor.apply(doc, GRAY);
-      doc.text(z.rangeLabel + ' · ' + z.pctLabel, marginX + 8, y + 4.6);
+      doc.text(z.rangeLabel + ' · ' + z.pctLabel, state.marginX + 8, state.y + 4.6);
 
-      y += 11;
+      state.y += 11;
     });
 
     // Testprotokoll (Laktat/Ø-HF) — nur falls tatsächlich Werte eingetragen wurden.
     if (lastProtocolRows.length > 0) {
-      y += 6;
+      state.y += 6;
       ensureSpace(20);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(9);
       doc.setTextColor.apply(doc, GRAY);
-      doc.text('TESTPROTOKOLL', marginX, y);
-      y += 8;
+      doc.text('TESTPROTOKOLL', state.marginX, state.y);
+      state.y += 8;
 
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(20);
       doc.setTextColor.apply(doc, BLACK);
-      doc.text('DEINE EINGABEN.', marginX, y);
-      y += 11;
+      doc.text('DEINE EINGABEN.', state.marginX, state.y);
+      state.y += 11;
 
       lastProtocolRows.forEach((r) => {
         ensureSpace(9);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(9.5);
         doc.setTextColor.apply(doc, BLACK);
-        doc.text(r.label, marginX, y);
+        doc.text(r.label, state.marginX, state.y);
 
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(9);
         doc.setTextColor.apply(doc, GRAY);
-        doc.text('Laktat ' + r.lacLabel + '  ·  Ø HF ' + r.hrLabel, marginX + 40, y);
+        doc.text('Laktat ' + r.lacLabel + '  ·  Ø HF ' + r.hrLabel, state.marginX + 40, state.y);
 
-        y += 7;
+        state.y += 7;
       });
     }
 
-    const stamp = new Date().toISOString().slice(0, 10);
-    doc.save('CP-Rechner_' + currentSport + '_' + stamp + '.pdf');
+    PdfUtils.saveWithStamp(doc, 'CP-Rechner', currentSport);
   }
 
   exportPdfBtn.addEventListener('click', generatePdf);
