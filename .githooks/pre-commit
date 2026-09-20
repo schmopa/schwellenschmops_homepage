@@ -1,0 +1,21 @@
+#!/bin/sh
+# SCHWELLENSCHMOPS — pre-commit
+#
+# Läuft bei jedem `git commit` (aktiviert über `git config core.hooksPath
+# .githooks`, siehe README.md). Führt build.js aus und bricht den Commit
+# ab, wenn sich dadurch noch etwas an den Root-HTML-Seiten ändert -- das
+# würde bedeuten, dass der gestagte Stand nicht mehr zu partials/ passt
+# (z.B. weil jemand direkt in einer HTML-Datei statt im Partial editiert
+# hat, oder ein Cache-Buster in build.js geändert, aber build.js seither
+# nicht mehr laufen gelassen wurde).
+
+node build.js || exit 1
+
+changed=$(git diff --name-only -- '*.html')
+if [ -n "$changed" ]; then
+  echo "pre-commit: build.js hat folgende Datei(en) aktualisiert -- bitte pruefen und erneut 'git add' + committen:"
+  echo "$changed"
+  exit 1
+fi
+
+exit 0
