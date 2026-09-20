@@ -250,16 +250,31 @@
       '<p class="plan-timeline-caption">Von deinem Startdatum (' + formatDate(plan.startDate) + ') bis Tag X (' + formatDate(plan.tagXDate) + ') und der Regeneration danach — dein persönlicher Saisonplan im Überblick.</p>';
   }
 
-  /* ── Phasen-Karten ────────────────────────────────────────────── */
-  function phaseCardHTML(p) {
+  /* ── Phasen-Tabelle ───────────────────────────────────────────────
+     Schlichte Tabelle statt voller Farbkarten (gleicher Standard wie
+     [[intervalle-feature]]: .cp-protocol-table, farbiger linker Rand
+     statt Farbfläche) — einheitliches Muster über alle Rechner-Tools. */
+  function hexMix(h1, h2, t) {
+    const p = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+    const [r1, g1, b1] = p(h1);
+    const [r2, g2, b2] = p(h2);
+    const r = Math.round(r1 + (r2 - r1) * t);
+    const g = Math.round(g1 + (g2 - g1) * t);
+    const b = Math.round(b1 + (b2 - b1) * t);
+    const toHex = (v) => v.toString(16).padStart(2, '0');
+    return '#' + toHex(r) + toHex(g) + toHex(b);
+  }
+
+  function phaseRowHTML(p, bg) {
+    const style = 'border-left: 4px solid ' + bg + ';';
+    const meta = formatDate(p.start) + ' – ' + formatDate(p.end) + ' · ' + weekLabel(p.weeks) + ' · ' + p.litHit;
     return (
-      '<div class="plan-phase-card">' +
-      '<div class="plan-phase-card-label">' + p.label + '</div>' +
-      '<div class="plan-phase-card-dates">' + formatDate(p.start) + ' – ' + formatDate(p.end) + '</div>' +
-      '<div class="plan-phase-card-weeks">' + weekLabel(p.weeks) + '</div>' +
-      '<div class="plan-phase-card-divider"></div>' +
-      '<div class="plan-phase-card-focus">' + p.focusText + '</div>' +
-      '<div class="plan-phase-card-lithit">' + p.litHit + '</div>' +
+      '<div class="cp-protocol-row interval-row--group-start" style="' + style + '">' +
+      '<div class="cp-protocol-label">' + p.label + '</div>' +
+      '<div>' + meta + '</div><div></div>' +
+      '</div>' +
+      '<div class="cp-protocol-row interval-note-row" style="' + style + '">' +
+      '<div></div><div class="interval-zone-note">' + p.focusText + '</div>' +
       '</div>'
     );
   }
@@ -269,7 +284,9 @@
       phaseCardsEl.innerHTML = '';
       return;
     }
-    phaseCardsEl.innerHTML = plan.phases.map(phaseCardHTML).join('');
+    const head = '<div class="cp-protocol-row cp-protocol-row-head"><div>PHASE</div><div>ZEITRAUM</div><div></div></div>';
+    const rows = plan.phases.map((p, i) => phaseRowHTML(p, hexMix('#f5f4f0', '#ffe55c', i / (plan.phases.length - 1 || 1)))).join('');
+    phaseCardsEl.innerHTML = head + rows;
   }
 
   /* ── Sportart-/Pill-Auswahl ───────────────────────────────────── */

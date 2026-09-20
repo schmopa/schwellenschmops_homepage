@@ -1757,59 +1757,9 @@ body:has(.cp-hero) #site-header {
   line-height: 1.6;
 }
 
-/* Phasen-Karten */
-.plan-phase-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
-}
-.plan-phase-card {
-  background: var(--black);
-  padding: 28px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.plan-phase-card-label {
-  font-family: var(--font-display);
-  font-size: 26px;
-  color: var(--accent);
-  line-height: 1;
-  text-transform: uppercase;
-}
-.plan-phase-card-dates {
-  font-family: var(--font-cond);
-  font-size: 13px;
-  letter-spacing: 0.04em;
-  color: var(--white);
-}
-.plan-phase-card-weeks {
-  font-family: var(--font-cond);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--gray);
-}
-.plan-phase-card-divider {
-  height: 1px;
-  background: var(--dark-mid);
-  margin: 6px 0 2px;
-}
-.plan-phase-card-focus {
-  font-family: var(--font-body);
-  font-size: 13.5px;
-  line-height: 1.5;
-  color: var(--gray-light);
-  font-weight: 300;
-}
-.plan-phase-card-lithit {
-  font-family: var(--font-cond);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  color: var(--gray);
-  margin-top: auto;
-  padding-top: 6px;
-}
+/* Phasen-Tabelle — gleicher Standard wie die Intervall-Tabelle
+   (.cp-protocol-table, farbiger linker Rand statt Farbfläche). */
+.plan-phase-table { margin-top: clamp(24px, 4vh, 40px); }
 
 /* Gratis-Tool-Teaser (training.html, vor den Preis-Karten) */
 .section-tool-teaser {
@@ -1848,10 +1798,6 @@ body:has(.cp-hero) #site-header {
 }
 .disclaimer-link:hover { color: var(--white); }
 
-@media (max-width: 900px) {
-  .plan-phase-cards { grid-template-columns: 1fr; }
-}
 @media (max-width: 640px) {
   .plan-pill { flex: 1 1 auto; padding: 10px 8px; font-size: 11px; text-align: center; }
-  .plan-phase-card-label { font-size: 22px; }
 }
