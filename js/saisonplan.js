@@ -4,7 +4,9 @@
    (Grundlage/Aufbau/Wettkampf/Taper/Regeneration) mit echten
    Kalenderdaten berechnet. Reines Client-Side-JS, keine Datenübertragung,
    keine Speicherung. Bewusst nur Makro-Ebene — für individuelle
-   Wochenpläne/Einheiten siehe training.html. */
+   Wochenpläne/Einheiten siehe training.html.
+   Geteilte Helfer (hexMix/…) liegen in js/rechner-utils.js, das
+   PDF-Pagination-Gerüst in js/pdf-utils.js. */
 
 (function () {
   'use strict';
@@ -264,17 +266,6 @@
      Schlichte Tabelle statt voller Farbkarten (gleicher Standard wie
      [[intervalle-feature]]: .cp-protocol-table, farbiger linker Rand
      statt Farbfläche) — einheitliches Muster über alle Rechner-Tools. */
-  function hexMix(h1, h2, t) {
-    const p = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
-    const [r1, g1, b1] = p(h1);
-    const [r2, g2, b2] = p(h2);
-    const r = Math.round(r1 + (r2 - r1) * t);
-    const g = Math.round(g1 + (g2 - g1) * t);
-    const b = Math.round(b1 + (b2 - b1) * t);
-    const toHex = (v) => v.toString(16).padStart(2, '0');
-    return '#' + toHex(r) + toHex(g) + toHex(b);
-  }
-
   function phaseRowHTML(p, bg) {
     const style = 'border-left: 4px solid ' + bg + ';';
     const meta = formatDate(p.start) + ' – ' + formatDate(p.end) + ' · ' + weekLabel(p.weeks) + ' · ' + p.litHit;
@@ -295,7 +286,7 @@
       return;
     }
     const head = '<div class="cp-protocol-row cp-protocol-row-head"><div>PHASE</div><div>ZEITRAUM</div><div></div></div>';
-    const rows = plan.phases.map((p, i) => phaseRowHTML(p, hexMix('#f5f4f0', '#ffe55c', i / (plan.phases.length - 1 || 1)))).join('');
+    const rows = plan.phases.map((p, i) => phaseRowHTML(p, RechnerUtils.hexMix('#f5f4f0', '#ffe55c', i / (plan.phases.length - 1 || 1)))).join('');
     phaseCardsEl.innerHTML = head + rows;
   }
 
@@ -330,22 +321,13 @@
   wirePillGroup(durationGroup, 'duration', (v) => { currentDuration = v; });
 
   /* ── Validierung & Submit ─────────────────────────────────────── */
-  function showErrorSummary(messages) {
-    errorSummary.innerHTML = messages.map((m) => '<p>' + m + '</p>').join('');
-    errorSummary.hidden = false;
-  }
-  function hideErrorSummary() {
-    errorSummary.hidden = true;
-    errorSummary.innerHTML = '';
-  }
-
   startTodayBtn.addEventListener('click', () => {
     startInput.value = toISODateInput(new Date());
   });
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    hideErrorSummary();
+    RechnerUtils.hideErrorSummary(errorSummary);
     startRow.classList.remove('is-invalid');
     startError.textContent = '';
     tagXRow.classList.remove('is-invalid');
@@ -384,7 +366,7 @@
       }
       startError.textContent = !startInput.value ? errors[0] : '';
       tagXError.textContent = errors[errors.length - 1];
-      showErrorSummary(errors);
+      RechnerUtils.showErrorSummary(errorSummary, errors);
       return;
     }
 
@@ -427,38 +409,24 @@
       alert('PDF-Export ist gerade nicht verfügbar. Bitte Seite neu laden und erneut versuchen.');
       return;
     }
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-    const pageH = doc.internal.pageSize.getHeight();
-    const marginX = 18;
-    const marginBottom = 18;
-    const contentW = doc.internal.pageSize.getWidth() - marginX * 2;
-    const BLACK = [10, 10, 10], ACCENT = [255, 229, 92], GRAY = [120, 120, 120];
-    let y = 18;
+    const { doc, state } = PdfUtils.createDoc('SAISONPLAN');
+    const { BLACK, ACCENT, GRAY } = PdfUtils.COLORS;
 
-    function ensureSpace(h) {
-      if (y + h > pageH - marginBottom) {
-        doc.addPage();
-        y = 18;
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(9);
-        doc.setTextColor.apply(doc, GRAY);
-        doc.text('SAISONPLAN — FORTSETZUNG', marginX, y);
-        y += 10;
-      }
+    // Fortsetzungs-Kopf auf Folgeseiten, statt einfach mit y=18 weiterzuschreiben.
+    function onPageBreak(d, s) {
+      d.setFont('helvetica', 'bold');
+      d.setFontSize(9);
+      d.setTextColor.apply(d, GRAY);
+      d.text('SAISONPLAN — FORTSETZUNG', s.marginX, s.y);
+      s.y += 10;
     }
-
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor.apply(doc, GRAY);
-    doc.text('ERSTELLT AM ' + new Date().toLocaleDateString('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric' }) + '  ·  SCHWELLENSCHMOPS.AT/SAISONPLAN', marginX, y);
-    y += 11;
+    const ensureSpace = PdfUtils.makeEnsureSpace(doc, state, onPageBreak);
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
     doc.setTextColor.apply(doc, GRAY);
-    doc.text('DEIN SAISONPLAN', marginX, y);
-    y += 8;
+    doc.text('DEIN SAISONPLAN', state.marginX, state.y);
+    state.y += 8;
 
     // Lange Eventnamen (statt "Tag X") koennten die Titelzeile sonst ueber
     // den Seitenrand hinausschieben -- bei Bedarf auf 2 Zeilen umbrechen.
@@ -466,40 +434,30 @@
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(24);
     doc.setTextColor.apply(doc, BLACK);
-    const titleLines = doc.splitTextToSize((goalLabelPdf + ': ' + formatDate(lastPlanData.tagXDate)).toUpperCase(), contentW);
-    doc.text(titleLines, marginX, y);
-    y += 9 + (titleLines.length - 1) * 9;
+    const titleLines = doc.splitTextToSize((goalLabelPdf + ': ' + formatDate(lastPlanData.tagXDate)).toUpperCase(), state.contentW);
+    doc.text(titleLines, state.marginX, state.y);
+    state.y += 9 + (titleLines.length - 1) * 9;
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10.5);
     doc.setTextColor.apply(doc, GRAY);
-    const subLines = doc.splitTextToSize(resultsSub.textContent, contentW);
-    doc.text(subLines, marginX, y);
-    y += subLines.length * 5 + 8;
+    const subLines = doc.splitTextToSize(resultsSub.textContent, state.contentW);
+    doc.text(subLines, state.marginX, state.y);
+    state.y += subLines.length * 5 + 8;
 
     // Zeitstrahl — vektorbasiert nachgebaut (kein SVG-Embed nötig), spiegelt
     // die Bildschirm-Grafik (Phasenbänder + Tag-X-Marker) im PDF.
-    function hexToRgb(hex) {
-      return [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
-    }
-    function hexMix(h1, h2, t) {
-      const p = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
-      const [r1, g1, b1] = p(h1);
-      const [r2, g2, b2] = p(h2);
-      return '#' + [r1, g1, b1].map((c, i) => Math.round(c + ([r2, g2, b2][i] - c) * t).toString(16).padStart(2, '0')).join('');
-    }
-
     if (lastPlanData.phases.length) {
       const bandH = 12, markerLabel = shortLabel(goalLabelPdf, 22).toUpperCase();
       ensureSpace(bandH + 24);
-      const bandY = y + 8;
+      const bandY = state.y + 8;
       const totalWeeks = lastPlanData.phases.reduce((s, p) => s + p.weeks, 0);
-      let x = marginX;
+      let x = state.marginX;
 
       lastPlanData.phases.forEach((p, i) => {
-        const w = Math.max(8, contentW * (p.weeks / totalWeeks));
+        const w = Math.max(8, state.contentW * (p.weeks / totalWeeks));
         const tint = p.key === 'regeneration' ? '#cccccc' : '#ffe55c';
-        doc.setFillColor.apply(doc, hexToRgb(hexMix('#ffffff', tint, p.opacity)));
+        doc.setFillColor.apply(doc, PdfUtils.hexToRgb(RechnerUtils.hexMix('#ffffff', tint, p.opacity)));
         doc.rect(x, bandY, w, bandH, 'F');
         doc.setDrawColor(220, 220, 220);
         doc.setLineWidth(0.2);
@@ -534,12 +492,12 @@
           doc.setFont('helvetica', 'bold');
           doc.setFontSize(7.5);
           doc.setTextColor.apply(doc, BLACK);
-          doc.text(markerLabel, Math.min(Math.max(markX, marginX + 15), marginX + contentW - 15), bandY - 7, { align: 'center' });
+          doc.text(markerLabel, Math.min(Math.max(markX, state.marginX + 15), state.marginX + state.contentW - 15), bandY - 7, { align: 'center' });
         }
         x += w;
       });
 
-      y = bandY + bandH + 15;
+      state.y = bandY + bandH + 15;
     }
 
     // Phasen, volle Breite je Karte. Dünner Akzentstreifen statt
@@ -550,39 +508,38 @@
 
       doc.setDrawColor(225, 225, 225);
       doc.setLineWidth(0.3);
-      doc.rect(marginX, y, contentW, cardH, 'S');
+      doc.rect(state.marginX, state.y, state.contentW, cardH, 'S');
       doc.setFillColor.apply(doc, ACCENT);
-      doc.rect(marginX, y, 3, cardH, 'F');
+      doc.rect(state.marginX, state.y, 3, cardH, 'F');
 
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(13);
       doc.setTextColor.apply(doc, BLACK);
-      doc.text(p.label.toUpperCase(), marginX + 9, y + 9);
+      doc.text(p.label.toUpperCase(), state.marginX + 9, state.y + 9);
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
       doc.setTextColor.apply(doc, GRAY);
-      doc.text(formatDate(p.start) + ' – ' + formatDate(p.end) + '  ·  ' + weekLabel(p.weeks) + '  ·  ' + p.litHit, marginX + 9, y + 16);
+      doc.text(formatDate(p.start) + ' – ' + formatDate(p.end) + '  ·  ' + weekLabel(p.weeks) + '  ·  ' + p.litHit, state.marginX + 9, state.y + 16);
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9.5);
       doc.setTextColor.apply(doc, BLACK);
-      const focusLines = doc.splitTextToSize(p.focusText, contentW - 15).slice(0, 2);
-      doc.text(focusLines, marginX + 9, y + 25);
+      const focusLines = doc.splitTextToSize(p.focusText, state.contentW - 15).slice(0, 2);
+      doc.text(focusLines, state.marginX + 9, state.y + 25);
 
-      y += cardH + 5;
+      state.y += cardH + 5;
     });
 
-    y += 4;
+    state.y += 4;
     ensureSpace(16);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8.5);
     doc.setTextColor.apply(doc, GRAY);
-    const discLines = doc.splitTextToSize(DISCLAIMER_TEXT, contentW);
-    doc.text(discLines, marginX, y);
+    const discLines = doc.splitTextToSize(DISCLAIMER_TEXT, state.contentW);
+    doc.text(discLines, state.marginX, state.y);
 
-    const stamp = new Date().toISOString().slice(0, 10);
-    doc.save('Saisonplan_' + currentSport + '_' + stamp + '.pdf');
+    PdfUtils.saveWithStamp(doc, 'Saisonplan', currentSport);
   }
 
   exportPdfBtn.addEventListener('click', generatePdf);
