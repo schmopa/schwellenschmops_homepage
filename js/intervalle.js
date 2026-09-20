@@ -69,7 +69,7 @@
       repsLo: 2, repsHi: 4
     },
     {
-      key: 'threshold', name: 'SCHWELLE (CRITICAL POWER)', lo: 0.95, hi: 1.01,
+      key: 'threshold', name: 'SCHWELLE', lo: 0.95, hi: 1.01,
       workLo: 360, workHi: 720, // 6-12 min
       rest: { type: 'fixed', lo: 120, hi: 240 }, // 2-4 min
       restPaceLo: 0.45, restPaceHi: 0.65, restPaceLabel: 'LOCKER (EASY–LIT)',
@@ -256,9 +256,12 @@
     ];
 
     return variants.map((v) => {
-      const restSec = zone.rest.type === 'fixed'
+      const rawRestSec = zone.rest.type === 'fixed'
         ? (zone.rest.lo + zone.rest.hi) / 2
         : v.workSec * zone.rest.ratio;
+      // Auf 5-Sekunden-Schritte runden -- griffigere OFF-Zeiten statt
+      // krummer Werte wie 52.5s/157.5s (Paul-Feedback 2026-09-20).
+      const restSec = Math.round(rawRestSec / 5) * 5;
 
       if (mode === 'power') {
         const onW = round(baseValue * targetPct);
