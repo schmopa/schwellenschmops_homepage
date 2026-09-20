@@ -36,7 +36,7 @@
     bike: { mode: 'power', label: 'Critical Power', unit: 'W', placeholder: '274', intro: 'Trag deine Critical Power aus dem CP-Rechner ein — oder klick dich direkt von dort herüber.' },
     row:  { mode: 'power', label: 'Critical Power', unit: 'W', placeholder: '230', intro: 'Trag deine Critical Power aus dem CP-Rechner ein — oder klick dich direkt von dort herüber.' },
     ski:  { mode: 'power', label: 'Critical Power', unit: 'W', placeholder: '220', intro: 'Trag deine Critical Power aus dem CP-Rechner ein — oder klick dich direkt von dort herüber.' },
-    run:  { mode: 'pace',  label: 'Critical Speed (Pace)', unit: 'MIN/KM', placeholder: '4:32', intro: 'Trag deine Critical-Speed-Pace aus dem CP-Rechner ein — oder klick dich direkt von dort herüber.' }
+    run:  { mode: 'pace',  label: 'Critical Speed (Pace)', unit: 'MIN/KM', placeholder: '5:00', intro: 'Trag deine Critical-Speed-Pace aus dem CP-Rechner ein — oder klick dich direkt von dort herüber.' }
   };
 
   /* ── Zonen-Konfiguration ──────────────────────────────────────────
@@ -95,7 +95,7 @@
       rest: { type: 'ratio', ratio: 0.5 }, // 2:1 Arbeit:Pause
       restPaceLo: 0.5, restPaceHi: 0.65, restPaceLabel: 'AKTIV (LIT)',
       repsLo: 10, repsHi: 15,
-      note: 'Kurze Pause hält die Sauerstoffaufnahme oben — mehr Zeit bei VO2max in derselben Session.'
+      note: 'Kurzes OFF hält die Sauerstoffaufnahme oben — mehr Zeit bei VO2max in derselben Session.'
     },
     {
       key: 'vo2max-kurz-b', name: 'VO2MAX KURZ — SPEED-FOKUSSIERT', lo: 1.12, hi: 1.45,
@@ -103,7 +103,7 @@
       rest: { type: 'ratio', ratio: 1.75 }, // 1,5-2x Arbeitszeit
       restPaceLo: 0.3, restPaceHi: 0.5, restPaceLabel: 'LOCKER/STEHEND (EASY)',
       repsLo: 6, repsHi: 10,
-      note: 'Großzügige Pause erhält Tempoqualität und Technik bei voller Frische.'
+      note: 'Großzügiges OFF erhält Tempoqualität und Technik bei voller Frische.'
     }
   ];
 
@@ -127,6 +127,17 @@
     const min = Math.floor(s / 60);
     const sec = s % 60;
     return min + ':' + String(sec).padStart(2, '0');
+  }
+
+  // Für Dauern (Arbeits-/OFF-Zeit) immer mit Einheit statt nacktem
+  // mm:ss — Paul-Feedback 2026-09-20: "8:00" ohne Einheit ist mehrdeutig.
+  // <60s als Sekunden, ab 60s als Minuten (glatt) bzw. "m:ss min" wenn
+  // die OFF-Zeit (workSec × Ratio) keine glatte Minute ergibt.
+  function formatDuration(totalSeconds) {
+    const s = Math.round(totalSeconds);
+    if (s < 60) return s + ' s';
+    if (s % 60 === 0) return (s / 60) + ' min';
+    return formatTime(s) + ' min';
   }
 
   function parseNumber(str) {
@@ -253,8 +264,8 @@
         const onW = round(baseValue * targetPct);
         const offW = round(baseValue * restPct);
         return {
-          line: v.reps + '× ' + formatTime(v.workSec) + ' @ ' + onW + ' W',
-          restLine: 'Pause ' + formatTime(restSec) + ' @ ' + offW + ' W'
+          line: v.reps + '× ' + formatDuration(v.workSec) + ' @ ' + onW + ' W',
+          restLine: 'OFF ' + formatDuration(restSec) + ' @ ' + offW + ' W'
         };
       }
 
@@ -262,8 +273,8 @@
       const offPaceSec = baseValue / restPct;
       const distance = roundDistance((1000 / onPaceSec) * v.workSec);
       return {
-        line: v.reps + '× ' + distance + ' m (' + formatTime(v.workSec) + ') @ ' + formatTime(onPaceSec) + '/km',
-        restLine: 'Pause ' + formatTime(restSec) + ' @ ' + formatTime(offPaceSec) + '/km'
+        line: v.reps + '× ' + distance + ' m (' + formatDuration(v.workSec) + ') @ ' + formatTime(onPaceSec) + '/km',
+        restLine: 'OFF ' + formatDuration(restSec) + ' @ ' + formatTime(offPaceSec) + '/km'
       };
     });
   }
@@ -306,7 +317,7 @@
       return buildCard(zone, baseValue, cfg.mode, bg);
     });
 
-    const head = '<div class="cp-protocol-row cp-protocol-row-head"><div>ZONE</div><div>FORMAT</div><div>PAUSE</div></div>';
+    const head = '<div class="cp-protocol-row cp-protocol-row-head"><div>ZONE</div><div>ON</div><div>OFF</div></div>';
     zoneListEl.innerHTML = head + cards.map((c) => rowsHTML(c)).join('');
     lastCardsData = cards;
 
@@ -370,8 +381,8 @@
       doc.setFontSize(8);
       doc.setTextColor.apply(doc, GRAY);
       doc.text('ZONE', colZone, y);
-      doc.text('FORMAT', colFormat, y);
-      doc.text('PAUSE', colPause, y);
+      doc.text('ON', colFormat, y);
+      doc.text('OFF', colPause, y);
       y += 3;
       doc.setDrawColor.apply(doc, BLACK);
       doc.setLineWidth(0.5);
