@@ -5,7 +5,9 @@
    Zonen-Prozentbänder 1:1 aus js/cp-rechner.js (ZONES) übernommen, damit
    Diagnostik und Trainingsvorgabe konsistent bleiben. Pausen-/Reps-Logik
    ist recherchiert (siehe Kommentare bei INTERVAL_ZONES), nicht geraten.
-   Reines Client-Side-JS, keine Datenübertragung, keine Speicherung. */
+   Reines Client-Side-JS, keine Datenübertragung, keine Speicherung.
+   Geteilte Helfer (parseTime/formatTime/hexMix/…) liegen in
+   js/rechner-utils.js, das PDF-Pagination-Gerüst in js/pdf-utils.js. */
 
 (function () {
   'use strict';
@@ -107,27 +109,9 @@
     }
   ];
 
-  /* ── Helfer (analog cp-rechner.js) ───────────────────────────────── */
-  function parseTime(str) {
-    if (!str) return null;
-    const m = String(str).trim().match(/^(\d{1,3})[:.,]([0-5]?\d)$/);
-    if (!m) return null;
-    const total = parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
-    return total > 0 ? total : null;
-  }
-
-  function formatTimeDigits(raw) {
-    const digits = String(raw).replace(/\D/g, '').slice(0, 5);
-    if (digits.length <= 2) return digits;
-    return digits.slice(0, -2) + ':' + digits.slice(-2);
-  }
-
-  function formatTime(totalSeconds) {
-    const s = Math.max(0, Math.round(totalSeconds));
-    const min = Math.floor(s / 60);
-    const sec = s % 60;
-    return min + ':' + String(sec).padStart(2, '0');
-  }
+  /* ── Seiten-spezifische Helfer ────────────────────────────────────
+     parseTime/formatTimeDigits/formatTime/parseNumber/round/hexMix
+     kommen aus js/rechner-utils.js (RechnerUtils). */
 
   // Für Dauern (Arbeits-/OFF-Zeit) immer mit Einheit statt nacktem
   // mm:ss — Paul-Feedback 2026-09-20: "8:00" ohne Einheit ist mehrdeutig.
@@ -137,18 +121,8 @@
     const s = Math.round(totalSeconds);
     if (s < 60) return s + ' s';
     if (s % 60 === 0) return (s / 60) + ' min';
-    return formatTime(s) + ' min';
+    return RechnerUtils.formatTime(s) + ' min';
   }
-
-  function parseNumber(str) {
-    if (str === null || str === undefined || String(str).trim() === '') return null;
-    const cleaned = String(str).trim().replace(',', '.').match(/^-?\d+(\.\d+)?/);
-    if (!cleaned) return null;
-    const n = parseFloat(cleaned[0]);
-    return Number.isFinite(n) ? n : null;
-  }
-
-  function round(n) { return Math.round(n); }
 
   // Rundet eine Laufdistanz auf 50m, mit 25m-Schritten unter 300m fuer
   // kurze Reps (sonst wirken z.B. 30-Sekunden-Reps unnoetig grob gerundet).
@@ -171,7 +145,7 @@
     valueUnit.textContent = cfg.unit;
     valueInput.placeholder = cfg.placeholder;
     resultsSection.hidden = true;
-    hideErrorSummary();
+    RechnerUtils.hideErrorSummary(errorSummary);
   }
 
   tabs.forEach((btn) => {
@@ -181,7 +155,7 @@
   // Zeit-Eingabe (Run-Pace) automatisch als "mm:ss" maskieren.
   valueInput.addEventListener('input', () => {
     if (SPORT_CONFIG[currentSport].mode !== 'pace') return;
-    const formatted = formatTimeDigits(valueInput.value);
+    const formatted = RechnerUtils.formatTimeDigits(valueInput.value);
     valueInput.value = formatted;
     valueInput.setSelectionRange(formatted.length, formatted.length);
   });
@@ -193,15 +167,6 @@
     }
   });
 
-  function showErrorSummary(messages) {
-    errorSummary.innerHTML = messages.map((m) => '<p>' + m + '</p>').join('');
-    errorSummary.hidden = false;
-  }
-  function hideErrorSummary() {
-    errorSummary.hidden = true;
-    errorSummary.innerHTML = '';
-  }
-
   function collectValue(errors) {
     valueRow.classList.remove('is-invalid');
     valueError.textContent = '';
@@ -209,7 +174,7 @@
     const raw = valueInput.value.trim();
 
     if (cfg.mode === 'pace') {
-      const t = parseTime(raw);
+      const t = RechnerUtils.parseTime(raw);
       if (t === null) {
         valueRow.classList.add('is-invalid');
         valueError.textContent = 'Bitte deine Critical-Speed-Pace als mm:ss eingeben.';
@@ -219,7 +184,7 @@
       return t; // Sekunden pro Kilometer
     }
 
-    const n = parseNumber(raw);
+    const n = RechnerUtils.parseNumber(raw);
     if (n === null || n <= 0) {
       valueRow.classList.add('is-invalid');
       valueError.textContent = 'Bitte einen gültigen Watt-Wert eingeben.';
@@ -230,16 +195,6 @@
   }
 
   /* ── Rendering ────────────────────────────────────────────────── */
-  function hexMix(h1, h2, t) {
-    const p = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
-    const [r1, g1, b1] = p(h1);
-    const [r2, g2, b2] = p(h2);
-    const r = Math.round(r1 + (r2 - r1) * t);
-    const g = Math.round(g1 + (g2 - g1) * t);
-    const b = Math.round(b1 + (b2 - b1) * t);
-    const toHex = (v) => v.toString(16).padStart(2, '0');
-    return '#' + toHex(r) + toHex(g) + toHex(b);
-  }
 
   // Zwei konkrete Formate je Zone statt einer abstrakten Range — mehr
   // kürzere Wiederholungen (repsHi bei workLo) und weniger längere
@@ -264,8 +219,8 @@
       const restSec = Math.round(rawRestSec / 5) * 5;
 
       if (mode === 'power') {
-        const onW = round(baseValue * targetPct);
-        const offW = round(baseValue * restPct);
+        const onW = RechnerUtils.round(baseValue * targetPct);
+        const offW = RechnerUtils.round(baseValue * restPct);
         return {
           line: v.reps + '× ' + formatDuration(v.workSec) + ' @ ' + onW + ' W',
           restLine: 'OFF ' + formatDuration(restSec) + ' @ ' + offW + ' W'
@@ -276,8 +231,8 @@
       const offPaceSec = baseValue / restPct;
       const distance = roundDistance((1000 / onPaceSec) * v.workSec);
       return {
-        line: v.reps + '× ' + distance + ' m (' + formatDuration(v.workSec) + ') @ ' + formatTime(onPaceSec) + '/km',
-        restLine: 'OFF ' + formatDuration(restSec) + ' @ ' + formatTime(offPaceSec) + '/km'
+        line: v.reps + '× ' + distance + ' m (' + formatDuration(v.workSec) + ') @ ' + RechnerUtils.formatTime(onPaceSec) + '/km',
+        restLine: 'OFF ' + formatDuration(restSec) + ' @ ' + RechnerUtils.formatTime(offPaceSec) + '/km'
       };
     });
   }
@@ -312,11 +267,11 @@
   function renderResults(baseValue) {
     const cfg = SPORT_CONFIG[currentSport];
     resultsSub.textContent = cfg.mode === 'power'
-      ? 'Deine Intervallformate auf Basis von ' + round(baseValue) + ' W Critical Power.'
-      : 'Deine Intervallformate auf Basis von ' + formatTime(baseValue) + '/km Critical Speed.';
+      ? 'Deine Intervallformate auf Basis von ' + RechnerUtils.round(baseValue) + ' W Critical Power.'
+      : 'Deine Intervallformate auf Basis von ' + RechnerUtils.formatTime(baseValue) + '/km Critical Speed.';
 
     const cards = INTERVAL_ZONES.map((zone, i) => {
-      const bg = hexMix('#f5f4f0', '#ffe55c', i / (INTERVAL_ZONES.length - 1));
+      const bg = RechnerUtils.hexMix('#f5f4f0', '#ffe55c', i / (INTERVAL_ZONES.length - 1));
       return buildCard(zone, baseValue, cfg.mode, bg);
     });
 
@@ -335,11 +290,11 @@
   /* ── Submit ───────────────────────────────────────────────────── */
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    hideErrorSummary();
+    RechnerUtils.hideErrorSummary(errorSummary);
     const errors = [];
     const value = collectValue(errors);
     if (errors.length > 0) {
-      showErrorSummary(errors);
+      RechnerUtils.showErrorSummary(errorSummary, errors);
       return;
     }
     renderResults(value);
@@ -363,71 +318,48 @@
       alert('PDF-Export ist gerade nicht verfügbar. Bitte Seite neu laden und erneut versuchen.');
       return;
     }
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-    const pageH = doc.internal.pageSize.getHeight();
-    const marginX = 18;
-    const marginBottom = 18;
-    const contentW = doc.internal.pageSize.getWidth() - marginX * 2;
-    const BLACK = [10, 10, 10], GRAY = [120, 120, 120];
-    const colZone = marginX + 6, colFormat = marginX + 62, colPause = marginX + 122;
-    let y = 18;
-
-    function hexToRgb(hex) {
-      return [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)];
-    }
+    const { doc, state } = PdfUtils.createDoc('INTERVALLE');
+    const colZone = state.marginX + 6, colFormat = state.marginX + 62, colPause = state.marginX + 122;
 
     // Tabellenkopf wird nach jedem Seitenumbruch neu gezeichnet, damit eine
     // fortgesetzte Tabelle auf Folgeseiten weiter als Tabelle lesbar bleibt.
     function drawTableHead() {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(8);
-      doc.setTextColor.apply(doc, GRAY);
-      doc.text('ZONE', colZone, y);
-      doc.text('ON', colFormat, y);
-      doc.text('OFF', colPause, y);
-      y += 3;
-      doc.setDrawColor.apply(doc, BLACK);
+      doc.setTextColor.apply(doc, PdfUtils.COLORS.GRAY);
+      doc.text('ZONE', colZone, state.y);
+      doc.text('ON', colFormat, state.y);
+      doc.text('OFF', colPause, state.y);
+      state.y += 3;
+      doc.setDrawColor.apply(doc, PdfUtils.COLORS.BLACK);
       doc.setLineWidth(0.5);
-      doc.line(marginX, y, marginX + contentW, y);
-      y += 7;
+      doc.line(state.marginX, state.y, state.marginX + state.contentW, state.y);
+      state.y += 7;
     }
 
     // h = benötigte Höhe der GESAMTEN Zonen-Gruppe (beide Formate + Notiz),
     // nie nur einer einzelnen Zeile — sonst könnte der Umbruch mitten in
     // einer Zone landen. Bricht die Seite, wird die Kopfzeile neu gezeichnet.
-    function ensureSpace(h) {
-      if (y + h > pageH - marginBottom) {
-        doc.addPage();
-        y = 18;
-        drawTableHead();
-      }
-    }
-
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor.apply(doc, GRAY);
-    doc.text('ERSTELLT AM ' + new Date().toLocaleDateString('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric' }) + '  ·  SCHWELLENSCHMOPS.AT/INTERVALLE', marginX, y);
-    y += 11;
+    const ensureSpace = PdfUtils.makeEnsureSpace(doc, state, drawTableHead);
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
-    doc.setTextColor.apply(doc, GRAY);
-    doc.text('DEINE INTERVALLFORMATE', marginX, y);
-    y += 8;
+    doc.setTextColor.apply(doc, PdfUtils.COLORS.GRAY);
+    doc.text('DEINE INTERVALLFORMATE', state.marginX, state.y);
+    state.y += 8;
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(26);
-    doc.setTextColor.apply(doc, BLACK);
-    doc.text('DEIN TRAINING.', marginX, y);
-    y += 9;
+    doc.setTextColor.apply(doc, PdfUtils.COLORS.BLACK);
+    doc.text('DEIN TRAINING.', state.marginX, state.y);
+    state.y += 9;
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10.5);
-    doc.setTextColor.apply(doc, GRAY);
-    const subLines = doc.splitTextToSize(resultsSub.textContent, contentW);
-    doc.text(subLines, marginX, y);
-    y += subLines.length * 5 + 8;
+    doc.setTextColor.apply(doc, PdfUtils.COLORS.GRAY);
+    const subLines = doc.splitTextToSize(resultsSub.textContent, state.contentW);
+    doc.text(subLines, state.marginX, state.y);
+    state.y += subLines.length * 5 + 8;
 
     // Tabelle statt Kästchen — spiegelt die Bildschirmdarstellung
     // (.cp-protocol-table). Farbiger linker Tick pro Zonen-Gruppe statt
@@ -447,7 +379,7 @@
 
       doc.setFont('helvetica', 'italic');
       doc.setFontSize(8);
-      const noteLines = card.note ? doc.splitTextToSize(card.note, contentW - 46) : [];
+      const noteLines = card.note ? doc.splitTextToSize(card.note, state.contentW - 46) : [];
 
       const row0H = Math.max(nameLines.length * 4.2, 5) + 4;
       const row1H = 9;
@@ -455,57 +387,56 @@
       const groupH = row0H + row1H + noteH;
       ensureSpace(groupH + 6);
 
-      const groupTop = y;
+      const groupTop = state.y;
 
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(9);
-      doc.setTextColor.apply(doc, BLACK);
-      doc.text(nameLines, colZone, y + 4);
+      doc.setTextColor.apply(doc, PdfUtils.COLORS.BLACK);
+      doc.text(nameLines, colZone, state.y + 4);
 
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(9.5);
-      doc.text(card.formats[0].line, colFormat, y + 4);
+      doc.text(card.formats[0].line, colFormat, state.y + 4);
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
-      doc.setTextColor.apply(doc, GRAY);
-      doc.text(card.formats[0].restLine, colPause, y + 4);
+      doc.setTextColor.apply(doc, PdfUtils.COLORS.GRAY);
+      doc.text(card.formats[0].restLine, colPause, state.y + 4);
 
       doc.setDrawColor(230, 230, 230);
       doc.setLineWidth(0.2);
-      doc.line(marginX, y + row0H, marginX + contentW, y + row0H);
-      y += row0H;
+      doc.line(state.marginX, state.y + row0H, state.marginX + state.contentW, state.y + row0H);
+      state.y += row0H;
 
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(9.5);
-      doc.setTextColor.apply(doc, BLACK);
-      doc.text(card.formats[1].line, colFormat, y + 4);
+      doc.setTextColor.apply(doc, PdfUtils.COLORS.BLACK);
+      doc.text(card.formats[1].line, colFormat, state.y + 4);
 
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(9);
-      doc.setTextColor.apply(doc, GRAY);
-      doc.text(card.formats[1].restLine, colPause, y + 4);
-      y += row1H;
+      doc.setTextColor.apply(doc, PdfUtils.COLORS.GRAY);
+      doc.text(card.formats[1].restLine, colPause, state.y + 4);
+      state.y += row1H;
 
       if (noteLines.length) {
         doc.setFont('helvetica', 'italic');
         doc.setFontSize(8);
-        doc.setTextColor.apply(doc, GRAY);
-        doc.text(noteLines, colFormat, y + 3);
-        y += noteH;
+        doc.setTextColor.apply(doc, PdfUtils.COLORS.GRAY);
+        doc.text(noteLines, colFormat, state.y + 3);
+        state.y += noteH;
       }
 
-      doc.setFillColor.apply(doc, hexToRgb(card.bg));
-      doc.rect(marginX, groupTop, 1.5, y - groupTop, 'F');
+      doc.setFillColor.apply(doc, PdfUtils.hexToRgb(card.bg));
+      doc.rect(state.marginX, groupTop, 1.5, state.y - groupTop, 'F');
 
-      doc.setDrawColor.apply(doc, BLACK);
+      doc.setDrawColor.apply(doc, PdfUtils.COLORS.BLACK);
       doc.setLineWidth(0.5);
-      doc.line(marginX, y, marginX + contentW, y);
-      y += 7;
+      doc.line(state.marginX, state.y, state.marginX + state.contentW, state.y);
+      state.y += 7;
     });
 
-    const stamp = new Date().toISOString().slice(0, 10);
-    doc.save('Intervalle_' + currentSport + '_' + stamp + '.pdf');
+    PdfUtils.saveWithStamp(doc, 'Intervalle', currentSport);
   }
 
   exportPdfBtn.addEventListener('click', generatePdf);
