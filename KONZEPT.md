@@ -203,6 +203,21 @@ Aus der bestehenden Bike-Tabelle extrahiert:
   VO2max kurz/mittel/lang) mit festen Multiplikatoren (0.4955 – 1.45)
 - Leistungs-Dauer-Tabelle: `P(t) = CP + W'/t` für beliebige Dauern
 
+### Auswertung „Prognose“ vs. „Vollständig“ (Bike/Row, ergänzt 29.09.2026)
+
+Beim Testen gezeigt: mehr als zwei All-out-Zeitfahren an einem Tag sind nicht
+sinnvoll machbar. Daher Umschalter im Rechner (nur Bike/Row, Ski/Run haben
+ohnehin nur zwei Stützpunkte):
+
+- **Prognose:** zwei beliebige der drei Zeitfahren (2/5/12 min, empfohlen 2+12
+  wegen größtem Zeitabstand). CP/W′ exakt aus den zwei Punkten, das fehlende
+  Zeitfahren wird über `P(t) = CP + W'/t` vorhergesagt und als Kachel
+  „… · PROGNOSE“ (Pacing-Zielwert für den nächsten Testtag) angezeigt.
+  Check mit Pauls Daten: 2+12 min → 5-min-Prognose 336 W (real 339 W).
+- **Vollständig:** Regression über alle drei Punkte wie bisher.
+- Der 10-s-Sprint ist seitdem auch beim Bike optional.
+- Plausibilitätscheck: `W' <= 0` oder `CP <= 0` → Fehlermeldung (vertauschte Eingaben).
+
 ### Sportartspezifische Anpassung
 
 | Sport | Eingaben | Modell |

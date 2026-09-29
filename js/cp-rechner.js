@@ -1,5 +1,5 @@
 /* SCHWELLENSCHMOPS — cp-rechner.js
-   Critical-Power-/Critical-Speed-Rechner (Bike / Row / Run).
+   Critical-Power-/Critical-Speed-Rechner (Bike / Row / Ski / Run).
    Reines Client-Side-JS, keine Datenübertragung, keine Speicherung.
    Rechenmodell: siehe KONZEPT.md §7 — Formeln gegen Pauls echten
    CriticalPower-Report (CP≈274.5W, W'≈18732J bei 85kg,
@@ -24,7 +24,10 @@
   const dragFactorInput  = document.getElementById('cp-dragfactor');
   const dragFactorError  = document.getElementById('cp-dragfactor-error');
   const genderField      = document.getElementById('cp-gender-field');
-  const genderBtns       = document.querySelectorAll('.cp-gender-btn');
+  const genderBtns       = document.querySelectorAll('.cp-gender-btn[data-gender]');
+  const modeField        = document.getElementById('cp-mode-field');
+  const modeBtns         = document.querySelectorAll('.cp-gender-btn[data-mode]');
+  const modeExplainItems = document.querySelectorAll('.cp-mode-explain-item');
   const cycleField       = document.getElementById('cp-cycle-field');
   const cycleSelect      = document.getElementById('cp-cycle');
   const rowsContainer    = document.getElementById('cp-rows');
@@ -76,15 +79,20 @@
 
   let currentSport = 'bike';
   let currentGender = 'm';
+  // Auswertung bei Bike/Row: '3' = vollständig (Regression über 2/5/12 min),
+  // '2' = Prognose (zwei beliebige Zeitfahren, das dritte wird vorhergesagt).
+  // Grund: mehr als zwei All-out-Zeitfahren an einem Tag sind nicht
+  // sinnvoll machbar. Ski/Run haben ohnehin nur zwei Stützpunkte.
+  let currentMode = '3';
   let lastTilesData = []; // fuer PDF-Export: {label, value, sub, def}
   let lastZonesData = []; // fuer PDF-Export: {name, rangeLabel, pctLabel, bg}
   let lastProtocolRows = []; // fuer PDF-Export: {label, lacLabel, hrLabel}
 
   /* ── Sportart-Konfiguration ──────────────────────────────────── */
   const SPORT_INTRO = {
-    bike: 'Vier All-Out-Efforts am Ergo-Bike — 10 Sekunden, 2, 5 und 12 Minuten.',
+    bike: 'All-Out-Efforts am Ergo-Bike — 2, 5 und 12 Minuten, plus ein optionaler 10-Sekunden-Sprint.',
     run:  'Zwei Läufe — 1 und 3 Kilometer — plus ein optionaler Sprint.',
-    row:  'Vier All-Out-Efforts am Rudergerät — 10 Sekunden, 2, 5 und 12 Minuten.',
+    row:  'All-Out-Efforts am Rudergerät — 2, 5 und 12 Minuten, plus ein optionaler 10-Sekunden-Sprint.',
     ski:  'Drei All-Out-Efforts am Skiergometer — 30 Sekunden, 2 und 5 Minuten.'
   };
 
@@ -93,27 +101,25 @@
   // für einen trainierten Amateur, nur zur Orientierung beim Ausfüllen).
   function powerRows(placeholders) {
     return [
-      { key: 'p10', label: '10 SEK', timePlaceholder: '0:10',  valueLabel: 'Leistung', valuePlaceholder: placeholders[0] + ' W', required: true },
-      { key: 'p2',  label: '2 MIN',  timePlaceholder: '2:00',  valueLabel: 'Leistung', valuePlaceholder: placeholders[1] + ' W', required: true },
-      { key: 'p5',  label: '5 MIN',  timePlaceholder: '5:00',  valueLabel: 'Leistung', valuePlaceholder: placeholders[2] + ' W', required: true },
-      { key: 'p12', label: '12 MIN', timePlaceholder: '12:00', valueLabel: 'Leistung', valuePlaceholder: placeholders[3] + ' W', required: true }
+      { key: 'p10', label: '10 SEK', seconds: 10,  timePlaceholder: '0:10',  valueLabel: 'Leistung', valuePlaceholder: placeholders[0] + ' W', required: false },
+      { key: 'p2',  label: '2 MIN',  seconds: 120, timePlaceholder: '2:00',  valueLabel: 'Leistung', valuePlaceholder: placeholders[1] + ' W', required: true },
+      { key: 'p5',  label: '5 MIN',  seconds: 300, timePlaceholder: '5:00',  valueLabel: 'Leistung', valuePlaceholder: placeholders[2] + ' W', required: true },
+      { key: 'p12', label: '12 MIN', seconds: 720, timePlaceholder: '12:00', valueLabel: 'Leistung', valuePlaceholder: placeholders[3] + ' W', required: true }
     ];
   }
 
   const BIKE_ROWS = powerRows([1022, 430, 339, 299]); // Pauls echte Werte
 
-  // Row/SkiErg: der kurze Sprint-Effort fließt (wie beim Bike) ohnehin nicht in
-  // die CP-Regression ein, nur die 2/5(/12)-Minuten-Punkte tun das — anders als
-  // beim Bike ist er hier deshalb bewusst optional (required: false).
+  // Der kurze Sprint-Effort fließt bei keiner Sportart in die CP-Regression
+  // ein, nur die 2/5(/12)-Minuten-Punkte tun das — deshalb überall optional.
   const ROWERG_ROWS = powerRows([750, 420, 360, 320]); // Concept2 RowErg, Richtwert
-  ROWERG_ROWS[0].required = false;
 
   // Skiergometer nutzt nur drei Stützpunkte (30 Sek/2 Min/5 Min) statt der
   // sonst üblichen vier — 12-Minuten-Tests sind am SkiErg unüblich.
   const SKIERG_ROWS = [
-    { key: 'p30', label: '30 SEK', timePlaceholder: '0:30', valueLabel: 'Leistung', valuePlaceholder: '400 W', required: false },
-    { key: 'p2',  label: '2 MIN',  timePlaceholder: '2:00', valueLabel: 'Leistung', valuePlaceholder: '320 W', required: true },
-    { key: 'p5',  label: '5 MIN',  timePlaceholder: '5:00', valueLabel: 'Leistung', valuePlaceholder: '260 W', required: true }
+    { key: 'p30', label: '30 SEK', seconds: 30,  timePlaceholder: '0:30', valueLabel: 'Leistung', valuePlaceholder: '400 W', required: false },
+    { key: 'p2',  label: '2 MIN',  seconds: 120, timePlaceholder: '2:00', valueLabel: 'Leistung', valuePlaceholder: '320 W', required: true },
+    { key: 'p5',  label: '5 MIN',  seconds: 300, timePlaceholder: '5:00', valueLabel: 'Leistung', valuePlaceholder: '260 W', required: true }
   ]; // Concept2 SkiErg, Richtwerte
 
   const RUN_ROWS = [
@@ -234,6 +240,7 @@
     weightField.hidden = isRun;
     genderField.hidden = false;
     dragFactorField.hidden = isRun || sport === 'bike';
+    modeField.hidden = !hasModeChoice();
     updateCycleVisibility();
     renderRows(sport);
     resultsSection.hidden = true;
@@ -242,6 +249,31 @@
 
   tabs.forEach((btn) => {
     btn.addEventListener('click', () => switchSport(btn.dataset.sport));
+  });
+
+  // Prognose/Vollständig gibt es nur dort, wo drei Regressionspunkte
+  // existieren (Bike/Row: 2/5/12 min).
+  function hasModeChoice() {
+    return currentSport === 'bike' || currentSport === 'row';
+  }
+  function isPrognosis() {
+    return hasModeChoice() && currentMode === '2';
+  }
+
+  modeBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      currentMode = btn.dataset.mode;
+      modeBtns.forEach((b) => {
+        const active = b === btn;
+        b.classList.toggle('is-active', active);
+        b.setAttribute('aria-checked', String(active));
+      });
+      modeExplainItems.forEach((item) => {
+        item.classList.toggle('is-active', item.dataset.mode === currentMode);
+      });
+      resultsSection.hidden = true;
+      RechnerUtils.hideErrorSummary(errorSummary);
+    });
   });
 
   genderBtns.forEach((btn) => {
@@ -259,7 +291,12 @@
   /* ── Validierung & Ergebnis-Sammlung ─────────────────────────── */
   function collectPowerEfforts(errors) {
     const efforts = {};
-    ROW_DEFS[currentSport].forEach((def) => {
+    const rows = ROW_DEFS[currentSport];
+    const prognosis = isPrognosis();
+    rows.forEach((def, i) => {
+      // Bei der Prognose ist jedes der drei Zeitfahren einzeln optional —
+      // dass genau zwei ausgefüllt sind, wird unten geprüft.
+      const optional = def.required === false || (prognosis && i > 0);
       const timeInput  = document.getElementById('cp-' + def.key + '-time');
       const valueInput = document.getElementById('cp-' + def.key + '-value');
       timeInput.classList.remove('is-invalid');
@@ -269,7 +306,7 @@
       const rawValue = valueInput.value.trim();
       const bothEmpty = rawTime === '' && rawValue === '';
 
-      if (def.required === false && bothEmpty) return; // Sprint optional, leer = ok
+      if (optional && bothEmpty) return; // optional, leer = ok
 
       const t = RechnerUtils.parseTime(rawTime);
       const p = RechnerUtils.parseNumber(rawValue);
@@ -278,7 +315,7 @@
         timeInput.classList.add('is-invalid');
         valueInput.classList.add('is-invalid');
         errors.push(
-          def.required === false
+          optional
             ? '„' + def.label + '“: bitte entweder Zeit UND Leistung angeben, oder beide leer lassen.'
             : '„' + def.label + '“: bitte Zeit (mm:ss) und Leistung (Watt) angeben.'
         );
@@ -286,6 +323,13 @@
       }
       efforts[def.key] = { t, p };
     });
+
+    if (prognosis && errors.length === 0) {
+      const filled = rows.slice(1).filter((def) => efforts[def.key]).length;
+      if (filled !== 2) {
+        errors.push('Für die Prognose bitte genau zwei der drei Zeitfahren angeben — oder auf „Vollständig“ umschalten.');
+      }
+    }
     return efforts;
   }
 
@@ -399,15 +443,22 @@
 
   function computeBikeRow(weight, gender, e, rows) {
     // Erste Zeile ist immer der kurze Sprint-Effort (Bike/Row: 10 Sek, Ski: 30 Sek),
-    // die übrigen Zeilen (2/5/12 Min bzw. 2/5 Min) gehen in die CP-Regression ein.
+    // die übrigen Zeilen (2/5/12 Min bzw. 2/5 Min) gehen in die CP-Regression ein
+    // — bei der Prognose nur die zwei tatsächlich absolvierten.
     const sprintDef = rows[0];
-    const points = rows.slice(1).map((def) => ({ x: 1 / e[def.key].t, y: e[def.key].p }));
+    const used = rows.slice(1).filter((def) => e[def.key]);
+    const points = used.map((def) => ({ x: 1 / e[def.key].t, y: e[def.key].p }));
     const { slope: wPrime, intercept: cp } = linreg(points);
+    // Fehlendes Zeitfahren über das 2-Parameter-Modell P(t) = CP + W'/t vorhersagen.
+    const missingDef = rows.slice(1).find((def) => !e[def.key]);
+    const predicted = missingDef
+      ? { label: missingDef.label, p: cp + wPrime / missingDef.seconds }
+      : null;
     const map = cp + wPrime / 300; // 300s = 5min, feste Konstante lt. Excel-Modell
     const factor = VO2MAX_GENDER_FACTOR[gender] || VO2MAX_GENDER_FACTOR.m;
     const vo2max = (10.8 * map / weight + 7) * factor;
     const sprint = e[sprintDef.key] ? e[sprintDef.key].p : null;
-    return { cp, wPrime, map, vo2max, sprint, sprintLabel: sprintDef.label, weight, gender };
+    return { cp, wPrime, map, vo2max, sprint, sprintLabel: sprintDef.label, weight, gender, predicted };
   }
 
   function computeRun(e, gender) {
@@ -497,9 +548,9 @@
   }
 
   function metaSuffix(dragFactor) {
-    // Geschlecht/Zyklus werden bei Bike/Row/Ski erfasst — bei Bike fließt das
-    // Geschlecht in die VO2max-Schätzung ein, bei Row/Ski ist es (wie Drag
-    // Factor) rein dokumentarisch.
+    // Geschlecht/Zyklus werden bei allen Sportarten erfasst — bei Bike/Run
+    // fließt das Geschlecht in die VO2max-Schätzung ein, bei Row/Ski ist es
+    // (wie Drag Factor) rein dokumentarisch.
     const parts = [currentGender === 'w' ? 'Weiblich' : 'Männlich'];
     if (currentGender === 'w' && cycleSelect.value) {
       parts.push(CYCLE_LABELS[cycleSelect.value]);
@@ -510,7 +561,8 @@
 
   function renderResultsBikeRow(res, dragFactor) {
     const suffix = metaSuffix(dragFactor);
-    resultsSub.textContent = 'Deine Zahlen auf Basis deiner eingegebenen Zeitfahrten · ' + res.weight + ' kg Körpergewicht' + (suffix ? ' · ' + suffix : '') + '.';
+    const basis = res.predicted ? 'Prognose aus zwei Zeitfahren' : 'Deine Zahlen auf Basis deiner eingegebenen Zeitfahrten';
+    resultsSub.textContent = basis + ' · ' + res.weight + ' kg Körpergewicht' + (suffix ? ' · ' + suffix : '') + '.';
     const tiles = [
       { label: 'CRITICAL POWER', value: RechnerUtils.round(res.cp) + ' W', sub: (res.cp / res.weight).toFixed(1) + ' W/KG', def: 'Deine theoretisch unbegrenzt haltbare Dauerleistungsgrenze.' },
       { label: "W' — ANAEROBE RESERVE", value: (res.wPrime / 1000).toFixed(1), sub: 'KILOJOULE', def: 'Dein Energie-Tank für Belastungen oberhalb der Critical Power.' },
@@ -520,6 +572,9 @@
       tiles.push({ label: 'VO2MAX (GESCHÄTZT)', value: res.vo2max.toFixed(1), sub: 'ML/MIN/KG', def: 'Das maximale Sauerstoff-Volumen, das dein Körper pro Minute verwertet.' });
     } else {
       tiles.push({ label: '/500M PACE (CP)', value: RechnerUtils.formatTime(paceFromWatts(res.cp)), sub: 'MIN/500M', def: 'Deine Critical Power umgerechnet in die Concept2-Pace pro 500 Meter.' });
+    }
+    if (res.predicted) {
+      tiles.push({ label: res.predicted.label + ' · PROGNOSE', value: RechnerUtils.round(res.predicted.p) + ' W', sub: 'ZIELWERT', def: 'Aus deinen zwei Zeitfahren berechnet — dein Pacing-Ziel, wenn du dieses Zeitfahren nachholst.' });
     }
     tilesContainer.innerHTML = tiles.map((t) => tileHTML(t.label, t.value, t.sub, t.def)).join('');
     lastTilesData = tiles;
@@ -604,7 +659,15 @@
       const dragFactor = (currentSport === 'row' || currentSport === 'ski') ? collectDragFactor(errors) : null;
       const efforts = collectPowerEfforts(errors);
       extras = collectExtras(rows, efforts, errors);
-      if (errors.length === 0) results = computeBikeRow(weight, currentGender, efforts, rows);
+      if (errors.length === 0) {
+        results = computeBikeRow(weight, currentGender, efforts, rows);
+        // Längeres Zeitfahren mit höherer Leistung als ein kürzeres ergibt ein
+        // negatives W' — physiologisch unmöglich, meist vertauschte Eingaben.
+        if (results.wPrime <= 0 || results.cp <= 0) {
+          errors.push('Ein kürzeres Zeitfahren muss eine höhere Leistung haben als ein längeres — bitte Eingaben prüfen.');
+          results = null;
+        }
+      }
       if (errors.length === 0 && results) renderResultsBikeRow(results, dragFactor);
     }
 

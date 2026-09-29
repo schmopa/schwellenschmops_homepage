@@ -36,7 +36,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@300;400;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@300;400;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="css/style.css?v=20260920-4" />
+  <link rel="stylesheet" href="css/style.css?v=20260929" />
   <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ed1c8f61b87942ac8b4ca5dfcdb3035a"}'></script>
 <!-- /BUILD:HEAD_ASSETS -->
 </head>
@@ -96,7 +96,7 @@
           <button type="button" class="cp-tab" data-sport="ski" role="tab" aria-selected="false">SKI</button>
         </div>
 
-        <p class="cp-sport-intro" id="cp-sport-intro">Vier All-Out-Efforts am Ergo-Bike — 10 Sekunden, 2, 5 und 12 Minuten.</p>
+        <p class="cp-sport-intro" id="cp-sport-intro">All-Out-Efforts am Ergo-Bike — 2, 5 und 12 Minuten, plus ein optionaler 10-Sekunden-Sprint.</p>
 
         <form id="cp-form" novalidate>
 
@@ -135,6 +135,19 @@
                 <option value="erste_haelfte">Erste Zyklushälfte</option>
                 <option value="zweite_haelfte">Zweite Zyklushälfte</option>
               </select>
+            </div>
+          </div>
+
+          <div class="cp-mode-field" id="cp-mode-field">
+            <span class="cp-weight-label">Auswertung</span>
+            <div class="cp-gender-toggle" role="radiogroup" aria-label="Auswertung">
+              <button type="button" class="cp-gender-btn" data-mode="2" role="radio" aria-checked="false">PROGNOSE</button>
+              <button type="button" class="cp-gender-btn is-active" data-mode="3" role="radio" aria-checked="true">VOLLSTÄNDIG</button>
+            </div>
+            <div class="cp-mode-explain" id="cp-mode-explain">
+              <p class="cp-mode-explain-lead">Mehr als zwei All-out-Zeitfahren an einem Tag verfälschen dein Ergebnis — die Ermüdung ist zu groß. Deshalb gibt es zwei Varianten:</p>
+              <p class="cp-mode-explain-item" data-mode="2"><strong>PROGNOSE</strong> Du absolvierst zwei der drei Zeitfahren an einem Tag — am genauesten 2 und 12 Minuten. Daraus berechnen wir deine Critical Power und sagen den dritten Wert voraus: dein Zielwert fürs Pacing, wenn du ihn an einem späteren Tag nachholst.</p>
+              <p class="cp-mode-explain-item is-active" data-mode="3"><strong>VOLLSTÄNDIG</strong> Du hast alle drei Zeitfahren absolviert, verteilt auf mehrere Tage innerhalb einer Woche. Die Auswertung stützt sich auf alle drei Punkte und ist damit am genauesten.</p>
             </div>
           </div>
 
@@ -187,7 +200,7 @@
 
     <!-- ═══════════════════════════ HINWEIS ═══════════════════════════ -->
     <div class="disclaimer-bar">
-      <p>Für aussagekräftige Werte führst du jeden Test gut ausgeruht und ohne Vorbelastung durch. Plane zwischen den einzelnen Testungen ausreichend Erholung ein — am besten über mehrere Tage verteilt, nicht alle direkt hintereinander an einem Tag. Der Rechner liefert Schätzformeln und ersetzt keine Labordiagnostik.</p>
+      <p>Für aussagekräftige Werte führst du jeden Test gut ausgeruht und ohne Vorbelastung durch. Plane zwischen den einzelnen Testungen ausreichend Erholung ein — am besten über mehrere Tage verteilt, nicht mehr als zwei Zeitfahren an einem Tag. Hast du erst zwei absolviert, liefert dir die Auswertung „Prognose“ schon ein erstes Ergebnis. Der Rechner liefert Schätzformeln und ersetzt keine Labordiagnostik.</p>
     </div>
 
     <!-- ═══════════════════════════ CTA-BANNER ═══════════════════════════ -->
@@ -229,6 +242,6 @@
   <script src="js/rechner-utils.js?v=20260920"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/4.2.1/jspdf.umd.min.js" integrity="sha512-plOdviVmws4Y3JAvbnpfKb2hVxKM1lCwsi3vmElYRj+tiDLffZ4FVUj5a8vyKJ9pIgl8JCAHEJ4D1iUKBecswg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="js/pdf-utils.js?v=20260920"></script>
-  <script src="js/cp-rechner.js?v=20260920"></script>
+  <script src="js/cp-rechner.js?v=20260929"></script>
 </body>
 </html>
