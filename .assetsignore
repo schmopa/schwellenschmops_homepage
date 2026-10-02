@@ -1,0 +1,16 @@
+# Dateien im Repo-Root, die NICHT auf schwellenschmops.at landen sollen
+# (Workers Static Assets lädt sonst das gesamte Verzeichnis hoch).
+.git
+.github
+.githooks
+.claude
+.playwright-mcp
+.gitignore
+.assetsignore
+node_modules
+.wrangler
+partials
+build.js
+wrangler.jsonc
+*.md
+CNAME

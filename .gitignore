@@ -10,3 +10,6 @@ scyence_hero.png
 # OS
 .DS_Store
 Thumbs.db
+
+# Cloudflare wrangler (lokaler Dev-Cache)
+.wrangler/

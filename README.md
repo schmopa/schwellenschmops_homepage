@@ -1,7 +1,7 @@
 # SCHWELLENSCHMOPS — Homepage
 
 Personal homepage for Paul / Schwellenschmops. Static HTML/CSS/JS, deployed
-as-is — no build step for hosting (GitHub Pages serves the root `*.html`
+as-is — no build step for hosting (the host serves the root `*.html`
 files directly). There **is** a small local build script (`build.js`, see
 below) that keeps header/footer/head boilerplate in sync across pages —
 run it after editing anything in `partials/`.
@@ -61,6 +61,7 @@ schwellenschmops_homepage/
 ├── .githooks/pre-commit      Führt build.js vor jedem Commit aus
 ├── images/                  *.webp (komprimiert), Favicons, Social-Preview
 ├── manifest.json, robots.txt, sitemap.xml, CNAME    Deployment/SEO-Metadaten
+├── wrangler.jsonc, .assetsignore, _headers, _redirects   Cloudflare-Hosting (siehe Deployment)
 └── .claude/skills/           create-post-Skill für neue Blogposts
 ```
 
@@ -201,8 +202,23 @@ CSS styles (`.hero-social a`) are already in place.
 
 ## Deployment
 
-Hosted on **GitHub Pages** — branch `main`, root folder.  
-Every `git push` to `main` triggers an automatic redeploy (usually within 1–2 minutes).
+**Umzug läuft:** Live ist noch **GitHub Pages** (branch `main`, root folder,
+`CNAME`). Parallel ist das Repo mit **Cloudflare Workers (Static Assets)**
+verbunden — jeder Push auf `main` deployt dort via `npx wrangler deploy`
+(Test-URL `*.workers.dev`). Nach dem Umhängen der Domain werden GitHub Pages
+und `CNAME` entfernt.
+
+Cloudflare-Dateien im Root:
+
+| Datei | Zweck |
+|---|---|
+| `wrangler.jsonc` | Worker-Name, Assets-Ordner `.`, `html_handling: "none"` (`.html`-URLs bleiben wie sie sind, keine Redirects auf `/seite`) |
+| `.assetsignore` | Was **nicht** veröffentlicht wird (`*.md`, `partials/`, `build.js`, `.claude/`, …) — neue interne Dateien hier eintragen! |
+| `_headers` | Security-Header; `css/`+`js/` 1 Jahr `immutable` (setzt die `?v=`-Cache-Buster aus `build.js` voraus), `images/` 1 Woche |
+| `_redirects` | `/ → /index.html` (Rewrite, nötig wegen `html_handling: "none"`) + künftige Weiterleitungen |
+
+Lokal testen: `npx wrangler dev --persist-to <temp-ordner>` (ohne
+`--persist-to` legt wrangler `.wrangler/` im Root an und lädt sich endlos neu).
 
 ### Contact form
 

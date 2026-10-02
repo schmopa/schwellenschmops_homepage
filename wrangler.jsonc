@@ -1,0 +1,12 @@
+// Cloudflare Workers (Static Assets) — Hosting für schwellenschmops.at.
+// Kein Build-Schritt: die gebauten HTML-Dateien liegen committed im Root
+// (siehe build.js). Was NICHT veröffentlicht wird, steht in .assetsignore.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "schwellenschmops-homepage",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": ".",
+    "html_handling": "none"
+  }
+}

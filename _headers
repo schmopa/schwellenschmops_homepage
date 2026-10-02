@@ -1,0 +1,20 @@
+# Cloudflare Static Assets: eigene Response-Header.
+# Doku: https://developers.cloudflare.com/workers/static-assets/headers/
+
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+  Strict-Transport-Security: max-age=31536000
+
+# CSS/JS sind über ?v=… in build.js (GLOBAL_TOKENS) cache-gebustet →
+# dürfen 1 Jahr gecacht werden. Neuer Stand = neuer Token in build.js!
+/css/*
+  Cache-Control: public, max-age=31536000, immutable
+/js/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Bilder haben keinen Cache-Buster → 1 Woche.
+/images/*
+  Cache-Control: public, max-age=604800

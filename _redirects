@@ -1,0 +1,9 @@
+# Cloudflare Static Assets: Weiterleitungen (Format: Quelle Ziel Status).
+# Doku: https://developers.cloudflare.com/workers/static-assets/redirects/
+# Beispiel:
+# /alte-seite.html /neue-seite.html 301
+
+# html_handling ist "none" (wrangler.jsonc), damit die .html-URLs aus
+# Sitemap/Canonicals/Links ohne Umweg ausgeliefert werden. Dafür muss die
+# Startseite explizit auf index.html gemappt werden (200 = Rewrite).
+/ /index.html 200
