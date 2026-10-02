@@ -1769,12 +1769,13 @@ body:has(.cp-hero) #site-header {
   border-color: var(--black);
 }
 
-/* Zeitstrahl — analog .blog-diagram, aber eigener Namespace da anderer Seitenkontext. */
-.plan-timeline { margin: 8px 0 40px; }
+/* Zeitstrahl — wie .blog-diagram transparent auf dem Seitenhintergrund
+   (Paul-Feedback 2026-10-02: schwarze Kästen wirkten zu wuchtig). */
+.plan-timeline { margin: 8px 0 28px; }
 .plan-timeline-svg-wrap {
   margin: 0;
-  padding: clamp(12px, 2vw, 22px) clamp(10px, 2vw, 20px);
-  background: var(--black);
+  padding: 4px 0;
+  background: transparent;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -1796,6 +1797,167 @@ body:has(.cp-hero) #site-header {
 /* Phasen-Tabelle — gleicher Standard wie die Intervall-Tabelle
    (.cp-protocol-table, farbiger linker Rand statt Farbfläche). */
 .plan-phase-table { margin-top: clamp(24px, 4vh, 40px); }
+.plan-phase-detail {
+  display: block;
+  font-style: normal;
+  margin-top: 4px;
+  color: var(--gray);
+}
+
+/* Hauptfokus-Schalter (AUSDAUER | KRAFT) — größer als die übrigen
+   Pills, weil er den Rest des Formulars umschaltet. */
+.plan-mode-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.plan-mode-pill {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3vw, 28px);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  padding: 14px 16px 10px;
+  border-width: 2px;
+  border-color: var(--black);
+}
+
+/* Optionaler 2. Höhepunkt (aufklappbar) */
+.plan-peak2 { margin-bottom: 32px; }
+.plan-peak2-summary {
+  font-family: var(--font-cond);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.plan-peak2-summary::-webkit-details-marker { display: none; }
+.plan-peak2-summary::before { content: '+'; font-size: 16px; line-height: 1; }
+.plan-peak2[open] .plan-peak2-summary::before { content: '–'; }
+.plan-peak2-body {
+  margin-top: 20px;
+  padding-left: 16px;
+  border-left: 2px solid var(--accent);
+}
+.plan-field-hint {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--gray);
+  margin-top: 12px;
+}
+.plan-field-hint strong { font-weight: 600; color: var(--black); }
+
+/* Ressourcen-Kurve — gleicher heller Stil wie der Zeitstrahl. */
+.plan-resources { margin: 0 0 40px; }
+.plan-res-title {
+  font-family: var(--font-cond);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  margin-bottom: 10px;
+}
+.plan-res-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+  font-size: 12.5px;
+  color: var(--black);
+  margin-bottom: 10px;
+}
+.plan-res-legend span { display: inline-flex; align-items: center; gap: 8px; }
+.plan-res-swatch { display: inline-block; width: 18px; height: 0; border-top: 3px solid; }
+.plan-res-swatch--build { border-top-color: #9a9a9a; }
+.plan-res-swatch--use { border-top: 3px dashed #9a9a9a; }
+/* Schwarze Linie über gelber Fläche — wie in der Grafik. */
+.plan-res-swatch--res { border-top: 2px solid var(--black); height: 8px; background: var(--accent); }
+.plan-res-wrap { position: relative; }
+.plan-res-hit { cursor: crosshair; }
+.plan-res-tip {
+  position: absolute;
+  top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  background: var(--white);
+  color: var(--black);
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+  border: 1px solid var(--black);
+}
+.plan-res-tip[hidden] { display: none; }
+.plan-res-tip strong { font-family: var(--font-cond); font-weight: 600; letter-spacing: 0.08em; }
+.plan-res-warning { margin-top: 14px; border-left: 4px solid #ee5a32; }
+
+.plan-ctas { display: flex; flex-wrap: wrap; column-gap: 32px; }
+.plan-ctas[hidden] { display: none; }
+.plan-combo-note {
+  font-size: 13px;
+  color: var(--gray);
+  margin-top: 24px;
+}
+.plan-combo-note a {
+  color: var(--black);
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+/* Erklär-Sektion "Wie entsteht dein Plan?" */
+.plan-explain {
+  background: var(--white);
+  padding: 0 var(--gutter) clamp(56px, 8vh, 100px);
+}
+.plan-explain-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  border-top: 2px solid var(--black);
+  padding-top: 24px;
+}
+.plan-explain-summary {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3vw, 32px);
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.plan-explain-summary::-webkit-details-marker { display: none; }
+.plan-explain-summary::after { content: '+'; font-family: var(--font-cond); font-size: 28px; }
+.plan-explain-details[open] .plan-explain-summary::after { content: '–'; }
+.plan-explain-body { padding-top: 16px; }
+.plan-explain-body h3 {
+  font-family: var(--font-cond);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 24px 0 6px;
+}
+.plan-explain-body p { font-size: 15px; line-height: 1.7; }
+.plan-explain-sources-title {
+  font-family: var(--font-cond);
+  font-size: 11px !important;
+  letter-spacing: 0.15em;
+  color: var(--gray);
+  margin-top: 32px;
+}
+.plan-explain-sources { margin-top: 8px; }
+.plan-explain-sources li {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--gray);
+  margin-bottom: 6px;
+}
 
 /* Gratis-Tool-Teaser (training.html, vor den Preis-Karten) */
 .section-tool-teaser {
@@ -1836,4 +1998,6 @@ body:has(.cp-hero) #site-header {
 
 @media (max-width: 640px) {
   .plan-pill { flex: 1 1 auto; padding: 10px 8px; font-size: 11px; text-align: center; }
+  /* .plan-pill oben würde sonst die große Fokus-Schrift überschreiben. */
+  .plan-mode-pill { font-size: 22px; padding: 12px 8px 8px; }
 }
