@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <!-- /BUILD:HEAD_TOP -->
   <title>Saisonplan — SCHWELLENSCHMOPS</title>
-  <meta name="description" content="Trag dein Zieldatum ein und bekomm einen groben Saisonplan: Grundlage, Aufbau, Wettkampf, Taper — mit echten Kalenderdaten. Kostenlos, ohne Anmeldung." />
+  <meta name="description" content="Trag dein Zieldatum ein und bekomm einen groben Saisonplan für Ausdauer oder Kraft: Phasen, Entlastungswochen, Taper — mit echten Kalenderdaten. Kostenlos, ohne Anmeldung." />
   <link rel="canonical" href="https://schwellenschmops.at/saisonplan.html" />
   <!-- BUILD:HEAD_FAVICON -->
   <link rel="icon" href="favicon.ico" sizes="any" />
@@ -22,13 +22,13 @@
   <meta property="og:locale" content="de_AT" />
   <meta property="og:url" content="https://schwellenschmops.at/saisonplan.html" />
   <meta property="og:title" content="Saisonplan — SCHWELLENSCHMOPS" />
-  <meta property="og:description" content="Trag dein Zieldatum ein und bekomm einen groben Saisonplan: Grundlage, Aufbau, Wettkampf, Taper — mit echten Kalenderdaten. Kostenlos, ohne Anmeldung." />
+  <meta property="og:description" content="Trag dein Zieldatum ein und bekomm einen groben Saisonplan für Ausdauer oder Kraft: Phasen, Entlastungswochen, Taper — mit echten Kalenderdaten. Kostenlos, ohne Anmeldung." />
   <meta property="og:image" content="https://schwellenschmops.at/images/og-image.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Saisonplan — SCHWELLENSCHMOPS" />
-  <meta name="twitter:description" content="Trag dein Zieldatum ein und bekomm einen groben Saisonplan: Grundlage, Aufbau, Wettkampf, Taper — mit echten Kalenderdaten. Kostenlos, ohne Anmeldung." />
+  <meta name="twitter:description" content="Trag dein Zieldatum ein und bekomm einen groben Saisonplan für Ausdauer oder Kraft: Phasen, Entlastungswochen, Taper — mit echten Kalenderdaten. Kostenlos, ohne Anmeldung." />
   <meta name="twitter:image" content="https://schwellenschmops.at/images/og-image.jpg" />
 
   <!-- BUILD:HEAD_ASSETS -->
@@ -36,7 +36,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@300;400;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
   <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@300;400;600&display=swap" /></noscript>
-  <link rel="stylesheet" href="css/style.css?v=20260929" />
+  <link rel="stylesheet" href="css/style.css?v=20261002" />
   <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "ed1c8f61b87942ac8b4ca5dfcdb3035a"}'></script>
 <!-- /BUILD:HEAD_ASSETS -->
 </head>
@@ -81,7 +81,7 @@
       <div class="cp-hero-inner">
         <span class="section-label">SAISONPLAN · BETA</span>
         <h1 class="cp-hero-title">PLANE DEINE SAISON</h1>
-        <p class="cp-hero-sub">Dein Zieldatum, deine Sportart, dein Level — daraus bauen wir deinen groben Fahrplan. Vom Tag X rückwärts gerechnet, mit echten Kalenderdaten statt vager Wochenangaben.</p>
+        <p class="cp-hero-sub">Dein Zieldatum, dein Fokus (Ausdauer oder Kraft) und dein Level: Daraus bauen wir deinen groben Fahrplan. Vom Tag X rückwärts gerechnet, mit echten Kalenderdaten statt vager Wochenangaben.</p>
       </div>
     </section>
 
@@ -89,11 +89,21 @@
     <section class="cp-calc-section reveal-section">
       <div class="cp-calc-inner">
 
+        <div class="plan-pill-field plan-mode-field">
+          <span class="cp-weight-label" id="plan-mode-label">Hauptfokus</span>
+          <div class="plan-mode-group" id="plan-mode-group" role="radiogroup" aria-labelledby="plan-mode-label">
+            <button type="button" class="plan-pill plan-mode-pill is-active" data-mode="endurance" role="radio" aria-checked="true">AUSDAUER</button>
+            <button type="button" class="plan-pill plan-mode-pill" data-mode="strength" role="radio" aria-checked="false">KRAFT</button>
+          </div>
+        </div>
+
+        <div id="plan-sport-block">
         <div class="cp-tabs" role="tablist" aria-label="Sportart wählen">
           <button type="button" class="cp-tab is-active" data-sport="bike" role="tab" aria-selected="true">BIKE</button>
           <button type="button" class="cp-tab" data-sport="run" role="tab" aria-selected="false">RUN</button>
           <button type="button" class="cp-tab" data-sport="row" role="tab" aria-selected="false">ROW</button>
           <button type="button" class="cp-tab" data-sport="ski" role="tab" aria-selected="false">SKI</button>
+        </div>
         </div>
 
         <p class="cp-sport-intro" id="plan-sport-intro">Dein Saisonplan fürs Radtraining.</p>
@@ -124,6 +134,33 @@
             </div>
           </div>
 
+          <details class="plan-peak2" id="plan-peak2">
+            <summary class="plan-peak2-summary">2. Höhepunkt <span class="cp-optional-tag">(optional)</span></summary>
+            <div class="plan-peak2-body">
+              <div class="cp-weight-field">
+                <label class="cp-weight-label" for="plan-peak2-date">Datum (vor Tag X)</label>
+                <div class="cp-weight-row" id="plan-peak2-row">
+                  <input type="date" id="plan-peak2-date" />
+                </div>
+                <p class="field-error" id="plan-peak2-error"></p>
+              </div>
+              <div class="cp-weight-field">
+                <label class="cp-weight-label" for="plan-peak2-name">Name <span class="cp-optional-tag">(optional)</span></label>
+                <div class="cp-weight-row">
+                  <input type="text" id="plan-peak2-name" placeholder="z.B. Halbmarathon Linz" autocomplete="off" />
+                </div>
+              </div>
+              <div class="plan-pill-field">
+                <span class="cp-weight-label" id="plan-peak2-kind-label">Wie wichtig?</span>
+                <div class="plan-pill-group" id="plan-peak2-kind-group" role="radiogroup" aria-labelledby="plan-peak2-kind-label">
+                  <button type="button" class="plan-pill" data-kind="A" role="radio" aria-checked="false">A-ZIEL</button>
+                  <button type="button" class="plan-pill is-active" data-kind="B" role="radio" aria-checked="true">B-ZIEL</button>
+                </div>
+                <p class="plan-field-hint"><strong>A-Ziel:</strong> genauso wichtig wie Tag X. Voller Taper, kurze Erholung, danach ein neuer Aufbau-Block. <strong>B-Ziel:</strong> ein Formtest auf dem Weg, mit nur ein paar lockeren Tagen davor.</p>
+              </div>
+            </div>
+          </details>
+
           <div class="plan-pill-field">
             <label class="cp-weight-label">Erfahrungslevel</label>
             <div class="plan-pill-group" id="plan-level-group" role="radiogroup" aria-label="Erfahrungslevel">
@@ -133,7 +170,7 @@
             </div>
           </div>
 
-          <div class="plan-pill-field">
+          <div class="plan-pill-field" id="plan-duration-field">
             <label class="cp-weight-label">Wettkampfdauer</label>
             <div class="plan-pill-group" id="plan-duration-group" role="radiogroup" aria-label="Wettkampfdauer">
               <button type="button" class="plan-pill" data-duration="short" role="radio" aria-checked="false">&lt; 2 STD.</button>
@@ -160,16 +197,63 @@
 
         <div class="plan-timeline" id="plan-timeline"></div>
 
+        <div class="plan-resources" id="plan-resources"></div>
+
         <button type="button" class="cp-export-btn" id="plan-export-pdf">ALS PDF SPEICHERN</button>
 
         <div class="cp-protocol-table plan-phase-table" id="plan-phase-cards"><!-- wird von saisonplan.js befüllt --></div>
 
-        <a href="cp-rechner.html" class="cp-intervalle-cta">
-          NOCH KEINE ZONEN? JETZT CRITICAL POWER BERECHNEN <span>↗</span>
-        </a>
-        <a href="intervalle.html" class="cp-intervalle-cta">
-          KONKRETE INTERVALLE FÜR DEINE PHASEN? ZUM INTERVALLRECHNER <span>↗</span>
-        </a>
+        <div class="plan-ctas" data-mode="endurance">
+          <a href="cp-rechner.html" class="cp-intervalle-cta">
+            NOCH KEINE ZONEN? JETZT CRITICAL POWER BERECHNEN <span>↗</span>
+          </a>
+          <a href="intervalle.html" class="cp-intervalle-cta">
+            KONKRETE INTERVALLE FÜR DEINE PHASEN? ZUM INTERVALLRECHNER <span>↗</span>
+          </a>
+        </div>
+        <div class="plan-ctas" data-mode="strength" hidden>
+          <a href="diagnostik.html" class="cp-intervalle-cta">
+            WO STEHST DU GERADE? ZUM MAXIMALKRAFTTEST <span>↗</span>
+          </a>
+          <a href="training.html" class="cp-intervalle-cta">
+            AUS PHASEN WERDEN EINHEITEN: KRAFTPLANUNG <span>↗</span>
+          </a>
+        </div>
+        <p class="plan-combo-note">Ausdauer und Kraft gleich wichtig? Genau dafür gibt es die individuell geplante <a href="training.html">Kombination Ausdauer + Kraft</a>.</p>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════ ERKLÄRUNG ═══════════════════════════ -->
+    <section class="plan-explain reveal-section">
+      <div class="plan-explain-inner">
+        <details class="plan-explain-details">
+          <summary class="plan-explain-summary">WIE ENTSTEHT DEIN PLAN?</summary>
+          <div class="plan-explain-body">
+            <h3>In Phasen planen</h3>
+            <p>Periodisierung heißt: Das Training wird in Abschnitte mit klarem Schwerpunkt geteilt, statt jede Woche gleich zu trainieren. Periodisierte Pläne schneiden im Schnitt besser ab als nicht periodisierte, und der Vorteil wächst mit der Trainingserfahrung.</p>
+
+            <h3>Ressourcen aufbauen, dann verwenden</h3>
+            <p>Am Anfang stehen allgemeine Inhalte im Vordergrund: Ausdauerbasis, Muskelmasse, Belastbarkeit und Technik. Sie bauen die Ressourcen auf, von denen du später zehrst. Je näher das Ziel rückt, desto größer wird der Anteil an wettkampfspezifischem Training, das diese Ressourcen in Leistung umsetzt. Deshalb steht bei jeder Phase der Anteil <em>allgemein/spezifisch</em>. Wer zu früh nur noch spezifisch trainiert oder nach der Saison nie auffüllt, betreibt Raubbau, und der fällt oft erst nach ein paar Saisons auf.</p>
+
+            <h3>Blöcke mit Entlastung</h3>
+            <p>Innerhalb der Phasen wird in Blöcken von etwa drei bis fünf Wochen geplant, und jeder Block endet mit einer Entlastungswoche. Was gar nicht trainiert wird, baut ab: Ausdauer und Maximalkraft nach rund vier Wochen, schnelle Fähigkeiten noch früher. Deshalb setzt jede Phase Schwerpunkte, statt Inhalte komplett zu streichen.</p>
+
+            <h3>Ein oder zwei Höhepunkte</h3>
+            <p>Für ein einzelnes Ziel reicht ein durchgehender Aufbau. Bei zwei wichtigen Zielen wird in Blöcken gedacht: Nach dem ersten Höhepunkt kurz erholen, dann direkt mit dem Aufbau weitermachen, denn die Grundlage ist ja schon da. Ein B-Ziel ist dagegen ein Formtest auf dem Weg und braucht nur ein paar lockere Tage davor.</p>
+
+            <h3>Ausdauer und Kraft als Partner</h3>
+            <p>Egal, welchen Fokus du wählst: Die andere Qualität läuft immer mit. Kraft macht Ausdauersportler belastbarer und ökonomischer, und etwas lockere Ausdauer verbessert bei Kraftsportlern die Erholung zwischen den Einheiten.</p>
+
+            <p class="plan-explain-sources-title">QUELLEN</p>
+            <ul class="plan-explain-sources">
+              <li>Williams TD, Tolusso DV, Fedewa MV, Esco MR (2017). Comparison of Periodized and Non-Periodized Resistance Training on Maximal Strength: A Meta-Analysis. <em>Sports Medicine</em>, 47(10), 2083–2100.</li>
+              <li>Issurin VB (2008). Block periodization versus traditional training theory: a review. <em>Journal of Sports Medicine and Physical Fitness</em>, 48(1), 65–75.</li>
+              <li>Koprivica V (2012). Block Periodization – A Breakthrough or a Misconception. <em>SportLogia</em>, 8(2), 93–99.</li>
+              <li>Matwejew LP (1975). <em>Periodisierung des sportlichen Trainings</em>. Berlin: Bartels &amp; Wernitz.</li>
+              <li>Siff MC, Verkhoshansky YV (1999). <em>Supertraining</em> (4. Aufl.). Denver.</li>
+            </ul>
+          </div>
+        </details>
       </div>
     </section>
 
@@ -217,6 +301,6 @@
   <script src="js/rechner-utils.js?v=20260920"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/4.2.1/jspdf.umd.min.js" integrity="sha512-plOdviVmws4Y3JAvbnpfKb2hVxKM1lCwsi3vmElYRj+tiDLffZ4FVUj5a8vyKJ9pIgl8JCAHEJ4D1iUKBecswg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script src="js/pdf-utils.js?v=20260920"></script>
-  <script src="js/saisonplan.js?v=20260920-2"></script>
+  <script src="js/saisonplan.js?v=20261002-2"></script>
 </body>
 </html>
