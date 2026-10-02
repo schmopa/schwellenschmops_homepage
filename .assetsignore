@@ -13,4 +13,3 @@ partials
 build.js
 wrangler.jsonc
 *.md
-CNAME

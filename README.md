@@ -60,7 +60,7 @@ schwellenschmops_homepage/
 ├── build.js                 Synct partials/ in die 9 Root-HTML-Seiten
 ├── .githooks/pre-commit      Führt build.js vor jedem Commit aus
 ├── images/                  *.webp (komprimiert), Favicons, Social-Preview
-├── manifest.json, robots.txt, sitemap.xml, CNAME    Deployment/SEO-Metadaten
+├── manifest.json, robots.txt, sitemap.xml          SEO-Metadaten
 ├── wrangler.jsonc, .assetsignore, _headers, _redirects   Cloudflare-Hosting (siehe Deployment)
 └── .claude/skills/           create-post-Skill für neue Blogposts
 ```
@@ -202,11 +202,13 @@ CSS styles (`.hero-social a`) are already in place.
 
 ## Deployment
 
-**Umzug läuft:** Live ist noch **GitHub Pages** (branch `main`, root folder,
-`CNAME`). Parallel ist das Repo mit **Cloudflare Workers (Static Assets)**
-verbunden — jeder Push auf `main` deployt dort via `npx wrangler deploy`
-(Test-URL `*.workers.dev`). Nach dem Umhängen der Domain werden GitHub Pages
-und `CNAME` entfernt.
+Hosted on **Cloudflare Workers (Static Assets)**, Worker
+`schwellenschmops-homepage`, mit dem GitHub-Repo verbunden (Workers Builds):
+jeder Push auf `main` deployt automatisch via `npx wrangler deploy`
+(kein Build-Command). Domains `schwellenschmops.at` + `www` hängen als
+Custom Domains am Worker (`routes` in `wrangler.jsonc`), `www` wird per
+Cloudflare Redirect Rule auf den Apex umgeleitet.
+Bis 2026-10 lief die Seite auf GitHub Pages.
 
 Cloudflare-Dateien im Root:
 

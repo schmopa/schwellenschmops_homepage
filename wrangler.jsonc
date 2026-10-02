@@ -5,6 +5,12 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "schwellenschmops-homepage",
   "compatibility_date": "2026-10-01",
+  // Domains hängen direkt am Worker; Cloudflare legt DNS + Zertifikat selbst an.
+  // www → Apex-Weiterleitung läuft über eine Redirect Rule im Dashboard.
+  "routes": [
+    { "pattern": "schwellenschmops.at", "custom_domain": true },
+    { "pattern": "www.schwellenschmops.at", "custom_domain": true }
+  ],
   "assets": {
     "directory": ".",
     "html_handling": "none"
