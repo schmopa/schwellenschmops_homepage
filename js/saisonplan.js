@@ -195,8 +195,10 @@
   // der es das vorherige Label nicht berührt; passt es nirgends, in die
   // Zeile, die am weitesten links endet. rows hält das rechte Ende je
   // Zeile und wird mutiert.
-  function pickLabelRow(rows, left, right, gap) {
+  // strict: statt in die "beste" Zeile zu überlappen -1 zurückgeben.
+  function pickLabelRow(rows, left, right, gap, strict) {
     let row = rows.findIndex((end) => left > end + gap);
+    if (row === -1 && strict) return -1;
     if (row === -1) row = rows.indexOf(Math.min.apply(null, rows));
     rows[row] = right;
     return row;
@@ -438,12 +440,20 @@
       return;
     }
 
-    const bandY = 40, bandH = 14;
+    // Vertikales Raster: bis zu 3 Zeilen für Renn-/B-Beschriftungen über dem
+    // Band, bis zu 4 Zeilen für Phasen-Labels darunter. Die viewBox wird am
+    // Ende auf die tatsächlich benutzten Zeilen zugeschnitten — normale
+    // Pläne bleiben so flach, nur enge Fälle werden höher.
+    const bandY = 50, bandH = 14;
+    const MARKER_ROW_Y = [38, 25, 12];
+    const LABEL_ROW_Y = [78, 102, 114, 126];
+    const WEEKS_Y = 89;
     const geo = phaseGeometry(plan);
     const lastIdx = plan.phases.length - 1;
     let rects = '', stripes = '', dividers = '', labels = '', markers = '';
-    const labelRows = [-Infinity, -Infinity, -Infinity];
-    const markerRows = [-Infinity, -Infinity];
+    const labelRows = LABEL_ROW_Y.map(() => -Infinity);
+    const markerRows = MARKER_ROW_Y.map(() => -Infinity);
+    let maxLabelRow = 0, maxMarkerRow = 0;
 
     plan.phases.forEach((p, i) => {
       const { x, w } = geo[i];
@@ -463,7 +473,7 @@
       // überlappen die Labels an der engen Rennstelle (siehe
       // [[saisonplan-feature]]-Bug-Learning). Passt ein Label trotzdem
       // nicht neben das vorherige (z.B. 3-Wochen-Peaking direkt vor einem
-      // 1-Wochen-Taper), rutscht es in eine zweite Zeile.
+      // 1-Wochen-Taper), rutscht es eine Zeile tiefer.
       const cx = x + w / 2;
       const compact = w < 55;
       const fontSize = compact ? 9 : 10;
@@ -473,48 +483,69 @@
       // Ab hier immer linksbündig an der berechneten Kante — so lässt sich
       // die Kante gleichzeitig am SVG-Rand festklemmen (sonst wird z.B.
       // eine 1-Wochen-Regeneration ganz rechts abgeschnitten).
-      const textW = p.label.length * fontSize * 0.62;
-      const rawLeft = anchor === 'start' ? labelX : anchor === 'end' ? labelX - textW : labelX - textW / 2;
-      const left = Math.max(2, Math.min(SVG_W - 2 - textW, rawLeft));
-      const labelY = [68, 92, 104][pickLabelRow(labelRows, left, left + textW, 6)];
-
-      labels += '<text x="' + left.toFixed(1) + '" y="' + labelY + '" font-family="var(--font-cond)" font-size="' + fontSize + '" font-weight="600" letter-spacing="0.05em" fill="var(--black)">' + escapeHtml(p.label.toUpperCase()) + '</text>';
+      // Passt das Label in keine Zeile (Extremfall: viele Mini-Phasen
+      // nebeneinander), erst gekürzt versuchen, sonst weglassen — die
+      // Tabelle darunter nennt jede Phase ohnehin vollständig.
+      const fit = (text) => {
+        const tw = text.length * fontSize * 0.62;
+        const rawLeft = anchor === 'start' ? labelX : anchor === 'end' ? labelX - tw : labelX - tw / 2;
+        const l = Math.max(2, Math.min(SVG_W - 2 - tw, rawLeft));
+        const r = pickLabelRow(labelRows, l, l + tw, 6, true);
+        return r === -1 ? null : { text, left: l, row: r };
+      };
+      const full = p.label.toUpperCase();
+      const placed = fit(full) || (full.length > 6 ? fit(full.slice(0, 5) + '.') : null);
+      if (placed) {
+        maxLabelRow = Math.max(maxLabelRow, placed.row);
+        labels += '<text x="' + placed.left.toFixed(1) + '" y="' + LABEL_ROW_Y[placed.row] + '" font-family="var(--font-cond)" font-size="' + fontSize + '" font-weight="600" letter-spacing="0.05em" fill="var(--black)">' + escapeHtml(placed.text) + '</text>';
+      }
       if (!compact) {
-        labels += '<text x="' + cx.toFixed(1) + '" y="79" text-anchor="middle" font-family="var(--font-cond)" font-size="8.5" letter-spacing="0.02em" fill="var(--gray)">' + p.weeks + ' Wo.</text>';
+        labels += '<text x="' + cx.toFixed(1) + '" y="' + WEEKS_Y + '" text-anchor="middle" font-family="var(--font-cond)" font-size="8.5" letter-spacing="0.02em" fill="var(--gray)">' + p.weeks + ' Wo.</text>';
       }
 
       if (p.endsAtRace) {
-        const mx = x + w;
-        // Zwei Rennen nah beieinander: zweite Beschriftung eine Zeile höher.
         // Name + Datum zentriert über dem Marker, am SVG-Rand festgeklemmt;
-        // überlappt die Beschriftung die vorige, rutscht sie eine Zeile höher.
+        // überlappt die Beschriftung eine vorige, rutscht sie eine Zeile höher.
+        const mx = x + w;
         const name = shortLabel(p.endsAtRace.label, 18).toUpperCase();
-        const textW = (name.length + 8) * 10 * 0.6;
-        const left = Math.max(2, Math.min(SVG_W - 2 - textW, mx - textW / 2));
-        const labelYm = pickLabelRow(markerRows, left, left + textW, 8) === 0 ? 28 : 12;
+        const nameW = (name.length + 8) * 10 * 0.6;
+        const nameLeft = Math.max(2, Math.min(SVG_W - 2 - nameW, mx - nameW / 2));
+        const mRow = pickLabelRow(markerRows, nameLeft, nameLeft + nameW, 8);
+        maxMarkerRow = Math.max(maxMarkerRow, mRow);
+        const labelYm = MARKER_ROW_Y[mRow];
         markers +=
           '<line x1="' + mx.toFixed(1) + '" y1="' + (labelYm + 4) + '" x2="' + mx.toFixed(1) + '" y2="' + bandY + '" stroke="var(--black)" stroke-width="1.2" stroke-dasharray="2 3"/>' +
           '<circle cx="' + mx.toFixed(1) + '" cy="' + bandY + '" r="3" fill="var(--black)"/>' +
-          '<text x="' + left.toFixed(1) + '" y="' + labelYm + '" font-family="var(--font-cond)" font-size="10" font-weight="700" letter-spacing="0.06em" fill="var(--black)">' + escapeHtml(shortLabel(p.endsAtRace.label, 18).toUpperCase()) +
+          '<text x="' + nameLeft.toFixed(1) + '" y="' + labelYm + '" font-family="var(--font-cond)" font-size="10" font-weight="700" letter-spacing="0.06em" fill="var(--black)">' + escapeHtml(name) +
           '<tspan font-weight="400" fill="var(--gray)"> · ' + formatDateShort(p.endsAtRace.date) + '</tspan></text>';
       }
     });
 
     if (plan.bMarker) {
+      // B-Ziel nimmt am selben Zeilensystem teil wie die Rennmarker, sonst
+      // kollidiert es mit Tag X, wenn es kurz davor liegt.
       const bx = dateToX(plan, geo, plan.bMarker.date);
       if (bx !== null) {
-        const nearEnd = bx > PLOT_END_X - 90;
+        const bText = 'B · ' + shortLabel(plan.bMarker.label, 18).toUpperCase() + ' ' + formatDateShort(plan.bMarker.date);
+        const bW = bText.length * 9 * 0.62;
+        const bLeft = Math.max(2, Math.min(SVG_W - 2 - bW, bx - bW / 2));
+        const bRow = pickLabelRow(markerRows, bLeft, bLeft + bW, 8);
+        maxMarkerRow = Math.max(maxMarkerRow, bRow);
+        const by = MARKER_ROW_Y[bRow];
         markers +=
+          '<line x1="' + bx.toFixed(1) + '" y1="' + (by + 4) + '" x2="' + bx.toFixed(1) + '" y2="' + (bandY - 6) + '" stroke="var(--gray)" stroke-width="1" stroke-dasharray="1 3"/>' +
           '<path d="M' + bx.toFixed(1) + ' ' + (bandY - 1) + ' l-4 -6 h8 z" fill="var(--black)"/>' +
-          '<text x="' + (nearEnd ? bx - 8 : bx + 8).toFixed(1) + '" y="' + (bandY - 4) + '" text-anchor="' + (nearEnd ? 'end' : 'start') + '" font-family="var(--font-cond)" font-size="9" letter-spacing="0.06em" fill="var(--gray)">B · ' + escapeHtml(shortLabel(plan.bMarker.label, 18).toUpperCase()) + ' ' + formatDateShort(plan.bMarker.date) + '</text>';
+          '<text x="' + bLeft.toFixed(1) + '" y="' + by + '" font-family="var(--font-cond)" font-size="9" letter-spacing="0.06em" fill="var(--gray)">' + escapeHtml(bText) + '</text>';
       }
     }
 
+    const footY = Math.max(LABEL_ROW_Y[maxLabelRow], WEEKS_Y) + 18;
+    const topY = MARKER_ROW_Y[maxMarkerRow] - 12;
     const svg =
-      '<svg viewBox="0 0 640 126" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
+      '<svg viewBox="0 ' + topY + ' ' + SVG_W + ' ' + (footY + 4 - topY) + '" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' +
       rects + stripes + dividers + labels + markers +
-      '<text x="' + PLOT_X + '" y="122" font-family="var(--font-cond)" font-size="9" letter-spacing="0.06em" fill="var(--gray)">START · ' + formatDateShort(plan.startDate) + '</text>' +
-      '<text x="' + PLOT_END_X + '" y="122" text-anchor="end" font-family="var(--font-cond)" font-size="9" letter-spacing="0.06em" fill="var(--gray)">' + formatDateShort(plan.phases[lastIdx].end) + '</text>' +
+      '<text x="' + PLOT_X + '" y="' + footY + '" font-family="var(--font-cond)" font-size="9" letter-spacing="0.06em" fill="var(--gray)">START · ' + formatDateShort(plan.startDate) + '</text>' +
+      '<text x="' + PLOT_END_X + '" y="' + footY + '" text-anchor="end" font-family="var(--font-cond)" font-size="9" letter-spacing="0.06em" fill="var(--gray)">' + formatDateShort(plan.phases[lastIdx].end) + '</text>' +
       '</svg>';
 
     const hasDeloads = plan.phases.some((p) => p.deloads.length);
@@ -933,11 +964,12 @@
     // die Bildschirm-Grafik (Phasenbänder, Entlastungsstreifen, Marker).
     const bandH = 12;
     ensureSpace(bandH + 30);
-    const bandY = state.y + 10;
+    const bandY = state.y + 14;
     const totalWeeks = plan.phases.reduce((s, p) => s + p.weeks, 0);
     let x = state.marginX;
-    const pdfLabelRows = [-Infinity, -Infinity, -Infinity];
-    const pdfMarkerRows = [-Infinity, -Infinity];
+    const pdfLabelRows = [-Infinity, -Infinity, -Infinity, -Infinity];
+    const pdfMarkerRows = [-Infinity, -Infinity, -Infinity];
+    const PDF_MARKER_DY = [7, 11, 15];
     const pageRight = state.marginX + state.contentW;
 
     plan.phases.forEach((p, i) => {
@@ -963,13 +995,19 @@
 
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(7);
-      const textW = doc.getTextWidth(p.label.toUpperCase());
-      // Wie im SVG: linke Kante berechnen, am Seitenrand festklemmen.
-      const rawLeft = labelAlign === 'left' ? labelX : labelAlign === 'right' ? labelX - textW : labelX - textW / 2;
-      const left = Math.max(state.marginX, Math.min(pageRight - textW, rawLeft));
-      const labelY = bandY + bandH + [5, 13, 17][pickLabelRow(pdfLabelRows, left, left + textW, 1.5)];
+      // Wie im SVG: linke Kante berechnen, am Seitenrand festklemmen;
+      // passt nichts, gekürzt versuchen, sonst weglassen.
+      const fitPdf = (text) => {
+        const tw = doc.getTextWidth(text);
+        const rawLeft = labelAlign === 'left' ? labelX : labelAlign === 'right' ? labelX - tw : labelX - tw / 2;
+        const l = Math.max(state.marginX, Math.min(pageRight - tw, rawLeft));
+        const r = pickLabelRow(pdfLabelRows, l, l + tw, 1.5, true);
+        return r === -1 ? null : { text, left: l, row: r };
+      };
+      const fullPdf = p.label.toUpperCase();
+      const placedPdf = fitPdf(fullPdf) || (fullPdf.length > 6 ? fitPdf(fullPdf.slice(0, 5) + '.') : null);
       doc.setTextColor.apply(doc, BLACK);
-      doc.text(p.label.toUpperCase(), left, labelY);
+      if (placedPdf) doc.text(placedPdf.text, placedPdf.left, bandY + bandH + [5, 13, 17, 21][placedPdf.row]);
       if (!compact) {
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(6.5);
@@ -984,7 +1022,7 @@
         doc.setFontSize(7.5);
         const nameW = doc.getTextWidth(name);
         const nameLeft = Math.max(state.marginX, Math.min(pageRight - nameW, markX - nameW / 2));
-        const textY = pickLabelRow(pdfMarkerRows, nameLeft, nameLeft + nameW, 2) === 0 ? bandY - 7 : bandY - 11;
+        const textY = bandY - PDF_MARKER_DY[pickLabelRow(pdfMarkerRows, nameLeft, nameLeft + nameW, 2)];
         doc.setDrawColor.apply(doc, BLACK);
         doc.setLineWidth(0.4);
         doc.line(markX, textY + 2, markX, bandY);
@@ -1007,14 +1045,18 @@
       if (bx !== null) {
         doc.setFillColor.apply(doc, BLACK);
         doc.triangle(bx - 1.5, bandY - 3, bx + 1.5, bandY - 3, bx, bandY, 'F');
+        // Wie im SVG: B-Beschriftung nimmt an den Marker-Zeilen teil.
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(6.5);
         doc.setTextColor.apply(doc, GRAY);
-        doc.text('B · ' + shortLabel(plan.bMarker.label, 18).toUpperCase(), bx, bandY - 4, { align: bx > state.marginX + state.contentW - 30 ? 'right' : 'left' });
+        const bText = 'B · ' + shortLabel(plan.bMarker.label, 18).toUpperCase();
+        const bW = doc.getTextWidth(bText);
+        const bLeft = Math.max(state.marginX, Math.min(pageRight - bW, bx - bW / 2));
+        doc.text(bText, bLeft, bandY - PDF_MARKER_DY[pickLabelRow(pdfMarkerRows, bLeft, bLeft + bW, 2)]);
       }
     }
 
-    state.y = bandY + bandH + 22;
+    state.y = bandY + bandH + 26;
 
     // Phasen, volle Breite je Karte. Dünner Akzentstreifen statt
     // vollflächigem schwarzen Kasten — sieht gedruckt/als PDF sauberer aus.
