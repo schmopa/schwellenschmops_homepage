@@ -98,6 +98,8 @@
     endurance: {
       label: 'Ausdauer',
       fixedDuration: null,
+      eventPlaceholder: 'z.B. Wien Marathon',
+      peak2Placeholder: 'z.B. Halbmarathon Linz',
       labels: {
         grundlage: 'Grundlage', aufbau: 'Aufbau', wettkampf: 'Wettkampf',
         erhaltung: 'Erhaltung', taper: 'Taper', regeneration: 'Regeneration'
@@ -133,6 +135,8 @@
     strength: {
       label: 'Kraft',
       fixedDuration: { taperWeeks: 1, regenWeeks: 1 },
+      eventPlaceholder: 'z.B. Landesmeisterschaft KDK',
+      peak2Placeholder: 'z.B. Testtag Maximalkraft',
       labels: {
         grundlage: 'Hypertrophie', aufbau: 'Maximalkraft', wettkampf: 'Peaking',
         erhaltung: 'Erhaltung', taper: 'Taper', regeneration: 'Regeneration'
@@ -741,6 +745,8 @@
     sportBlock.hidden = strength;
     durationField.hidden = strength;
     ctaSets.forEach((el) => { el.hidden = el.dataset.mode !== mode; });
+    eventInput.placeholder = MODE_CONFIG[mode].eventPlaceholder;
+    peak2NameInput.placeholder = MODE_CONFIG[mode].peak2Placeholder;
     updateIntro();
   }
 

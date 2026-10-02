@@ -1797,6 +1797,9 @@ body:has(.cp-hero) #site-header {
 /* Phasen-Tabelle — gleicher Standard wie die Intervall-Tabelle
    (.cp-protocol-table, farbiger linker Rand statt Farbfläche). */
 .plan-phase-table { margin-top: clamp(24px, 4vh, 40px); }
+/* Abstand zum farbigen linken Rand, sonst klebt der Phasenname daran
+   (gleich wie .interval-table). */
+.plan-phase-table .cp-protocol-row { padding-left: 14px; }
 .plan-phase-detail {
   display: block;
   font-style: normal;
