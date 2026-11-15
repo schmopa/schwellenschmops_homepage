@@ -42,7 +42,7 @@ schwellenschmops_homepage/
 ├── cp-rechner.html         Tool: Critical-Power-/Critical-Speed-Rechner
 ├── intervalle.html         Tool: Intervallrechner (aus CP/CS abgeleitet)
 ├── saisonplan.html         Tool: Saisonplaner (Makro-Ebene)
-├── impressum.html          Imprint (Austrian ECG)
+├── impressum.html          Imprint (Austrian MedienG § 25 disclosure)
 ├── datenschutz.html        Privacy policy (GDPR/DSGVO)
 ├── css/
 │   └── style.css          Complete styling (variables, layout, responsive)
