@@ -2,8 +2,8 @@
 /* SCHWELLENSCHMOPS — build.js
    Synct die gemeinsamen Header-/Footer-/Head-Boilerplate-Regionen in allen
    Root-HTML-Seiten aus partials/ — kein Static-Site-Generator, kein Build-
-   Schritt für GitHub Pages nötig: die Root-*.html bleiben das, was deployed
-   wird, dieses Script überschreibt nur die markierten Regionen darin.
+   Schritt beim Hosting (Cloudflare Workers Static Assets) nötig: die
+   Root-*.html bleiben das, was deployed wird, dieses Script überschreibt nur die markierten Regionen darin.
 
    Aufruf: node build.js (keine npm-Abhängigkeit, nur fs/path).
 
@@ -29,7 +29,7 @@ const PARTIALS_DIR = path.join(ROOT, 'partials');
 // synchron gehalten. Bei jeder inhaltlichen Änderung an der jeweiligen
 // Datei hier hochzählen (siehe README.md).
 const GLOBAL_TOKENS = {
-  CSS_VERSION: '20261002',
+  CSS_VERSION: '20261120',
   MAIN_JS_VERSION: '20260918',
   RECHNER_UTILS_VERSION: '20260920',
   PDF_UTILS_VERSION: '20260920'

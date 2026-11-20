@@ -1,13 +1,13 @@
 ---
 name: create-post
-description: Schreibt und baut einen neuen Blogpost (Akkordeon-Karte) für die Schwellenschmops-Homepage in index.html — im bestehenden Haus-Stil (Tag, Titel, Teaser, Label/Absatz-Struktur, KI-Hinweis, Quellen, optionales SVG-Diagramm oder Foto). Aktiviere diesen Skill immer wenn Paul einen neuen Blogeintrag/Blogpost schreiben will, ihm eine Post-Idee einfällt, er eine Studie/Doktorarbeit zusammenfassen will, oder er einen Auszug aus seiner eigenen Arbeit (z.B. TrainingsLab-Fortschritt) als Post teilen möchte — auch wenn er nicht wörtlich "/create-post" tippt.
+description: Schreibt und baut einen neuen Blogpost (Akkordeon-Karte) für die Schwellenschmops-Homepage in index.html — im bestehenden Haus-Stil (Tag, Titel, Teaser, Label/Absatz-Struktur, KI-Hinweis, Quellen, optionales SVG-Diagramm oder Foto). Aktiviere diesen Skill immer wenn Paul einen neuen Blogeintrag/Blogpost schreiben will, ihm eine Post-Idee einfällt, er eine Studie/Doktorarbeit zusammenfassen will, oder er einen Auszug aus seiner eigenen Arbeit (z.B. Fortschritt an einem eigenen Tool) als Post teilen möchte — auch wenn er nicht wörtlich "/create-post" tippt.
 ---
 
 # Blogpost für Schwellenschmops schreiben
 
 Diese Homepage ist eine statische Seite ohne Build-Step. Blogposts sind
 Akkordeon-Karten (`<article class="blog-card">`) in der `.blog-grid` von
-`index.html` — kein CMS, kein Markdown, direktes HTML. Vier Posts existieren
+`index.html` — kein CMS, kein Markdown, direktes HTML. Fünf Posts existieren
 bereits und legen einen Stil fest, den dieser Skill fortführt statt neu zu
 erfinden.
 
@@ -25,14 +25,14 @@ Zwei Post-Typen sind bisher etabliert, und der Typ bestimmt was du brauchst:
 - **Wissenschafts-/Studien-Post** (wie der CP/FTP-Post): Bitte um die Quelle
   — ein PDF, ein Studienlink, oder Pauls eigene Daten/Excel. Ohne Quelle
   keine wissenschaftliche Behauptung im Text (siehe Schritt 5).
-- **Persönlicher Post / Auszug aus eigener Arbeit** (wie der TrainingsLab-
+- **Persönlicher Post / Auszug aus eigener Arbeit** (wie der Saisonplan-
   Post oder die Namensherkunfts-Geschichte): Bitte um Rohmaterial — ein paar
   Stichpunkte, ein Sprachnotiz-Transkript, ein ehrlicher Gedanken-Dump.
   Erhalte Pauls eigene Formulierungen so weit wie möglich, glätte nur Grammatik
   und Lesefluss — das ist der Unterschied zwischen "authentisch" und
   "generischer KI-Text", den Paul explizit will.
 
-Klär auch kurz welcher Tag passt: bestehende Tags sind `TOOL`, `DIAGNOSTIK`,
+Klär auch kurz welcher Tag passt: bestehende Tags sind `TRAINING`, `DIAGNOSTIK`,
 `EMPFEHLUNG`, `HINTERGRUND` (kurz, GROSSGESCHRIEBEN). Passt keiner, schlag
 einen neuen kurzen Tag vor statt einen bestehenden zu verbiegen.
 
@@ -93,7 +93,7 @@ Aufbau pro Karte:
 
 Jeder neue Post bekommt einen letzten Label-Abschnitt "EIN EHRLICHER HINWEIS",
 der offenlegt dass KI beim Formulieren mitgeholfen hat — das war bisher nur
-bei zwei von vier Posts der Fall, ist aber jetzt Standard für alle, weil es
+bei zwei der ersten vier Posts der Fall, ist aber jetzt Standard für alle, weil es
 zu Pauls Authentizitäts-Anspruch gehört, nicht nur zu Wissenschafts-Posts.
 Formuliere ihn passend zum Post-Typ — bei einer Studien-Zusammenfassung
 anders als bei einem persönlichen Text (siehe die zwei bestehenden Varianten
@@ -154,7 +154,7 @@ Nicht jeder Post braucht eine Grafik. Entscheide bewusst:
 
 ## Schritt 7 — CTA nur wenn es einen echten Zielort gibt
 
-Ein abschließender `.blog-card-cta`-Link (z.B. "ZUM TRAININGSLAB ↗" oder
+Ein abschließender `.blog-card-cta`-Link (z.B. "ZUM SAISONPLANER ↗" oder
 "JETZT DEINE CP BERECHNEN ↗") gehört an den Schluss, aber nur wenn es
 tatsächlich ein sinnvolles Ziel gibt (Tool, Unterseite, Kontaktformular).
 Bei reinen Meinungs-/Listen-Posts ohne Zielort einfach weglassen, nicht
@@ -163,11 +163,9 @@ auch keinen.
 
 ## Schritt 8 — Einfügen in index.html
 
-Füg die neue Karte standardmäßig direkt NACH der `blog-card--featured`-Karte
-ein (= neuester "normaler" Post, hinter dem manuell kuratierten Featured-
-Slot). Der Featured-Slot selbst ist eine seltene, bewusste Paul-Entscheidung
-— fass ihn nicht automatisch an, frag im Zweifel nach wo der neue Post hin
-soll.
+Die Karten stehen neueste zuerst. Füg die neue Karte standardmäßig als
+erste `blog-card` in die `.blog-grid` ein. Einen Featured-Slot gibt es
+derzeit nicht — frag im Zweifel nach, wo der neue Post hin soll.
 
 Kein Umbau an `sitemap.xml` oder den Open-Graph-Tags nötig — Akkordeon-Karten
 sind keine eigenen URLs. Braucht ein Thema eine eigene Unterseite (wie

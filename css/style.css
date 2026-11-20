@@ -192,17 +192,6 @@ body:has(.cp-hero) #site-header {
 .main-nav ul a:hover { opacity: 1; }
 .main-nav ul a:hover::after { width: 100%; }
 
-/* User icon (TrainingsLab login) */
-.nav-user-icon {
-  display: flex;
-  align-items: center;
-  color: rgba(255, 255, 255, 0.75);
-  padding: 4px;
-  transition: color 0.2s;
-  flex-shrink: 0;
-}
-.nav-user-icon:hover { color: var(--accent); }
-
 /* Hamburger */
 .hamburger {
   display: none;

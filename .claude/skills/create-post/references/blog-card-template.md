@@ -1,7 +1,7 @@
 # Copy-paste-Vorlagen für neue Blogposts
 
-Diese Snippets 1:1 aus dem Bestand übernommen (CP/FTP-Post und TrainingsLab-
-Post in `index.html`) — beim Einfügen die Platzhalter in `[...]` ersetzen,
+Diese Snippets 1:1 aus dem Bestand übernommen (CP/FTP-Post und dem inzwischen
+entfernten TrainingsLab-Post) — beim Einfügen die Platzhalter in `[...]` ersetzen,
 sonst nichts an Struktur/Klassennamen ändern.
 
 ## 1. Grundgerüst einer Karte (ohne Diagramm/Quellen)
@@ -39,9 +39,8 @@ sonst nichts an Struktur/Klassennamen ändern.
 </article>
 ```
 
-Hinweis: die featured Karte (`blog-card blog-card--featured`) ist ein
-seltener, manuell kuratierter Sonderfall — neue Posts bekommen normalerweise
-NUR `class="blog-card"`, ohne `--featured`.
+Hinweis: neue Posts bekommen NUR `class="blog-card"`. Eine Variante
+`--featured` gibt es weder im Markup noch in `css/style.css`.
 
 ## 2. Quellen-Block (Pflicht bei Wissenschafts-Content)
 
@@ -87,7 +86,7 @@ die generische Regel zwingt es auf eine falsche Mindestbreite.
 > Zusammenfassung einer Dissertation und einer weiteren Studie (Quellen
 > unten).
 
-**Bei einem persönlichen Post** (aus dem TrainingsLab-Post):
+**Bei einem persönlichen Post** (Vorlage aus dem früheren TrainingsLab-Post):
 > Ich arbeite selbst viel mit KI — auch dieser Beitrag ist KI-unterstützt
 > entstanden. Mein Ziel dabei ist immer dasselbe: KI für das nutzen was
 > enorm viel Zeit kostet, damit ich mich auf das konzentrieren kann was

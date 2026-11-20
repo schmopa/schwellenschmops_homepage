@@ -29,7 +29,7 @@ Nav-Links (in Reihenfolge):
 
 
 Externer Link im Header (z.B. Login/Shop):
-  Text: TRAININGSLAB  →  URL: https://trainingslab-schwellenschmops.vercel.app/login
+  keiner (TrainingsLab-Login 2026-11-20 entfernt, App eingestellt)
 
 ---
 
