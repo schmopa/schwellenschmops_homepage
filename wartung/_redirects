@@ -1,0 +1,9 @@
+# Maintenance mode: old pages point to the placeholder (302, they come back).
+/index.html / 302
+/cp-rechner.html / 302
+/intervalle.html / 302
+/saisonplan.html / 302
+/tools.html / 302
+/training.html / 302
+/diagnostik.html / 302
+/sitemap.xml / 302

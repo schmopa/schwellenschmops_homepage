@@ -11,8 +11,9 @@
     { "pattern": "schwellenschmops.at", "custom_domain": true },
     { "pattern": "www.schwellenschmops.at", "custom_domain": true }
   ],
+  // MAINTENANCE MODE (2026-11-20): only the placeholder in wartung/ is served.
+  // To restore the old site: directory "." and html_handling "none".
   "assets": {
-    "directory": ".",
-    "html_handling": "none"
+    "directory": "./wartung"
   }
 }
